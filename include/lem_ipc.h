@@ -11,6 +11,12 @@
 # include <unistd.h>			/* Unix standard */
 # include "../libft/libft.h"	/* Libft */
 
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//                                                                            //
+//                                BOARD_SIZE                                  //
+//                                                                            //
+//-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+
 /* Return of getpagesize function casted in size_t 4096 */
 # define PAGE_SIZE              (size_t)getpagesize()
 
@@ -20,8 +26,14 @@
 /* Map width for \0 bytes */
 # define BOARD_W 10
 
-/* All size (BOARD_H * pointer size) * (BOARD_W * unsigned char size) */
-# define SHM_DATA_SIZE ((sizeof(u_int16_t *) * BOARD_H) * (sizeof(u_int16_t) * BOARD_W))
+/* Board size */
+# define BOARD_SIZE (BOARD_H * BOARD_W)
+
+/* Out of board index */
+# define OUT_OF_BOARD (BOARD_SIZE + 1)
+
+/* Shared memory data size */
+# define SHM_DATA_SIZE ((sizeof(u_int16_t) * BOARD_SIZE))
 
 /* Modulo data size % page size */
 # define MOD_PAGESIZE (size_t) (SHM_DATA_SIZE % PAGE_SIZE)
@@ -45,6 +57,10 @@ int		destroy_shared_memory(int shmid);
 int		attach_shared_memory(t_ipc *ipc);
 int		detach_shared_memory(t_ipc *ipc);
 
+/* handle board */
+u_int16_t	get_board_index(t_vec vec);
+void		display_uint16_array(u_int16_t *array);
+void 		set_tile_board_val(u_int16_t *array, t_vec vec, u_int16_t value);
 
 
 # endif /* LEM_IPC_HEADER */ 

@@ -8,6 +8,7 @@
 		"stddef.h": "c",
 		"ipc-perm.h": "c",
 		"stdbool.h": "c",
-		"lem_ipc.h": "c"
+		"lem_ipc.h": "c",
+		"types.h": "c"
 	}
 }

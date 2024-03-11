@@ -1,0 +1,74 @@
+
+I:
+
+1: Quelles sont les règles de déplacement des joueurs ?
+Déplacement d'une case à la fois (une case par lock de la map), dans les directions haut, bas, droite, gauche (pas de diagonale).
+
+2: Quelle taille fait le plateau ?
+La taille que vous souhaitez, mettez-la dans des defines.
+
+3: Quel est le nombre de joueurs ?
+Pas de limite particulière, idem pour le nombre d'équipes. On devrait tester avec quelques joueurs (3 ou 4).
+
+II:
+
+1:	Quand un joueur est entouré, comment sait-il qu'il doit mourir ?
+	Est-ce le dernier joueur qui a permis de l'entourer vérifie si 
+	l'autre est entouré et dans ce cas lui envoie un message comme quoi il est mort ? J'ai vu que :
+	"Lorsqu'un joueur se rend compte qu'il est entouré d'au moins 2 joueurs d'une même équipe adverse, il doit quitter le plateau."
+
+Le joueur qui est entouré doit faire la vérification avant d'essayer de bouger.
+
+2:	Mais dans ce cas, à quoi peuvent bien servir les msgq?
+	J'en vois pas l'utilité ici dans le programme.
+
+À communiquer aux autres la position d'un joueur à attaquer.
+
+3: Les déplacements sont-ils aléatoires ou intelligents ?
+Intelligents (il faut évidemment poursuivre les joueurs des autres équipes, tout en essayant de se mettre d'accord sur une proie).
+
+4: Peut-on faire un thread supplémentaire dédié à l'affichage afin d'obtenir un code plus propre ?
+(Pas de threads, mais des processus).
+
+Oui, vous pouvez faire un client spécifique pour l'affichage, néanmoins, ce n'est pas ce client qui doit créer la map. Il ne doit rien modifier dans le jeu.
+
+5: Question potentiellement bête : combien de joueurs peuvent jouer en même temps ?
+Autrement dit, la valeur de la sémaphore d'accès à la ressource doit être de combien initialement ? 1 ou.. ?
+
+Un seul joueur peut jouer en même temps, sinon on risque d'avoir des recouvrements sur la map.
+
+III:
+
+1: J'ai opté pour l'utilisation d'un processus dédié à la couche graphique.
+Ce processus peut accéder aux structures de tous les joueurs.
+Mais doit-on passer par le sémaphore d'accès aux données des joueurs pour ensuite accéder aux informations partagées ?
+Ou ai-je le droit d'utiliser directement les informations de mes structures ?
+(Ceci évidemment que pour la couche graphique, je sais bien que les joueurs ne peuvent pas)
+
+Si ce ne sont que des données en lecture seule, pas besoin de sémaphore. 
+Par contre dès qu'il s'agit d'une donnée qu'au moins 2 processus peuvent accéder
+en même temps et dont au moins l'un d'entre eux puisse la modifier, tous les accès (lecture comprise) doivent se faire via un sémaphore.
+
+2: Pour la pseudo intelligence artificielle, quel est le but en fait ?\
+
+C'est de l'ordre du bonus, l'IA n'utilise pas les IPC, par contre le fait de synchroniser les joueurs d'une équipe pour qu'ils attaquent le même joueur si.
+Pour l'instant les joueurs vont se foncer tous dessus, et chaque équipe essaie d'en encadrer un de l'autre équipe.
+Mais graphiquement, c'est fouilli et étrange... est-ce la solution pour autant ?
+Oui, mais ça peut se peaufiner, il n'y a pas besoin d'être plus de 2, mais il faut que ça soit les 2 les plus proches pour augmenter
+ses possibilités de réussite. Vous pouvez aussi imaginer passer en paramètre le "niveau" de l'IA à utiliser, afin de faire combattre des équipes d'intelligences inégales.
+
+IV: 
+
+1: Y a-t-il un seul exécutable qui fork autant de fois nécessaire à la création de mes équipes et de mes joueurs ?
+Exemple : 2 équipes de 3 joueurs, mon programme va fork de manière à obtenir les 6 joueurs qui vont s'affronter puis lancer le jeu.
+
+Non.
+
+2: Ou
+Il y a un seul exécutable et on lancera autant d'exécutables qu'il y a d'équipes qui vont jouer ensemble 
+et le programme forkera juste le nombre de fois nécessaire pour créer les 3 joueurs de chaque équipe.
+
+Non plus.
+On lance un exécutable pour chaque joueur, en précisant en paramètre son équipe.
+Il n'y a jamais besoin d'utiliser fork.
+

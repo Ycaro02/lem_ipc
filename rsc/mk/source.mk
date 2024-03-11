@@ -5,6 +5,7 @@ SRC_DIR 		= src
 MAIN_MANDATORY	=	main.c
 
 SRCS			=	start_ipc.c\
+					handle_board.c\
 
 SRCS_BONUS		=	main_bonus.c\
 

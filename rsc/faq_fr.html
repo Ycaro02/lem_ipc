@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Texte formaté</title>
+<style>
+  /* Style pour les sections */
+  .section {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  /* Couleur pour les titres de section */
+  .title {
+    color: blue;
+  }
+  /* Couleur pour les questions */
+  .question {
+    color: green;
+  }
+  /* Couleur pour les réponses */
+  .answer {
+    color: red;
+  }
+</style>
+</head>
+<body>
+<!-- Section I -->
+<div class="section">
+  <div class="title">I:</div>
+  <div class="question">1: Quelles sont les règles de déplacement des joueurs ?</div>
+  <div class="answer">Déplacement d'une case à la fois (une case par lock de la map), dans les directions haut, bas, droite, gauche (pas de diagonale).</div>
+  <div class="question">2: Quelle taille fait le plateau ?</div>
+  <div class="answer">La taille que vous souhaitez, mettez-la dans des defines.</div>
+  <div class="question">3: Quel est le nombre de joueurs ?</div>
+  <div class="answer">Pas de limite particulière, idem pour le nombre d'équipes. On devrait tester avec quelques joueurs (3 ou 4).</div>
+</div>
+
+<!-- Section II -->
+<div class="section">
+  <div class="title">II:</div>
+  <div class="question">1: Quand un joueur est entouré, comment sait-il qu'il doit mourir ?</div>
+  <div class="answer">
+    Le joueur qui est entouré doit faire la vérification avant d'essayer de bouger.
+  </div>
+  <div class="question">2: Mais dans ce cas, à quoi peuvent bien servir les msgq?</div>
+  <div class="answer">À communiquer aux autres la position d'un joueur à attaquer.</div>
+  <div class="question">3: Les déplacements sont-ils aléatoires ou intelligents ?</div>
+  <div class="answer">Intelligents (il faut évidemment poursuivre les joueurs des autres équipes, tout en essayant de se mettre d'accord sur une proie).</div>
+  <div class="question">4: Peut-on faire un thread supplémentaire dédié à l'affichage afin d'obtenir un code plus propre ?</div>
+  <div class="answer">
+    Oui, vous pouvez faire un client spécifique pour l'affichage, néanmoins, ce n'est pas ce client qui doit créer la map. Il ne doit rien modifier dans le jeu.
+  </div>
+  <div class="question">5: Question potentiellement bête : combien de joueurs peuvent jouer en même temps ?</div>
+  <div class="answer">Un seul joueur peut jouer en même temps, sinon on risque d'avoir des recouvrements sur la map.</div>
+</div>
+
+<!-- Section III -->
+<div class="section">
+  <div class="title">III:</div>
+  <div class="question">1: J'ai opté pour l'utilisation d'un processus dédié à la couche graphique.</div>
+  <div class="answer">
+    Si ce ne sont que des données en lecture seule, pas besoin de sémaphore. Par contre dès qu'il s'agit d'une donnée qu'au moins 2 processus peuvent accéder en même temps et dont au moins l'un d'entre eux puisse la modifier, tous les accès (lecture comprise) doivent se faire via un sémaphore.
+  </div>
+  <div class="question">2: Pour la pseudo intelligence artificielle, quel est le but en fait ?</div>
+  <div class="answer">
+    C'est de l'ordre du bonus, l'IA n'utilise pas les IPC, par contre le fait de synchroniser les joueurs d'une équipe pour qu'ils attaquent le même joueur si. Pour l'instant les joueurs vont se foncer tous dessus, et chaque équipe essaie d'en encadrer un de l'autre équipe. Mais graphiquement, c'est fouilli et étrange... est-ce la solution pour autant ? Oui, mais ça peut se peaufiner, il n'y a pas besoin d'être plus de 2, mais il faut que ça soit les 2 les plus proches pour augmenter ses possibilités de réussite. Vous pouvez aussi imaginer passer en paramètre le "niveau" de l'IA à utiliser, afin de faire combattre des équipes d'intelligences inégales.
+  </div>
+</div>
+
+<!-- Section IV -->
+<div class="section">
+  <div class="title">IV:</div>
+  <div class="question">1: Y a-t-il un seul exécutable qui fork autant de fois nécessaire à la création de mes équipes et de mes joueurs ?</div>
+  <div class="answer">Non.</div>
+  <div class="question">2: Ou Il y a un seul exécutable et on lancera autant d'exécutables qu'il y a d'équipes qui vont jouer ensemble et le programme forkera juste le nombre de fois nécessaire pour créer les 3 joueurs de chaque équipe.</div>
+  <div class="answer">Non plus. On lance un exécutable pour chaque joueur, en précisant en paramètre son équipe. Il n'y a jamais besoin d'utiliser fork.</div>
+</div>
+
+</body>
+</html>
