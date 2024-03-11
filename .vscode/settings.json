@@ -5,6 +5,7 @@
 		"libft.h": "c",
 		"shm.h": "c",
 		"ipctypes.h": "c",
-		"stddef.h": "c"
+		"stddef.h": "c",
+		"ipc-perm.h": "c"
 	}
 }
