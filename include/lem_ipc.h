@@ -33,12 +33,11 @@
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
-/* Shared memory data size */
+/* Shared memory data size needed */
 # define SHM_DATA_SIZE ((sizeof(uint32_t) * BOARD_SIZE))
 
 /* Modulo data size % page size */
 # define MOD_PAGESIZE (size_t) (SHM_DATA_SIZE % PAGE_SIZE)
-
 /* Align data require on PAGE_SIZE (4096) */
 # define ALIGN_SHARED_MEM (size_t) (MOD_PAGESIZE != 0 ? (SHM_DATA_SIZE + PAGE_SIZE - MOD_PAGESIZE) : SHM_DATA_SIZE)
 
