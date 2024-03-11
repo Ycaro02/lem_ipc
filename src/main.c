@@ -20,7 +20,7 @@ int init_player(t_player *player, int argc, char **argv)
 		ft_printf_fd(2, "Invalid team id\n");
 		return (-1);
 	}
-	ft_printf_fd(1, YELLOW"New player Join team number:%s %s[%u]%s\n", RESET, RED, (uint32_t)id_check, RESET);
+	// ft_printf_fd(2, YELLOW"New player Join team number:%s %s[%u]%s\n", RESET, RED, (uint32_t)id_check, RESET);
 	player->team_id = (uint32_t)id_check;
 	return (0);
 }
@@ -47,7 +47,7 @@ void test_game()
 	if (init_signal_handler() != 0) {
 		return ;
 	}
-	sleep(20);
+	sleep(5);
 }
 
 int main(int argc, char **argv) 
@@ -57,7 +57,7 @@ int main(int argc, char **argv)
 	int			ret = 0;
 
 	g_game_run = 1;
-	ft_printf_fd(1, "Lem-ipc start %d\n", g_game_run);
+	// ft_printf_fd(1, "Lem-ipc start %d\n", g_game_run);
 
 	if (init_player(&player, argc, argv) != 0) {
 		return (1);
@@ -71,12 +71,11 @@ int main(int argc, char **argv)
 	uint32_t val = player.team_id;
 
 	set_tile_board_val(ipc.ptr, create_vector(0, val), val);
-	set_tile_board_val(ipc.ptr, create_vector(0, val + 1), val);
-	display_uint16_array(ipc.ptr);
-	
+
 	test_game();
 
 	if (get_attached_processnb(&ipc) == 1) {
+		display_uint16_array(ipc.ptr);
 		ft_printf_fd(1, "Lem-ipc end %d\n", g_game_run);
 		clean_shared_memory(&ipc);
 	}

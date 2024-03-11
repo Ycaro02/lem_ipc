@@ -33,6 +33,7 @@ void set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value)
 /* @brief display board in stdout */
 void display_uint16_array(uint32_t *array)
 {
+	ft_printf_fd(1, "\n\nDisplay board\n");
 	int i = 0, j = 0;
 
 	for (i = 0; i < BOARD_H; i++) {
@@ -42,4 +43,5 @@ void display_uint16_array(uint32_t *array)
 		}
 		ft_printf_fd(1, "\n");
 	}
+	ft_printf_fd(1, "\n");
 }

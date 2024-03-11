@@ -26,7 +26,7 @@ int init_shared_memory(t_ipc *ipc)
 		syscall_perror("shmget");
 		return (-1);
 	}
-	ft_printf_fd(1, GREEN"Mem size required: %d allocated: %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
+	// ft_printf_fd(1, GREEN"Mem size required: %d allocated: %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
 	return (shmid);
 }
 

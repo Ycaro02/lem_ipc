@@ -2,8 +2,11 @@
 
 lemipc="./lemipc"
 
-${lemipc} 1 &
-${lemipc} 4 &
-${lemipc} 8 &
-${lemipc} 16 &
-${lemipc} 32 &
+for i in {1..40} ; do
+    if [ $((i % 2)) -eq 0 ]; then
+        ${lemipc} ${i} &
+    else
+        DOUBLE=$((i * 2))
+        ${lemipc} ${DOUBLE} &
+    fi
+done

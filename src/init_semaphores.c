@@ -42,7 +42,7 @@ static int get_sem_set_id(key_t key)
 		syscall_perror("shmget");
 		return (-1);
 	}
-	ft_printf_fd(1, GREEN"Child get shared mem ID  %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
+	// ft_printf_fd(1, GREEN"Child get shared mem ID  %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
 	return (shmid);
 }
 
@@ -61,7 +61,7 @@ static int get_shared_mem_id(key_t key)
 		syscall_perror("shmget");
 		return (-1);
 	}
-	ft_printf_fd(1, GREEN"Child get shared mem ID  %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
+	// ft_printf_fd(1, GREEN"Child get shared mem ID  %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
 	return (shmid);
 }
 
@@ -101,7 +101,7 @@ int init_semaphores_set(t_ipc *ipc, char *path, int8_t allow)
 		return (-1);
 	}
 	
-	ft_printf_fd(1, YELLOW"Semaphore value: "RESET""CYAN"%d\n"RESET, semctl(ipc->semid, 0, GETVAL));
+	// ft_printf_fd(1, YELLOW"Semaphore value: "RESET""CYAN"%d\n"RESET, semctl(ipc->semid, 0, GETVAL));
 	ipc->shmid = init_shared_memory(ipc);
 	if (ipc->shmid == -1 || attach_shared_memory(ipc) == -1) {
 		return (-1);
