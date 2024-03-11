@@ -75,7 +75,7 @@ int detach_shared_memory(t_ipc *ipc)
  *	@param shmid The shared memory id
  *	@return 0 on success, -1 on error
 */
-int destroy_shared_memory(int shmid)
+static int destroy_shared_memory(int shmid)
 {
 	errno = 0;
 	if (shmctl(shmid, IPC_RMID, NULL) == -1) {
@@ -83,4 +83,21 @@ int destroy_shared_memory(int shmid)
 		return (-1);
 	}
 	return (0);
+}
+
+/**
+ *	@brief Clean the shared memory
+ *	@param ipc The ipc structure
+ *	@return 0 on success, -1 on error
+*/
+int clean_shared_memory(t_ipc *ipc)
+{
+	int ret = 0;
+
+	ret = detach_shared_memory(ipc);
+	if (ret == -1) {
+		return (ret);
+	}
+	ret = destroy_shared_memory(ipc->shmid);
+	return (ret);
 }

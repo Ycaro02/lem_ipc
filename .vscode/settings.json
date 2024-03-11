@@ -12,6 +12,10 @@
 		"types.h": "c",
 		"stdint-intn.h": "c",
 		"ft_printf.h": "c",
-		"limits.h": "c"
+		"limits.h": "c",
+		"stdint.h": "c",
+		"errno.h": "c",
+		"semaphore.h": "c",
+		"sem.h": "c"
 	}
 }

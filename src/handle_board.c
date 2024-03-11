@@ -38,7 +38,7 @@ void display_uint16_array(uint32_t *array)
 	for (i = 0; i < BOARD_H; i++) {
 		for (j = 0; j < BOARD_W; j++) {
 			int idx = i * BOARD_W + j;
-			ft_printf_fd(1, YELLOW"[%s%s%u%s%s] "RESET, RESET, CYAN, array[idx], RESET, YELLOW);
+			ft_printf_fd(1, YELLOW"["RESET""CYAN"%u"RESET""YELLOW"] "RESET, array[idx]);
 		}
 		ft_printf_fd(1, "\n");
 	}
