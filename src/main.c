@@ -40,10 +40,12 @@ int main(int argc, char **argv)
 	}
 	
 	// ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
-	
-	set_tile_board_val(ipc.ptr, create_vector(0, 0), player.team_id);
-	set_tile_board_val(ipc.ptr, create_vector(0, 1), player.team_id);
+	uint32_t val = player.team_id;
+
+	set_tile_board_val(ipc.ptr, create_vector(0, val), val);
+	set_tile_board_val(ipc.ptr, create_vector(0, val + 1), val);
 	display_uint16_array(ipc.ptr);
+	sleep(15);
 
 	clean_shared_memory(&ipc);
 	return (ret);

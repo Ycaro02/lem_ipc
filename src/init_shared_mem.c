@@ -21,8 +21,7 @@ int init_shared_memory(t_ipc *ipc)
 
 	errno = 0;
 	/* IPC_EXCL: Fail if key exists protect against double creation */
-	// shmid = shmget(key, ALIGN_SHARED_MEM, (IPC_CREAT | IPC_EXCL | 0666));
-	shmid = shmget(ipc->key, ALIGN_SHARED_MEM, (IPC_CREAT | 0666));
+	shmid = shmget(ipc->key, ALIGN_SHARED_MEM, (IPC_CREAT | IPC_EXCL | 0666));
 	if (shmid == -1) {
 		syscall_perror("shmget");
 		return (-1);

@@ -41,9 +41,6 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@printf "$(YELLOW)Compile $<$(RESET)\n"
 	@$(CC) -o $@ -c $< $(CFLAGS)
 
-test: $(NAME)
-	@./$(NAME) 1 && ${CHECK_IPC}
-
 bonus: clear_mandatory ${NAME}
 
 clear_mandatory:
@@ -64,6 +61,12 @@ fclean:		clean
 	@$(RM) $(NAME) ${TESTER_OUT_FILES}
 	@$(MAKE_LIBFT) fclean
 	@$(MAKE_LIST) fclean
+
+test: $(NAME)
+	@./$(NAME) 1 && ${CHECK_IPC}
+
+clear:
+	@./rsc/sh/check_ipcs_free.sh
 
 re:			fclean all
 
