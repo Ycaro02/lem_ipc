@@ -60,7 +60,7 @@ typedef struct s_player {
 } t_player;
 
 /* init semaphore */
-int 		init_semaphores_set(t_ipc *ipc, char *path);
+int			init_semaphores_set(t_ipc *ipc, char *path, int8_t allow);
 int 		destroy_semaphore_set(int semid);
 
 /* start ipc */

@@ -23,6 +23,7 @@ int init_player(t_player *player, int argc, char **argv)
 	return (0);
 }
 
+
 int main(int argc, char **argv) 
 {
 	t_ipc		ipc = {};
@@ -33,25 +34,13 @@ int main(int argc, char **argv)
 	if (init_player(&player, argc, argv) != 0) {
 		return (1);
 	}
-	
-	init_semaphores_set(&ipc, argv[0]);
-	
-	if (semget(ipc.key, 0, (IPC_CREAT | IPC_EXCL | 0666)) == -1) {
-		ft_printf_fd(1, "Semget -1 semaphore already created for this key ???\n");
-		perror("semget");
-	}
 
-	ipc.shmid = init_shared_memory(&ipc);
-	if (ipc.shmid == -1) {
+	if (init_semaphores_set(&ipc, argv[0], 1) != 0) {
 		return (1);
 	}
-	ret = attach_shared_memory(&ipc);
-	if (ret == -1) {
-		return (1);
-	}
+	
 	// ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
 	
-
 	set_tile_board_val(ipc.ptr, create_vector(0, 0), player.team_id);
 	set_tile_board_val(ipc.ptr, create_vector(0, 1), player.team_id);
 	display_uint16_array(ipc.ptr);
