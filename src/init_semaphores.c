@@ -1,21 +1,20 @@
 # include "../include/lem_ipc.h"
 
-
-// static int set_sem_val(int semid, int val)
-// {
-// 	return (semctl(semid, 0, SETVAL, val));
-// }
-
+/**
+ * @brief Destroy a semaphore set
+ * @param semid The semaphore id
+ * @return 0 on success, -1 on error
+*/
 int destroy_semaphore_set(int semid) {
 	return (semctl(semid, 0, IPC_RMID));
 }
 
-// static int get_sem_val(int semid)
-// {
-// 	return (semctl(semid, 0, GETVAL));
-// }
 
-int file_to_key(char *path)
+/**
+ * @brief Get key from file path
+ * @param path The file path
+*/
+static int file_to_key(char *path)
 {
 	key_t key;
 
@@ -29,17 +28,11 @@ int file_to_key(char *path)
 }
 
 
-int get_shared_mem(t_ipc *ipc)
-{
-	/* if shared memory even created just atach segment */
-	if (attach_shared_memory(ipc) == -1) {
-			return (-1);
-	}
-	return (0);
-}
-
-
-int get_sem_set_id(key_t key) 
+/**
+ * @brief Get semaphore set id
+ * @param key The key reference the semaphore
+*/
+static int get_sem_set_id(key_t key) 
 {
 	int shmid;
 
@@ -54,7 +47,11 @@ int get_sem_set_id(key_t key)
 }
 
 
-int get_shared_mem_id(key_t key) 
+/**
+ *	@brief Get shared memory id
+ *	@param key The key reference the shared memory
+*/
+static int get_shared_mem_id(key_t key) 
 {
 	int shmid;
 
@@ -79,7 +76,7 @@ int sem_detect_child(t_ipc *ipc, int8_t allow)
 		/* need to get semaphore first */
 		ipc->shmid = get_shared_mem_id(ipc->key);
 		ipc->semid = get_sem_set_id(ipc->key);
-		if (ipc->shmid == -1 || ipc->semid == -1 || get_shared_mem(ipc) == -1) {
+		if (ipc->shmid == -1 || ipc->semid == -1 || attach_shared_memory(ipc) == -1) {
 			ft_printf_fd(2, RED"Error child can't get shared data"RESET);
 		} 
 		return (1); /* child case */
@@ -106,7 +103,7 @@ int init_semaphores_set(t_ipc *ipc, char *path, int8_t allow)
 	
 	ft_printf_fd(1, YELLOW"Semaphore value: "RESET""CYAN"%d\n"RESET, semctl(ipc->semid, 0, GETVAL));
 	ipc->shmid = init_shared_memory(ipc);
-	if (ipc->shmid == -1 || get_shared_mem(ipc) == -1) {
+	if (ipc->shmid == -1 || attach_shared_memory(ipc) == -1) {
 		return (-1);
 	}
 	return (0);
