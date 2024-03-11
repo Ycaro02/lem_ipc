@@ -69,8 +69,6 @@ int			attach_shared_memory(t_ipc *ipc);
 int			detach_shared_memory(t_ipc *ipc);
 int 		clean_shared_memory(t_ipc *ipc);
 int			get_attached_processnb(t_ipc *ipc);
-
-
 /* utils*/
 void syscall_perror(char *syscall_name);
 /* utils*/
