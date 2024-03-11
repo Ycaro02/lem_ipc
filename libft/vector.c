@@ -62,10 +62,10 @@ int          vector_cmp(t_vec a, t_vec b) {
 /**
  * @Get the absolute difference between vector and 2 int point
 */
-t_vec        vector_abs_diff(t_vec a, t_vec b) {
-    t_vec diff = { 
-		.y = abs_diff(a.y, b.y),
-		.x = abs_diff(a.x, b.x)
-	};
-    return (diff);
-}
+// t_vec        vector_abs_diff(t_vec a, t_vec b) {
+//     t_vec diff = { 
+// 		.y = abs_diff(a.y, b.y),
+// 		.x = abs_diff(a.x, b.x)
+// 	};
+//     return (diff);
+// }

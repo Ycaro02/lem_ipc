@@ -29,6 +29,7 @@
 /* Align data require on PAGE_SIZE (4096) */
 # define ALIGN_SHARED_MEM (size_t) (MOD_PAGESIZE != 0 ? (SHM_DATA_SIZE + PAGE_SIZE - MOD_PAGESIZE) : SHM_DATA_SIZE)
 
+/* Tile empty value */
 # define TILE_EMPTY 0
 
 
