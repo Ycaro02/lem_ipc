@@ -47,6 +47,8 @@ int main(int argc, char **argv)
 	display_uint16_array(ipc.ptr);
 	sleep(15);
 
-	clean_shared_memory(&ipc);
+	if (get_attached_processnb(&ipc) == 1) {
+		clean_shared_memory(&ipc);
+	}
 	return (ret);
 }

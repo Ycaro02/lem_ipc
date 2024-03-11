@@ -30,6 +30,22 @@ int init_shared_memory(t_ipc *ipc)
 	return (shmid);
 }
 
+
+/**
+ * @brief get number of attached process
+*/
+int get_attached_processnb(t_ipc *ipc)
+{
+	struct shmid_ds buf;
+
+	errno = 0;
+	if (shmctl(ipc->shmid, IPC_STAT, &buf) == -1) {
+		syscall_perror("shmctl");
+		return (-1);
+	}
+	return (buf.shm_nattch);
+}
+
 /**
  *	@brief Attach a shared memory segment
  *	@param ipc The ipc structure

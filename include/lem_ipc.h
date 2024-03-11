@@ -68,6 +68,9 @@ int			init_shared_memory(t_ipc *ipc);
 int			attach_shared_memory(t_ipc *ipc);
 int			detach_shared_memory(t_ipc *ipc);
 int 		clean_shared_memory(t_ipc *ipc);
+int			get_attached_processnb(t_ipc *ipc);
+
+
 /* utils*/
 void syscall_perror(char *syscall_name);
 /* utils*/
@@ -75,7 +78,6 @@ void syscall_perror(char *syscall_name);
 uint32_t	get_board_index(t_vec vec);
 void		display_uint16_array(uint32_t *array);
 void 		set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value);
-
 
 
 # endif /* LEM_IPC_HEADER */ 
