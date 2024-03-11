@@ -45,7 +45,7 @@ int main(int argc, char **argv)
 	set_tile_board_val(ipc.ptr, create_vector(0, val), val);
 	set_tile_board_val(ipc.ptr, create_vector(0, val + 1), val);
 	display_uint16_array(ipc.ptr);
-	sleep(15);
+	sleep(10);
 
 	if (get_attached_processnb(&ipc) == 1) {
 		clean_shared_memory(&ipc);

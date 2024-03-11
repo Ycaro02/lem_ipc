@@ -47,15 +47,20 @@ int init_semaphores_set(t_ipc *ipc, char *path, int8_t allow)
 	if (key == -1) {
 		return (-1);
 	}
+
 	ipc->key = key;
 	ipc->semid = semget(ipc->key, 1, (IPC_CREAT | IPC_EXCL | 0666));
+
 	if (allow == 0 && ipc->semid == -1) { /* if error and can't create sem (vizualizer case) */
 		syscall_perror("semget");
 		return (-1);
 	} else if ( ipc->semid == -1 ) { /* if ressource already created */
 		/* need to get semaphore first */
 		ipc->shmid = shmget(ipc->key, ALIGN_SHARED_MEM, 0666);
-		get_shared_mem(ipc);
+		ipc->semid = semget(ipc->key, 1, 0666);
+		if (get_shared_mem(ipc) == -1) {
+			return (-1);
+		}
 		return (0);
 	} 
 
@@ -65,6 +70,7 @@ int init_semaphores_set(t_ipc *ipc, char *path, int8_t allow)
 		return (-1);
 	}
 	
+	ft_printf_fd(1, YELLOW"Semaphore value: "RESET""CYAN"%d\n"RESET, semctl(ipc->semid, 0, GETVAL));
 	ipc->shmid = init_shared_memory(ipc);
 	if (ipc->shmid == -1 || get_shared_mem(ipc) == -1) {
 		return (-1);
@@ -77,5 +83,4 @@ int init_semaphores_set(t_ipc *ipc, char *path, int8_t allow)
 // {
 
 // }
-	// ft_printf_fd(1, YELLOW"Semaphore value: "RESET""CYAN"%d\n"RESET, semctl(ipc->semid, 0, GETVAL));
 	// ft_printf_fd(1, YELLOW"Ptr value: "RESET""CYAN"%p\n"RESET, ipc->ptr);
