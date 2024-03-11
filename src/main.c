@@ -1,6 +1,8 @@
 # include "../include/lem_ipc.h"
 
 
+int g_game_run;
+
 /* @brief Initialize player */
 
 int init_player(t_player *player, int argc, char **argv)
@@ -24,12 +26,38 @@ int init_player(t_player *player, int argc, char **argv)
 }
 
 
+void signal_handler(int signum)
+{
+	g_game_run = 0;
+	ft_printf_fd(2, RED"\nSIGINT Catch: %d\n"RESET, signum);
+	return ;
+}
+
+int init_signal_handler(void)
+{
+	if (signal(SIGINT, signal_handler) == SIG_ERR) {
+		ft_printf_fd(2, "Can't catch SIGINT\n");
+		return (-1);
+	}
+	return (0);
+}
+
+void test_game()
+{
+	if (init_signal_handler() != 0) {
+		return ;
+	}
+	sleep(20);
+}
+
 int main(int argc, char **argv) 
 {
 	t_ipc		ipc = {};
 	t_player	player = {};
 	int			ret = 0;
 
+	g_game_run = 1;
+	ft_printf_fd(1, "Lem-ipc start %d\n", g_game_run);
 
 	if (init_player(&player, argc, argv) != 0) {
 		return (1);
@@ -45,9 +73,11 @@ int main(int argc, char **argv)
 	set_tile_board_val(ipc.ptr, create_vector(0, val), val);
 	set_tile_board_val(ipc.ptr, create_vector(0, val + 1), val);
 	display_uint16_array(ipc.ptr);
-	sleep(10);
+	
+	test_game();
 
 	if (get_attached_processnb(&ipc) == 1) {
+		ft_printf_fd(1, "Lem-ipc end %d\n", g_game_run);
 		clean_shared_memory(&ipc);
 	}
 	return (ret);

@@ -5,6 +5,8 @@
 # include <stdint.h>			/* Standard integer */
 # include <sys/ipc.h>			/* System V IPC */
 # include <sys/shm.h>			/* Shared memory */
+# include <signal.h>			/* Signal */
+
 
 # include <sys/sem.h>			/* Semaphore */
 
@@ -45,6 +47,10 @@
 
 /* Tile empty value */
 # define TILE_EMPTY 0
+
+/* game status */
+extern int g_game_run;
+
 
 typedef struct s_ipc {
 	key_t		key;		/* Key result ftok */
