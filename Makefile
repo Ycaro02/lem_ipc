@@ -68,6 +68,9 @@ test: $(NAME)
 clear:
 	@./rsc/sh/check_ipcs_free.sh
 
+run:
+	@./rsc/sh/run_${NAME}.sh
+
 re:			fclean all
 
 .PHONY:		all clean fclean re bonus

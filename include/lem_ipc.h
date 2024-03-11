@@ -48,6 +48,10 @@
 /* Tile empty value */
 # define TILE_EMPTY 0
 
+# define DISPLAY_HANDLER 0
+
+# define PLAYER 1
+
 /* game status */
 extern int g_game_run;
 

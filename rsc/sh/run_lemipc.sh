@@ -1,5 +1,11 @@
 #!/bin/bash
 
+source ./rsc/sh/color.sh
+
+make -s
+
+display_color_msg ${LIGHT_BLUE} "Running lemipc test ..."
+
 lemipc="./lemipc"
 
 for i in {1..40} ; do
@@ -10,3 +16,6 @@ for i in {1..40} ; do
         ${lemipc} ${DOUBLE} &
     fi
 done
+
+${lemipc} 99 &
+wait $! && ./rsc/sh/check_ipcs_free.sh
