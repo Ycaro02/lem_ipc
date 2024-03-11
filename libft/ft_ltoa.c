@@ -84,8 +84,7 @@ char	*ft_ultoa(unsigned long n)
 	dst = NULL;
 	count = 0;
 	tmp = n;
-	while (tmp != 0)
-	{
+	while (tmp != 0) {
 		tmp /= 10;
 		count++;
 	}

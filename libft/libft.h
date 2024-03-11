@@ -15,10 +15,15 @@
 
 # include <stdlib.h>
 # include <unistd.h>
+# include <stdint.h>
 # include "printf_fd/ft_printf.h"
 # include "list/linked_list.h"
 # include "vector.h"
+# include "limits.h"
 
+# define OUT_OF_UINT32 (uint64_t)(UINT32_MAX + 1)
+
+uint64_t array_to_uint32(const char *nptr);
 char	*ft_ultoa(unsigned long n);
 int		ft_isalpha(int c);
 int		ft_isdigit(int c);

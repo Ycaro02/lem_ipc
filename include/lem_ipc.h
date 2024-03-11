@@ -2,6 +2,7 @@
 # define LEM_IPC_HEADER 1
 
 # include <sys/types.h>			/* Basic type */
+# include <stdint.h>			/* Standard integer */
 # include <sys/ipc.h>			/* System V IPC */
 # include <sys/shm.h>			/* Shared memory */
 
@@ -33,7 +34,7 @@
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
 /* Shared memory data size */
-# define SHM_DATA_SIZE ((sizeof(u_int16_t) * BOARD_SIZE))
+# define SHM_DATA_SIZE ((sizeof(uint32_t) * BOARD_SIZE))
 
 /* Modulo data size % page size */
 # define MOD_PAGESIZE (size_t) (SHM_DATA_SIZE % PAGE_SIZE)
@@ -48,19 +49,26 @@
 typedef struct s_ipc {
 	key_t		key;		/* Key result ftok */
 	int			shmid;		/* Shared memory id */
-	u_int16_t	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
+	uint32_t	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
 } t_ipc;
 
+typedef struct s_player {
+	t_vec		pos;		/* Player position */
+	t_vec		target;		/* Target position */
+	uint32_t	team_id;	/* Team id */
+
+} t_player;
+
 /* start ipc */
-int		init_shared_memory(t_ipc *ipc, char *path);
-int		destroy_shared_memory(int shmid);
-int		attach_shared_memory(t_ipc *ipc);
-int		detach_shared_memory(t_ipc *ipc);
+int			init_shared_memory(t_ipc *ipc, char *path);
+int			destroy_shared_memory(int shmid);
+int			attach_shared_memory(t_ipc *ipc);
+int			detach_shared_memory(t_ipc *ipc);
 
 /* handle board */
-u_int16_t	get_board_index(t_vec vec);
-void		display_uint16_array(u_int16_t *array);
-void 		set_tile_board_val(u_int16_t *array, t_vec vec, u_int16_t value);
+uint32_t	get_board_index(t_vec vec);
+void		display_uint16_array(uint32_t *array);
+void 		set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value);
 
 
 # endif /* LEM_IPC_HEADER */ 
