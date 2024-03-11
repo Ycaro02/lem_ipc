@@ -15,7 +15,7 @@ void syscall_perror(char *syscall_name)
  *	@param path Path to the file to use ftok
  *	@return The shared memory id
 */
-int init_shared_memory(char *path)
+int init_shared_memory(t_ipc *ipc, char *path)
 {
 	key_t key;
 	int shmid;
@@ -28,12 +28,46 @@ int init_shared_memory(char *path)
 	}
 	errno = 0;
 	/* IPC_EXCL: Fail if key exists protect against double creation ? */
-	shmid = shmget(key, SHARED_MEMORY_SIZE, (IPC_CREAT | IPC_EXCL | 0666));
+	// shmid = shmget(key, ALIGN_SHARED_MEM, (IPC_CREAT | IPC_EXCL | 0666));
+	shmid = shmget(key, ALIGN_SHARED_MEM, (IPC_CREAT | 0666));
 	if (shmid == -1) {
 		syscall_perror("shmget");
 		return (-1);
 	}
+	ft_printf_fd(1, CYAN"Mem size required: %d allocated: %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
+	ipc->key = key;
 	return (shmid);
+}
+
+/**
+ *	@brief Attach a shared memory segment
+ *	@param ipc The ipc structure
+ *	@return 0 on success, -1 on error
+*/
+int attach_shared_memory(t_ipc *ipc)
+{
+	errno = 0;
+	ipc->ptr = shmat(ipc->shmid, NULL, 0);
+	if (ipc->ptr == (void *)-1) {
+		syscall_perror("shmat");
+		return (-1);
+	}
+	return (0);
+}
+
+/**
+ *	@brief Detach a shared memory segment
+ *	@param ipc The ipc structure
+ *	@return 0 on success, -1 on error
+*/
+int detach_shared_memory(t_ipc *ipc)
+{
+	errno = 0;
+	if (shmdt(ipc->ptr) == -1) {
+		syscall_perror("shmdt");
+		return (-1);
+	}
+	return (0);
 }
 
 /**

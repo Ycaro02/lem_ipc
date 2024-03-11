@@ -16,6 +16,8 @@
 # include <stdlib.h>
 # include <unistd.h>
 # include "printf_fd/ft_printf.h"
+# include "list/linked_list.h"
+# include "vector.h"
 
 char	*ft_ultoa(unsigned long n);
 int		ft_isalpha(int c);
@@ -53,15 +55,11 @@ void	ft_putendl_fd(char *s, int fd);
 void	ft_putnbr_fd(int n, int fd);
 char	*ft_strmapi(char const *s, char (*f)(unsigned int, char));
 void	ft_striteri(char *s, void (*f)(unsigned int, char*));
-
 int 	ft_strcpy(char* dst, char *src, int len);	
-
-
-void 		ft_free_tab(char **tab);
-char        *ft_strjoin_free(char *s1, char *s2, char option);
-int 		ft_lower_strcmp(char *s1, char *s2);
-int 		ft_strcmp(char *s1, char *s2);
-
-void free_incomplete_array(void **array, int max);
+void 	ft_free_tab(char **tab);
+char    *ft_strjoin_free(char *s1, char *s2, char option);
+int 	ft_lower_strcmp(char *s1, char *s2);
+int 	ft_strcmp(char *s1, char *s2);
+void 	free_incomplete_array(void **array, int max);
 
 #endif

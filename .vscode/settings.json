@@ -6,6 +6,8 @@
 		"shm.h": "c",
 		"ipctypes.h": "c",
 		"stddef.h": "c",
-		"ipc-perm.h": "c"
+		"ipc-perm.h": "c",
+		"stdbool.h": "c",
+		"lem_ipc.h": "c"
 	}
 }

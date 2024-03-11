@@ -42,7 +42,7 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@$(CC) -o $@ -c $< $(CFLAGS)
 
 test: $(NAME)
-	@./$(NAME) && ${CHECK_IPC}
+	@./$(NAME) 1 && ${CHECK_IPC}
 
 bonus: clear_mandatory ${NAME}
 
