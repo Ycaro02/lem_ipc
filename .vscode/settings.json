@@ -1,0 +1,10 @@
+{
+	"files.associations": {
+		"*.def": "source.def",
+		"ipc.h": "c",
+		"libft.h": "c",
+		"shm.h": "c",
+		"ipctypes.h": "c",
+		"stddef.h": "c"
+	}
+}
