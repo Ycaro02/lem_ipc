@@ -3,12 +3,15 @@
 source $PWD/rsc/sh/color.sh
 
 check_ipcs_free() {
-	local ipcs_free=$(ipcs -m | grep -e "0x" | wc -l)
+	IPCS_OPT="$1"
+	MSG="$2"
+	local ipcs_free=$(ipcs ${IPCS_OPT} | grep -e "0x" | wc -l)
 	if [ $ipcs_free -ne 0 ]; then
-		display_color_msg ${RED} "Shared memory segment leak found."
+		display_color_msg ${RED} "${MSG} leak found."
 	else
-		display_color_msg ${GREEN} "No Shared memory segment leak."
+		display_color_msg ${GREEN} "No ${MSG} leak."
 	fi
 }
 
-check_ipcs_free
+check_ipcs_free -m "Shared memory"
+check_ipcs_free -s "Semaphore"

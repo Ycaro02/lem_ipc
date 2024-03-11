@@ -50,6 +50,7 @@ typedef struct s_ipc {
 	key_t		key;		/* Key result ftok */
 	int			shmid;		/* Shared memory id */
 	uint32_t	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
+	int			semid;		/* Semaphore id */
 } t_ipc;
 
 typedef struct s_player {
@@ -58,18 +59,23 @@ typedef struct s_player {
 	uint32_t	team_id;	/* Team id */
 } t_player;
 
+/* init semaphore */
+int 		init_semaphores_set(t_ipc *ipc, char *path);
+int 		destroy_semaphore_set(int semid);
+
 /* start ipc */
-int			init_shared_memory(t_ipc *ipc, char *path);
+int			init_shared_memory(t_ipc *ipc);
 int			attach_shared_memory(t_ipc *ipc);
 int			detach_shared_memory(t_ipc *ipc);
 int 		clean_shared_memory(t_ipc *ipc);
 /* utils*/
-void syscall_perror(char *syscall_name)
+void syscall_perror(char *syscall_name);
 /* utils*/
 /* handle board */
 uint32_t	get_board_index(t_vec vec);
 void		display_uint16_array(uint32_t *array);
 void 		set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value);
+
 
 
 # endif /* LEM_IPC_HEADER */ 

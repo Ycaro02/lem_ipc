@@ -15,27 +15,19 @@ void syscall_perror(char *syscall_name)
  *	@param path Path to the file to use ftok
  *	@return The shared memory id
 */
-int init_shared_memory(t_ipc *ipc, char *path)
+int init_shared_memory(t_ipc *ipc)
 {
-	key_t key;
 	int shmid;
 
 	errno = 0;
-	key = ftok(path, 42);
-	if (key == -1) {
-		syscall_perror("ftok");
-		return (-1);
-	}
-	errno = 0;
-	/* IPC_EXCL: Fail if key exists protect against double creation ? */
+	/* IPC_EXCL: Fail if key exists protect against double creation */
 	// shmid = shmget(key, ALIGN_SHARED_MEM, (IPC_CREAT | IPC_EXCL | 0666));
-	shmid = shmget(key, ALIGN_SHARED_MEM, (IPC_CREAT | 0666));
+	shmid = shmget(ipc->key, ALIGN_SHARED_MEM, (IPC_CREAT | 0666));
 	if (shmid == -1) {
 		syscall_perror("shmget");
 		return (-1);
 	}
-	ft_printf_fd(1, CYAN"Mem size required: %d allocated: %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
-	ipc->key = key;
+	ft_printf_fd(1, GREEN"Mem size required: %d allocated: %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
 	return (shmid);
 }
 
@@ -99,5 +91,8 @@ int clean_shared_memory(t_ipc *ipc)
 		return (ret);
 	}
 	ret = destroy_shared_memory(ipc->shmid);
+
+	destroy_semaphore_set(ipc->semid);
+
 	return (ret);
 }

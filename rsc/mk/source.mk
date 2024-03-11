@@ -4,8 +4,9 @@ SRC_DIR 		= src
 
 MAIN_MANDATORY	=	main.c
 
-SRCS			=	start_ipc.c\
+SRCS			=	init_shared_mem.c\
 					handle_board.c\
+					init_semaphores.c\
 
 SRCS_BONUS		=	main_bonus.c\
 
