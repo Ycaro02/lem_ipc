@@ -89,6 +89,12 @@ static int get_shared_mem_id(key_t key)
 
 int sem_detect_child(t_ipc *ipc, int8_t allow)
 {
+
+	// if (allow) {
+	// 	ipc->semid = semget(ipc->key, 1, (IPC_CREAT | IPC_EXCL | 0666));
+	// } else {
+	// 	ipc->semid = semget(ipc->key, 1, 0666);
+	// }
 	ipc->semid = semget(ipc->key, 1, (IPC_CREAT | IPC_EXCL | 0666));
 	if (allow == 0 && ipc->semid == -1) { /* if error and can't create sem (vizualizer case) */
 		syscall_perror("semget");
