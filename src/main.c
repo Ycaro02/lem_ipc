@@ -29,7 +29,8 @@ int init_player(t_player *player, int argc, char **argv)
 void signal_handler(int signum)
 {
 	g_game_run = 0;
-	ft_printf_fd(2, RED"\nSIGINT Catch: %d\n"RESET, signum);
+	(void)signum;
+	// ft_printf_fd(2, RED"\nSIGINT Catch: %d\n"RESET, signum);
 	return ;
 }
 
@@ -42,10 +43,14 @@ int init_signal_handler(void)
 	return (0);
 }
 
-void game_loop(uint32_t id) {
+void game_loop(t_ipc *ipc, uint32_t id) {
 	init_signal_handler();
+	(void)ipc;
+	(void)id;
 	while (g_game_run) {
-		ft_printf_fd(1, "Lem-ipc number %d run\n",id);
+		// semaphore_lock(ipc->semid);
+		// ft_printf_fd(1, "Lem-ipc number %d run\n",id);
+		// semaphore_unlock(ipc->semid);
 		sleep(1);
 	}
 }
@@ -70,14 +75,16 @@ int main(int argc, char **argv)
 	// ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
 	uint32_t val = player.team_id;
 
+	semaphore_lock(ipc.semid);
 	set_tile_board_val(ipc.ptr, create_vector(0, val), val);
+	semaphore_unlock(ipc.semid);
 
-	// test_game(&ipc, val);
-	game_loop(player.team_id);
+	game_loop(&ipc, player.team_id);
 
 	if (get_attached_processnb(&ipc) == 1) {
 		display_uint16_array(ipc.ptr);
 		ft_printf_fd(1, "Lem-ipc end %d\n", g_game_run);
+		// semctl(ipc.semid, 0, GETVAL) == 0 ? semaphore_unlock(ipc.semid) : ft_printf_fd(2, "Nothing todo\n");
 		clean_shared_memory(&ipc);
 	}
 	return (ret);

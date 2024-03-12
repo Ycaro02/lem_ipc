@@ -2,7 +2,7 @@ include rsc/mk/color.mk
 include rsc/mk/source.mk
 
 NAME		=	lemipc
-CC			=	clang
+CC			=	gcc
 CFLAGS		=	-Wall -Wextra -Werror -O3 -g
 # CFLAGS		=	-Wall -Wextra -Werror -O3 -g -fsanitize=address
 

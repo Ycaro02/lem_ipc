@@ -11,6 +11,27 @@ int destroy_semaphore_set(int semid) {
 
 
 /**
+ * @brief Lock a semaphore
+ * @param semid The semaphore id
+ * @return 0 on success, -1 on error
+*/
+int semaphore_lock(int semid) {
+	struct sembuf sops = {0, -1, 0};
+	return (semop(semid, &sops, 1));
+}
+
+
+/**
+ * @brief Unlock a semaphore
+ * @param semid The semaphore id
+ * @return 0 on success, -1 on error
+*/
+int semaphore_unlock(int semid) {
+	struct sembuf sops = {0, 1, 0};
+	return (semop(semid, &sops, 1));
+}
+
+/**
  * @brief Get key from file path
  * @param path The file path
 */
@@ -74,11 +95,12 @@ int sem_detect_child(t_ipc *ipc, int8_t allow)
 		return (-1);
 	} else if ( ipc->semid == -1 ) { /* if ressource already created */
 		/* need to get semaphore first */
-		ipc->shmid = get_shared_mem_id(ipc->key);
 		ipc->semid = get_sem_set_id(ipc->key);
+		ipc->shmid = get_shared_mem_id(ipc->key);
 		if (ipc->shmid == -1 || ipc->semid == -1 || attach_shared_memory(ipc) == -1) {
 			ft_printf_fd(2, RED"Error child can't get shared data"RESET);
-		} 
+			return (-1); /* error case */
+		}
 		return (1); /* child case */
 	} 
 	return (0); /* parent case */
@@ -106,5 +128,6 @@ int init_semaphores_set(t_ipc *ipc, char *path, int8_t allow)
 	if (ipc->shmid == -1 || attach_shared_memory(ipc) == -1) {
 		return (-1);
 	}
+	semaphore_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
 	return (0);
 }
