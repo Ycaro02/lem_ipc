@@ -81,9 +81,14 @@ int main(int argc, char **argv)
 
 	game_loop(&ipc, player.team_id);
 
+	semaphore_lock(ipc.semid);
+	ft_printf_fd(2, RED"Lem-ipc number %d end\n"RESET, player.team_id);	
+	semaphore_unlock(ipc.semid);
+
+
 	if (get_attached_processnb(&ipc) == 1) {
 		display_uint16_array(ipc.ptr);
-		ft_printf_fd(1, "Lem-ipc end %d\n", g_game_run);
+		ft_printf_fd(1, CYAN"Lem-ipc end %d %d\n"RESET, g_game_run, player.team_id);
 		// semctl(ipc.semid, 0, GETVAL) == 0 ? semaphore_unlock(ipc.semid) : ft_printf_fd(2, "Nothing todo\n");
 		clean_shared_memory(&ipc);
 	}

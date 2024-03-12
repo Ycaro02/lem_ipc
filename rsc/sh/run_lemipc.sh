@@ -8,7 +8,7 @@ LEMIPC="./lemipc"
 
 send_sigint() {
 	PID=$1
-	display_color_msg ${YELLOW} "Sending SIGINT to pid: ${PID}"
+	# display_color_msg ${YELLOW} "Sending SIGINT to pid: ${PID}"
 	kill -2 ${PID}
 }
 
@@ -40,10 +40,10 @@ sigint_test() {
 	send_sigint ${pid88}
 
 	
-	display_color_msg ${YELLOW} "Waiting for process to finish ..."
+	# display_color_msg ${YELLOW} "Waiting for process to finish ..."
 	wait ${pid1} && wait ${pid19} && wait ${pid2} && wait ${pid3} && wait ${pid88}
-	display_color_msg ${YELLOW} "Waiting protect ..."
-	sleep 2
+	# display_color_msg ${YELLOW} "Waiting protect ..."
+	sleep 5
 	display_color_msg ${YELLOW} "Waiting protect finish ..."
 	./rsc/sh/check_ipcs_free.sh
 }
