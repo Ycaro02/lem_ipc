@@ -16,7 +16,7 @@ all_check() {
 free_ipcs() {
 	IPCS_OPT="$1"
 	MSG="$2"
-	IPCS_ID=$(ipcs ${IPCS_OPT} | grep -e "0x" | grep "666" | cut -d ' ' -f 2)
+	IPCS_ID=$(ipcs ${IPCS_OPT} | grep -e "0x" | grep "666" | grep -v "root" |cut -d ' ' -f 2 | tr '\n' ' ')
 	if [ $? -ne 0 ]; then
 		display_color_msg ${GREEN} "Nothing to clean no ${MSG} leak found."
 	else

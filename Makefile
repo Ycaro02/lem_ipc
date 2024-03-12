@@ -3,7 +3,7 @@ include rsc/mk/source.mk
 
 NAME		=	lemipc
 CC			=	gcc
-CFLAGS		=	-Wall -Wextra -Werror -O3 -g
+CFLAGS		=	-Wall -Wextra -Werror -O3 -g -fsanitize=address
 
 ASCII_ART	=	./rsc/mk/ascii.sh
 ASCII_NAME	=	${NAME}
