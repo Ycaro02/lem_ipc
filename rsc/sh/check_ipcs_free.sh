@@ -2,8 +2,6 @@
 
 source $PWD/rsc/sh/color.sh
 
-
-
 all_check() {
 	ipcs | grep -e "0x" | grep "666" | cut -d ' ' -f 2 > /dev/null
 	if [ $? -ne 0 ]; then
@@ -39,10 +37,6 @@ check_ipcs_free() {
 		display_color_msg ${GREEN} "No ${MSG} leak."
 	fi
 }
-
-
-
-
 
 check_ipcs_free -m "Shared memory"
 check_ipcs_free -s "Semaphore"

@@ -30,7 +30,6 @@ int init_shared_memory(t_ipc *ipc)
 	return (shmid);
 }
 
-
 /**
  * @brief get number of attached process
 */

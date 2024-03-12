@@ -59,6 +59,8 @@ endif
 fclean:		clean
 	@printf "$(RED)Clean $(NAME)/lib$(RESET)\n"
 	@$(RM) $(NAME) ${TESTER_OUT_FILES}
+
+clean_lib:
 	@$(MAKE_LIBFT) fclean
 	@$(MAKE_LIST) fclean
 
