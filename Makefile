@@ -2,7 +2,7 @@ include rsc/mk/color.mk
 include rsc/mk/source.mk
 
 
-DISPLAY_NAME	= lempic_display
+DISPLAY_NAME	= lemipc_display
 NAME		=	lemipc
 CC			=	gcc
 CFLAGS		=	-Wall -Wextra -Werror -O3 -g
@@ -63,7 +63,7 @@ endif
 
 fclean:		clean
 	@printf "$(RED)Clean $(NAME)/lib$(RESET)\n"
-	@$(RM) $(NAME) ${TESTER_OUT_FILES}
+	@$(RM) $(NAME) ${TESTER_OUT_FILES} ${DISPLAY_NAME}
 
 clean_lib:
 	@$(MAKE_LIBFT) fclean

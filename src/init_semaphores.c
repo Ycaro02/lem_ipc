@@ -114,8 +114,10 @@ int init_semaphores_set(t_ipc *ipc, char *path, int8_t allow)
 		ft_printf_fd(2, RED"Error can't get key for %s"RESET, path);
 		return (-1);
 	}
-	if (sem_detect_child(ipc, allow) != 0) { /* if not parent */
-		return (0);
+
+	int ret = sem_detect_child(ipc, allow);
+	if (ret != 0) { /* if not parent */
+		return (ret);
 	}
 	/* Set semaphore value to 0 (lock it) */
 	if (semctl(ipc->semid, 0, SETVAL, 0)) {
