@@ -20,13 +20,14 @@ free_ipcs() {
 	IPCS_OPT="$1"
 	MSG="$2"
 	IPCS_ID=$(ipcs ${IPCS_OPT} | grep -v dest | grep 666 | cut -d ' ' -f 2 | tr '\n' ' ')
-	if [ $? -ne 0 ]; then
-		display_color_msg ${GREEN} "Nothing to clean no ${MSG} leak found."
-	else
+	# echo  DATA ${IPCS_ID}
+	if [ "${IPCS_ID}" != "" ]; then
 		ID=$(ipcs ${IPCS_OPT} | grep -v dest | grep 666 | cut -d ' ' -f 2 | tr '\n' ' ' | cut -d ' ' -f 1)
 		display_color_msg ${YELLOW} "Clear ${IPCS_ID} ${MSG} leak found."
 		ipcrm ${IPCS_OPT} ${ID}
 		free_ipcs ${IPCS_OPT} ${MSG}
+	else
+		display_color_msg ${GREEN} "Nothing to clean no ${MSG} leak found."
 	fi
 }
 
@@ -34,9 +35,10 @@ check_ipcs_free() {
 	IPCS_OPT="$1"
 	MSG="$2"
 	local ipcs_free=$(ipcs ${IPCS_OPT} | grep -v dest | grep 666 | cut -d ' ' -f 2 | tr '\n' ' ')
-	if [ $? -ne 0 ]; then
+	# echo  data ${ipcs_free}
+	if [ "${ipcs_free}" != "" ]; then
 		display_color_msg ${RED} "${MSG} leak found."
-		free_ipcs ${IPCS_OPT} ${MSG}
+		free_ipcs "${IPCS_OPT}" "${MSG}"
 	else
 		display_color_msg ${GREEN} "No ${MSG} leak."
 	fi

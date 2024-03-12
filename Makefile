@@ -1,6 +1,8 @@
 include rsc/mk/color.mk
 include rsc/mk/source.mk
 
+
+DISPLAY_NAME	= lempic_display
 NAME		=	lemipc
 CC			=	gcc
 CFLAGS		=	-Wall -Wextra -Werror -O3 -g
@@ -33,6 +35,8 @@ $(NAME):	$(OBJ_DIR) $(OBJS)
 	@printf "$(GREEN)Compiling lib done$(RESET)\n"
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBFT) $(LIST)
 	@printf "$(GREEN)Compiling $(NAME) done$(RESET)\n"
+	@$(CC) $(CFLAGS) $(DISPLAY_SRCS) $(LIBFT) $(LIST) -o $(DISPLAY_NAME) 
+	@printf "$(GREEN)Compiling $(DISPLAY_NAME) done$(RESET)\n"
 
 $(OBJ_DIR):
 	@mkdir ${OBJ_DIR}
