@@ -2,8 +2,9 @@ include rsc/mk/color.mk
 include rsc/mk/source.mk
 
 NAME		=	lemipc
-CC			=	gcc
-CFLAGS		=	-Wall -Wextra -Werror -O3 -g -fsanitize=address
+CC			=	clang
+CFLAGS		=	-Wall -Wextra -Werror -O3 -g
+# CFLAGS		=	-Wall -Wextra -Werror -O3 -g -fsanitize=address
 
 ASCII_ART	=	./rsc/mk/ascii.sh
 ASCII_NAME	=	${NAME}

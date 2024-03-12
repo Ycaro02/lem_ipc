@@ -42,24 +42,12 @@ int init_signal_handler(void)
 	return (0);
 }
 
-void test_game(t_ipc *ipc, uint32_t val)
-{
-	// if (init_signal_handler() != 0) {
-	// 	return ;
-	// }
-	(void) val;
-	(void) ipc;
-	int x = 0;
-	while (x < 8) {
-		// ft_printf_fd(1, "Lem-ipc run %d\n", g_game_run);
-		// set_tile_board_val(ipc->ptr, create_vector(0, val), val);
-		// for (int i = 0; i < BOARD_SIZE - 1; i++)
-			// ipc->ptr[i] = val;
-		// ;
+void game_loop(uint32_t id) {
+	init_signal_handler();
+	while (g_game_run) {
+		ft_printf_fd(1, "Lem-ipc number %d run\n",id);
 		sleep(1);
-		++x;
 	}
-
 }
 
 int main(int argc, char **argv) 
@@ -84,7 +72,8 @@ int main(int argc, char **argv)
 
 	set_tile_board_val(ipc.ptr, create_vector(0, val), val);
 
-	test_game(&ipc, val);
+	// test_game(&ipc, val);
+	game_loop(player.team_id);
 
 	if (get_attached_processnb(&ipc) == 1) {
 		display_uint16_array(ipc.ptr);

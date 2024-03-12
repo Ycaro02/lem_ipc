@@ -6,6 +6,31 @@ make -s
 
 LEMIPC="./lemipc"
 
+send_SIGINT() {
+	PID=$1
+	display_color_msg ${YELLOW} "Sending SIGINT to pid: ${PID}"
+	kill -2 ${PID}
+}
+
+basic_test() {
+	display_color_msg ${LIGHT_BLUE} "Running lemipc basic test ..."
+	${LEMIPC} 1 &
+	first_pid=$!
+	${LEMIPC} 19 &
+	second_pid=$!
+	display_color_msg ${YELLOW} "Let runing for 10 seconds ..."
+	sleep 10
+	send_SIGINT ${first_pid}
+	send_SIGINT ${second_pid}
+	display_color_msg ${YELLOW} "Waiting for process to finish ..."
+	wait ${first_pid} && wait ${second_pid}
+	display_color_msg ${YELLOW} "Waiting protect ..."
+	sleep 10
+	display_color_msg ${YELLOW} "Waiting protect finish ..."
+	./rsc/sh/check_ipcs_free.sh
+}
+
+
 helgrind_test() {
 	display_color_msg ${LIGHT_BLUE} "Running lemipc hellgrind test ..."
 
@@ -45,4 +70,4 @@ run_test() {
 	wait ${LAST_PID} && sleep 5 && ./rsc/sh/check_ipcs_free.sh
 }
 
-run_test
+basic_test
