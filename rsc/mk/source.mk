@@ -4,18 +4,16 @@ SRC_DIR 		= src
 
 MAIN_MANDATORY	=	main.c
 
-MAIN_DISPLAY	=	src/main_display.c
+MAIN_DISPLAY	=	main_display.c
 
-SRCS			=	init_shared_mem.c\
+SHARED_SRCS		=	init_shared_mem.c\
 					handle_board.c\
 					init_semaphores.c\
 
-DISPLAY_SRCS	= 	src/main_display.c\
-					src/init_shared_mem.c\
-					src/handle_board.c\
-					src/init_semaphores.c\
+DISPLAY_SRCS	= 	${SHARED_SRCS}\
+					${MAIN_DISPLAY}
 
-# SRCS_BONUS		=	main_bonus.c\
+SRCS			=	${SHARED_SRCS}
 
 MAKE_LIBFT		=	make -s -C libft
 
@@ -30,15 +28,19 @@ OBJS 			= $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 DISPLAY_OBJS	= $(addprefix $(OBJ_DIR)/, $(DISPLAY_SRCS:.c=.o))
 
 
+# SRCS_BONUS		=	main_bonus.c
+
 # OBJS_BONUS		= $(addprefix $(OBJ_DIR)/, $(SRCS_BONUS:.c=.o))
 
 # OBJS_MAIN_BONUS	= $(addprefix $(OBJ_DIR)/, $(MAIN_BONUS:.c=.o))
 
 RUN_TESTER	= ./rsc/sh/run_tester.sh
 
-TESTER_OUT_FILES =	nm_out\
-					out\
-					valgrind_out\
-					tester_logs\
-
 RM			=	rm -rf
+
+ifeq ($(findstring bonus, $(MAKECMDGOALS)), bonus)
+ASCII_NAME	= "bonus"
+SRCS += $(SRCS_BONUS)
+else
+SRCS += $(MAIN_MANDATORY)
+endif

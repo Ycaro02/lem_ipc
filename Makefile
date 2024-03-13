@@ -15,32 +15,30 @@ CHECK_IPC	=	./rsc/sh/check_ipcs_free.sh
 
 # TESTER_DIR	=	${NAME}Tester
 
-ifeq ($(findstring bonus, $(MAKECMDGOALS)), bonus)
-ASCII_NAME	= "bonus"
-SRCS += $(SRCS_BONUS)
-else
-SRCS += $(MAIN_MANDATORY)
-endif
-
 all:		$(NAME)
 
 %.o : %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 
-$(NAME):	$(OBJ_DIR) $(OBJS)
+$(NAME):	$(OBJ_DIR) $(OBJS) $(DISPLAY_NAME)
 	@printf "$(CYAN)Compiling libft...$(RESET)\n"
 	@$(MAKE_LIBFT)
 	@printf "$(CYAN)Compiling lib...$(RESET)\n"
 	@$(MAKE_LIST)
 	@printf "$(GREEN)Compiling lib done$(RESET)\n"
+	@printf "$(CYAN)Compiling ${NAME} ...$(RESET)\n"
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBFT) $(LIST)
 	@printf "$(GREEN)Compiling $(NAME) done$(RESET)\n"
-	@$(CC) $(CFLAGS) $(DISPLAY_SRCS) $(LIBFT) $(LIST) -o $(DISPLAY_NAME) 
+
+
+$(DISPLAY_NAME): $(DISPLAY_OBJS)
+	@printf "$(CYAN)Compiling ${DISPLAY_NAME} ...$(RESET)\n"
+	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST)  
 	@printf "$(GREEN)Compiling $(DISPLAY_NAME) done$(RESET)\n"
 
 $(OBJ_DIR):
-	@mkdir ${OBJ_DIR}
-	@${ASCII_ART} ${ASCII_NAME}
+	@mkdir $(OBJ_DIR)
+	@$(ASCII_ART) $(ASCII_NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@printf "$(YELLOW)Compile $<$(RESET)\n"
