@@ -88,29 +88,27 @@ static int get_shared_mem_id(key_t key)
 	return (shmid);
 }
 
-
-int sem_detect_child(t_ipc *ipc, int8_t allow)
+int shared_rsc_handler(t_ipc *ipc, int8_t allow)
 {
 	int flag = 0666;
 	
 	if (allow)
 		flag |= (IPC_CREAT | IPC_EXCL);
-
 	ipc->semid = semget(ipc->key, 1, (flag | 0666));
 	if (allow == 0 && ipc->semid == -1) { /* if error and can't create sem (vizualizer case) */
 		syscall_perror("semget");
-		return (-1);
+		return (ERROR_CASE);
 	} else if ((!allow && ipc->semid != -1 ) || (allow && ipc->semid == -1)) { /* if ressource already created */
 		/* need to get semaphore first */
 		ipc->semid = get_sem_set_id(ipc->key);
 		ipc->shmid = get_shared_mem_id(ipc->key);
 		if (ipc->shmid == -1 || ipc->semid == -1 || attach_shared_memory(ipc) == -1) {
 			ft_printf_fd(2, RED"Error child can't get shared data"RESET);
-			return (-1); /* error case */
+			return (ERROR_CASE); /* error case */
 		}
-		return (1); /* child case */
+		return (CLIENT_CASE); /* child case */
 	} 
-	return (0); /* parent case */
+	return (SERVER_CASE); /* parent case */
 }
 
 int chek_path_exist(char *path)
@@ -122,22 +120,21 @@ int chek_path_exist(char *path)
 	return (1);
 }
 
-int init_semaphores_set(t_ipc *ipc, char *path, int8_t allow)
+int init_game(t_ipc *ipc, char *path, int8_t allow)
 {
 	/* Same here active protection when debug start is finish */
 
 	if (!chek_path_exist(path)) {
 		return (-1);
 	}
-
 	ipc->key = file_to_key(path);
 	if (ipc->key == -1) {
 		ft_printf_fd(2, RED"Error can't get key for %s"RESET, path);
 		return (-1);
 	}
 
-	int ret = sem_detect_child(ipc, allow);
-	if (ret != 0) { /* if not parent */
+	int ret = shared_rsc_handler(ipc, allow);
+	if (ret != SERVER_CASE) { /* if not parent */
 		return (ret);
 	}
 	/* Set semaphore value to 0 (lock it) */

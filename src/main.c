@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 		return (1);
 	}
 
-	if (init_semaphores_set(&ipc, IPC_NAME, PLAYER) == -1) {
+	if (init_game(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
 		return (1);
 	}
 	

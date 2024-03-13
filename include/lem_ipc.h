@@ -21,6 +21,11 @@
 //                                                                            //
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
+/* Explicitit define value for shared rsc handler return */
+# define ERROR_CASE -1
+# define CLIENT_CASE 1
+# define SERVER_CASE 0
+
 /* Return of getpagesize function casted in size_t 4096 */
 # define PAGE_SIZE              (size_t)getpagesize()
 
@@ -72,7 +77,7 @@ typedef struct s_player {
 } t_player;
 
 /* init semaphore */
-int			init_semaphores_set(t_ipc *ipc, char *path, int8_t allow);
+int			init_game(t_ipc *ipc, char *path, int8_t allow);
 int 		destroy_semaphore_set(int semid);
 
 
