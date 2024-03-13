@@ -7,6 +7,7 @@
 # include <sys/shm.h>			/* Shared memory */
 # include <signal.h>			/* Signal */
 
+# include <time.h>				/* Time for random gen */
 
 # include <sys/sem.h>			/* Semaphore */
 
@@ -30,10 +31,10 @@
 # define PAGE_SIZE              (size_t)getpagesize()
 
 /* Map height for NULL ptr */
-# define BOARD_H 10
+# define BOARD_H 10U
 
 /* Map width for \0 bytes */
-# define BOARD_W 10
+# define BOARD_W 10U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
@@ -94,9 +95,11 @@ int			get_attached_processnb(t_ipc *ipc);
 void syscall_perror(char *syscall_name);
 /* utils*/
 /* handle board */
+uint32_t	get_tile_board_val(uint32_t *array, t_vec vec);
 uint32_t	get_board_index(t_vec vec);
 void		display_uint16_array(uint32_t *array);
 void 		set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value);
 
+t_vec 		get_reachable_point(uint32_t *array);
 
 # endif /* LEM_IPC_HEADER */ 

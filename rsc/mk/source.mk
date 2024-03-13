@@ -9,6 +9,7 @@ MAIN_DISPLAY	=	main_display.c
 SHARED_SRCS		=	init_shared_mem.c\
 					handle_board.c\
 					init_semaphores.c\
+					random_position.c\
 
 DISPLAY_SRCS	= 	${SHARED_SRCS}\
 					${MAIN_DISPLAY}

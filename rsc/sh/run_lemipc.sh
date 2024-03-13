@@ -18,7 +18,6 @@ send_sigint_all() {
 	display_color_msg ${YELLOW} "Sending SIGINT to all pid ..."
 	for pid in $(cat pid.txt)
 	do
-		# display_color_msg ${YELLOW} "Sending SIGINT to pid: ${pid}"
 		send_sigint ${pid}
 		sleep 0.1
 	done
@@ -29,12 +28,12 @@ send_sigint_all() {
 }
 
 sigint_loop_test() {
-	for i in {1..99}
+	for i in {1..10}
 	do
 		${LEMIPC} ${i} &
 		local loc_pid=$!
 		echo ${loc_pid} >> pid.txt
-		sleep 0.1
+		sleep 0.5
 	done
 
 	

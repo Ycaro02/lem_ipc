@@ -48,10 +48,9 @@ void game_loop(t_ipc *ipc, uint32_t id) {
 	(void)ipc;
 	(void)id;
 	while (g_game_run) {
-		semaphore_lock(ipc->semid);
-		ft_printf_fd(1, "Lem-ipc number %d run\n",id);
-		set_tile_board_val(ipc->ptr, create_vector(0, 0), id);
-		semaphore_unlock(ipc->semid);
+		// semaphore_lock(ipc->semid);
+		// set_tile_board_val(ipc->ptr, create_vector(0, 0), id);
+		// semaphore_unlock(ipc->semid);
 		sleep(1);
 	}
 }
@@ -77,7 +76,9 @@ int main(int argc, char **argv)
 	uint32_t val = player.team_id;
 
 	semaphore_lock(ipc.semid);
-	set_tile_board_val(ipc.ptr, create_vector(0, val), val);
+	t_vec point = get_reachable_point(ipc.ptr);
+	ft_printf_fd(2, YELLOW"Lem-ipc Client team number %u start pos [%u][%u]\n"RESET, player.team_id, point.x, point.y);
+	set_tile_board_val(ipc.ptr, point, val);
 	semaphore_unlock(ipc.semid);
 
 	game_loop(&ipc, player.team_id);

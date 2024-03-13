@@ -28,7 +28,6 @@ ascii_tester() {
 	echo -e "  ${LIGHT_RED}   ██       ███████    ███████       ██       ███████    ██   ██ ${RESET}\n"
 }
 
-
 if [ "$1" == "lemipc" ]; then
 	ascii_lemipc
 fi
