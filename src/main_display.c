@@ -50,13 +50,67 @@ int	key_hooks_press(int keycode, t_game *game)
 }
 
 
+
+int boardmlx_display() {
+	sem_lock(g_game->ipc->semid);
+	uint32_t pixel_x = 0, pixel_y = 0;
+	int color = 0;
+
+
+	for (uint32_t y  = 0; y < SCREEN_HEIGHT; y++) {
+		for (uint32_t x = 0; x < SCREEN_WIDTH; x++) {
+			uint32_t idx = ((pixel_x / TILE_SIZE) % BOARD_W) + ((pixel_y / TILE_SIZE) * BOARD_W);
+			// ft_printf_fd(1, "idx: %d\n", idx);
+			color = g_game->ipc->ptr[idx] == TILE_EMPTY ? 0x00FF00 : 0xFF0000;
+			/* need to change this write in buffer instead and flush at the end of loop */
+			((int *)g_game->img.data)[x + (y * SCREEN_WIDTH)] = color;
+			// mlx_pixel_put(g_game->mlx, g_game->win, x, y, color);
+			pixel_x++;
+		}
+		pixel_x = 0;
+		pixel_y++;
+	}
+
+
+	mlx_put_image_to_window(g_game->mlx, g_game->win, g_game->img.image, 0, 0);
+
+	sem_unlock(g_game->ipc->semid);
+	return (0);
+}
+
+
+
 void init_mlx() {
+	int endian = 0;
 	g_game->mlx = mlx_init();
+	if (!g_game->mlx) {
+		ft_printf_fd(2, "mlx_init failed\n");
+		exit(1);
+	}
 	g_game->win = mlx_new_window(g_game->mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "LEM_IPC");
+	if (!g_game->win) {
+		ft_printf_fd(2, "mlx_new_window failed\n");
+		exit(1);
+	}
+	g_game->img.image = mlx_new_image(g_game->mlx, SCREEN_WIDTH, SCREEN_HEIGHT);
+	if (!g_game->img.image) {
+		ft_printf_fd(2, "mlx_new_image failed\n");
+		exit(1);
+	}
+
+	g_game->img.data = mlx_get_data_addr(g_game->img.image, &g_game->img.bpp,
+			&g_game->img.width, &endian);
+	if (!g_game->img.data) {
+		ft_printf_fd(2, "mlx_get_data_addr failed\n");
+		exit(1);
+	}
+
 	mlx_hook(g_game->win, 2, 1L, key_hooks_press, g_game);
 	mlx_hook(g_game->win, DestroyNotify, StructureNotifyMask, destroy_windows, g_game);
-	mlx_loop_hook(g_game->mlx, game_display, g_game);
+	// mlx_loop_hook(g_game->mlx, game_display, g_game);
+	mlx_loop_hook(g_game->mlx, boardmlx_display, g_game);
 	mlx_loop(g_game->mlx);
+	
 
 }
 

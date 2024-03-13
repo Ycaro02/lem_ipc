@@ -3,16 +3,17 @@
 
 # include "lem_ipc.h"
 
-# define TILE_SIZE 64
+# define TILE_SIZE 30
 
 # define SCREEN_WIDTH TILE_SIZE * BOARD_W
 # define SCREEN_HEIGHT TILE_SIZE * BOARD_H
 
 typedef struct s_game
 {
-	void	*mlx;
-	void	*win;
-	t_ipc	*ipc;
+	t_xvar		*mlx;
+	void		*win;
+	t_img		img;
+	t_ipc		*ipc;
 }	t_game;
 
 /* global var to handle display with mlx*/

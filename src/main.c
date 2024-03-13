@@ -54,7 +54,7 @@ void game_loop(t_ipc *ipc, uint32_t id) {
 		// ft_printf_fd(2, YELLOW"Lem-ipc Client team number %u goto pos [%u][%u]\n"RESET, id, point.x, point.y);
 		set_tile_board_val(ipc->ptr, point, id);
 		sem_unlock(ipc->semid);
-		usleep(1000);
+		sleep(1);
 	}
 }
 
