@@ -13,7 +13,7 @@ sigint_loop_test() {
 	./rsc/mk/ascii.sh "tester"
 	rm_pid_log ${PID_LOG}
 
-	for i in {1..10}
+	for i in {1..4}
 	do
 		${LEMIPC} ${i} &
 		local loc_pid=$!

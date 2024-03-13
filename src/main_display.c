@@ -60,8 +60,9 @@ int boardmlx_display() {
 	for (uint32_t y  = 0; y < SCREEN_HEIGHT; y++) {
 		for (uint32_t x = 0; x < SCREEN_WIDTH; x++) {
 			uint32_t idx = ((pixel_x / TILE_SIZE) % BOARD_W) + ((pixel_y / TILE_SIZE) * BOARD_W);
+			uint32_t tile_state = g_game->ipc->ptr[idx];
 			// ft_printf_fd(1, "idx: %d\n", idx);
-			color = g_game->ipc->ptr[idx] == TILE_EMPTY ? 0x00FF00 : 0xFF0000;
+			color = tile_state == TILE_EMPTY ? 0xFFFFFF : tile_state % 2 ? 0x0000FF : 0xFF0000;
 			/* need to change this write in buffer instead and flush at the end of loop */
 			((int *)g_game->img.data)[x + (y * SCREEN_WIDTH)] = color;
 			// mlx_pixel_put(g_game->mlx, g_game->win, x, y, color);
