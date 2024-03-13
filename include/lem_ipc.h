@@ -16,6 +16,12 @@
 
 # include "../libft/libft.h"	/* Libft */
 
+/* MLX */
+# include <math.h>
+# include <fcntl.h>
+# include "../minilibx-linux/mlx.h"
+# include "../minilibx-linux/mlx_int.h"
+
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //                                                                            //
 //                                BOARD_SIZE                                  //
@@ -31,10 +37,10 @@
 # define PAGE_SIZE              (size_t)getpagesize()
 
 /* Map height for NULL ptr */
-# define BOARD_H 10U
+# define BOARD_H 20U
 
 /* Map width for \0 bytes */
-# define BOARD_W 10U
+# define BOARD_W 20U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
@@ -76,6 +82,14 @@ typedef struct s_player {
 	t_vec		target;		/* Target position */
 	uint32_t	team_id;	/* Team id */
 } t_player;
+
+
+typedef struct s_game
+{
+	void	*mlx;
+	void	*win;
+	t_ipc	*ipc;
+}	t_game;
 
 /* init semaphore */
 int			init_game(t_ipc *ipc, char *path, int8_t allow);

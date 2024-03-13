@@ -13,9 +13,6 @@ all_check() {
 
 }
 
-
-# ipcs -m | grep -v root | grep 666 | cut -d ' ' -f 2  | tr '\n' ' ' | cut -d ' ' -f 1
-
 free_ipcs() {
 	IPCS_OPT="$1"
 	MSG="$2"
@@ -30,19 +27,6 @@ free_ipcs() {
 		display_color_msg ${GREEN} "Nothing to clean no ${MSG} leak found."
 	fi
 }
-
-# check_ipcs_free() {
-# 	IPCS_OPT="$1"
-# 	MSG="$2"
-# 	local ipcs_free=$(ipcs ${IPCS_OPT} | grep -v dest | grep 666 | cut -d ' ' -f 2 | tr '\n' ' ')
-# 	# echo  data ${ipcs_free}
-# 	if [ "${ipcs_free}" != "" ]; then
-# 		display_color_msg ${RED} "${MSG} leak found."
-# 		free_ipcs "${IPCS_OPT}" "${MSG}"
-# 	else
-# 		display_color_msg ${GREEN} "No ${MSG} leak."
-# 	fi
-# }
 
 free_ipcs -m "Shared memory"
 free_ipcs -s "Semaphore"

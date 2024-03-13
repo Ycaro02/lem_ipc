@@ -11,6 +11,11 @@ ASCII_NAME	=	${NAME}
 IPCS_FREE		= ./rsc/sh/check_ipcs_free.sh
 LEMIPC_RUN		= ./rsc/sh/run_lemipc.sh
 
+
+DISPLAY_TEST	= ./rsc/sh/display_test.sh
+
+MLX_FLAG =  -L minilibx-linux -lmlx -lX11 -lXext -lm
+
 all:		$(NAME)
 
 %.o : %.c
@@ -22,8 +27,9 @@ $(NAME):	$(OBJ_DIR) $(OBJS) $(DISPLAY_NAME) $(LIST) $(LIBFT)
 	@printf "$(GREEN)Compiling $(NAME) done$(RESET)\n"
 
 $(DISPLAY_NAME): $(DISPLAY_OBJS) $(LIST) $(LIBFT)
+	@make -s -C minilibx-linux
 	@printf "$(CYAN)Compiling ${DISPLAY_NAME} ...$(RESET)\n"
-	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST)
+	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST) ${MLX_FLAG}
 	@printf "$(GREEN)Compiling $(DISPLAY_NAME) done$(RESET)\n"
 
 $(LIST):
@@ -70,11 +76,16 @@ fclean:		clean
 clean_lib:
 	@$(MAKE_LIBFT) fclean
 	@$(MAKE_LIST) fclean
+	@make -C minilibx-linux clean
 
 test: $(NAME)
 	@./$(NAME) 1 && ${CHECK_IPC}
 
+display: $(DISPLAY_NAME)
+	@$(DISPLAY_TEST)
+
 clear:
+	@$(DISPLAY_TEST) rm
 	@$(IPCS_FREE)
 
 run: $(NAME)

@@ -1,38 +1,17 @@
 #!/bin/bash
 
-source ./rsc/sh/color.sh
+
+
+source ./rsc/sh/handle_sigint.sh
 
 # make -s
 
-./rsc/mk/ascii.sh "tester"
 
-LEMIPC="./lemipc"
-PID_LOG="pid.txt"
-
-rm_pid_log() {
-	if [ -f ${PID_LOG} ]; then
-		rm ${PID_LOG}
-	fi
-}
-
-send_sigint() {
-	PID=$1
-	# display_color_msg ${YELLOW} "Sending SIGINT to pid: ${PID}"
-	kill -2 ${PID}
-}
-
-send_sigint_all() {
-	display_color_msg ${YELLOW} "Sending SIGINT to all pid ..."
-	for pid in $(cat ${PID_LOG})
-	do
-		send_sigint ${pid}
-		sleep 0.1
-	done
-}
 
 sigint_loop_test() {
-
-	rm_pid_log
+	
+	./rsc/mk/ascii.sh "tester"
+	rm_pid_log ${PID_LOG}
 
 	for i in {1..10}
 	do
@@ -56,7 +35,9 @@ sigint_loop_test() {
 	sleep 1
 	display_color_msg ${YELLOW} "Waiting protect finish ..."
 	./rsc/sh/check_ipcs_free.sh
-	rm_pid_log
+	rm_pid_log ${PID_LOG}
 }
+
+
 
 sigint_loop_test

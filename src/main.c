@@ -74,18 +74,8 @@ int main(int argc, char **argv)
 	if (init_game(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
 		return (1);
 	}
-	
-	// ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
-	// uint32_t val = player.team_id;
-
-	// sem_lock(ipc.semid);
-	// t_vec point = get_reachable_point(ipc.ptr);
-	// ft_printf_fd(2, YELLOW"Lem-ipc Client team number %u start pos [%u][%u]\n"RESET, player.team_id, point.x, point.y);
-	// set_tile_board_val(ipc.ptr, point, val);
-	// sem_unlock(ipc.semid);
 
 	game_loop(&ipc, player.team_id);
-
 	sem_lock(ipc.semid);
 	ft_printf_fd(2, YELLOW"Lem-ipc Client team number %d end\n"RESET, player.team_id);	
 	sem_unlock(ipc.semid);
@@ -99,3 +89,11 @@ int main(int argc, char **argv)
 	}
 	return (ret);
 }
+
+// ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
+// uint32_t val = player.team_id;
+// sem_lock(ipc.semid);
+// t_vec point = get_reachable_point(ipc.ptr);
+// ft_printf_fd(2, YELLOW"Lem-ipc Client team number %u start pos [%u][%u]\n"RESET, player.team_id, point.x, point.y);
+// set_tile_board_val(ipc.ptr, point, val);
+// sem_unlock(ipc.semid);
