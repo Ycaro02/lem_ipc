@@ -8,15 +8,15 @@ CFLAGS		=	-Wall -Wextra -Werror -O3 -g
 
 ASCII_ART	=	./rsc/mk/ascii.sh
 ASCII_NAME	=	${NAME}
-
-CHECK_IPC	=	./rsc/sh/check_ipcs_free.sh
+IPCS_FREE		= ./rsc/sh/check_ipcs_free.sh
+LEMIPC_RUN		= ./rsc/sh/run_lemipc.sh
 
 all:		$(NAME)
 
 %.o : %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 
-$(NAME):	$(OBJ_DIR) $(OBJS) $(DISPLAY_NAME) $(LIST) $(LIBFT) 
+$(NAME):	$(OBJ_DIR) $(OBJS) $(DISPLAY_NAME) $(LIST) $(LIBFT)
 	@printf "$(CYAN)Compiling ${NAME} ...$(RESET)\n"
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBFT) $(LIST)
 	@printf "$(GREEN)Compiling $(NAME) done$(RESET)\n"

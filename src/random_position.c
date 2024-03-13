@@ -1,6 +1,5 @@
 # include "../include/lem_ipc.h"
 
-
 /**
 * Get random number % max
 */
@@ -34,7 +33,7 @@ t_vec generate_random_board_point(uint32_t max)
 	// ft_printf_fd(1, "idx = %u max= %u\n", idx, max);
 	// ft_printf_fd(1, "y = %u, x = %u\n", y, x);
 	t_vec pos = create_vector(y, x);
-	ft_printf_fd(1, CYAN"pos = [%u][%u]\n"RESET, pos.y, pos.x);
+	// ft_printf_fd(1, CYAN"pos = [%u][%u]\n"RESET, pos.y, pos.x);
     return (pos);
 }
 
