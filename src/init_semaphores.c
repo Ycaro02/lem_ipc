@@ -113,9 +113,17 @@ int shared_rsc_handler(t_ipc *ipc, int8_t allow)
 
 int chek_path_exist(char *path)
 {
+	int fd = -1;
 	if (access(path, F_OK | R_OK | W_OK) == -1) {
-		ft_printf_fd(2, RED"Error file %s not found"RESET, path);
-		return (0);
+		ft_printf_fd(2, YELLOW"Error file %s not found or bad perm, try to create it\n"RESET, path);
+		errno = 0;
+		fd = open(path, O_CREAT | O_RDWR, 0666);
+		if (fd == -1) {
+			syscall_perror("open");
+			return (0);
+		}
+		ft_printf_fd(1, YELLOW"File %s created\n"RESET, path);
+		return (1);
 	}
 	return (1);
 }
