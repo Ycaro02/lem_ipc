@@ -4,6 +4,8 @@ source ./rsc/sh/color.sh
 
 # make -s
 
+./rsc/mk/ascii.sh "tester"
+
 LEMIPC="./lemipc"
 
 send_sigint() {

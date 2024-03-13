@@ -15,12 +15,19 @@ ascii_lemipc() {
 
 ascii_tester() {
 	echo -e ""
-	echo -e "  ${LIGHT_RED}██          ███████     ███    ███     ██     ██████       ██████ \t ████████    ███████    ███████    ████████    ███████    ██████  ${RESET}"
-	echo -e "  ${LIGHT_RED}██          ██          ████  ████     ██     ██   ██     ██      \t    ██       ██         ██            ██       ██         ██   ██ ${RESET}"
-	echo -e "  ${LIGHT_RED}██          █████       ██ ████ ██     ██     ██████      ██      \t    ██       █████      ███████       ██       █████      ██████  ${RESET}"
-	echo -e "  ${LIGHT_RED}██          ██          ██  ██  ██     ██     ██          ██      \t    ██       ██              ██       ██       ██         ██   ██ ${RESET}"
-	echo -e "  ${LIGHT_RED}███████     ███████     ██      ██     ██     ██           ██████ \t    ██       ███████    ███████       ██       ███████    ██   ██ ${RESET}\n"
+	echo -e "  ${LIGHT_MAGENTA}██          ███████     ███    ███     ██     ██████       ██████  ${RESET}"
+	echo -e "  ${LIGHT_MAGENTA}██          ██          ████  ████     ██     ██   ██     ██       ${RESET}"
+	echo -e "  ${LIGHT_MAGENTA}██          █████       ██ ████ ██     ██     ██████      ██       ${RESET}"
+	echo -e "  ${LIGHT_MAGENTA}██          ██          ██  ██  ██     ██     ██          ██       ${RESET}"
+	echo -e "  ${LIGHT_MAGENTA}███████     ███████     ██      ██     ██     ██           ██████  ${RESET}\n\n"
+
+	echo -e "  ${LIGHT_RED}████████    ███████    ███████    ████████    ███████    ██████  ${RESET}"
+	echo -e "  ${LIGHT_RED}   ██       ██         ██            ██       ██         ██   ██ ${RESET}"
+	echo -e "  ${LIGHT_RED}   ██       █████      ███████       ██       █████      ██████  ${RESET}"
+	echo -e "  ${LIGHT_RED}   ██       ██              ██       ██       ██         ██   ██ ${RESET}"
+	echo -e "  ${LIGHT_RED}   ██       ███████    ███████       ██       ███████    ██   ██ ${RESET}\n"
 }
+
 
 if [ "$1" == "lemipc" ]; then
 	ascii_lemipc
