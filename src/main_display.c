@@ -1,31 +1,9 @@
-# include "../include/lem_ipc.h"
+# include "../include/display.h"
 
-int g_game_run; /* unused in displayer */
-/* GARBAGE HERE */
+int		g_game_run; 
+t_game	*g_game;
 
-# define TILE_SIZE 64
-
-# define SCREEN_WIDTH TILE_SIZE * BOARD_W
-# define SCREEN_HEIGHT TILE_SIZE * BOARD_H
-
-t_game *g_game;
-
-typedef enum e_key
-{
-	ESC = 65307,
-	UP = 119,
-	LEFT = 97,
-	DOWN = 115,
-	RIGHT = 100,
-	ARROW_UP = 65362,
-	ARROW_LEFT = 65361,
-	ARROW_RIGHT = 65363,
-	ARROW_DOWN = 65364,
-}	t_key;
-
-
-/* @brief Initialize player */
-
+/* @brief Initialize display */
 int init_display(t_player *player, int argc, char **argv)
 {
 	if (argc != 1) {
@@ -36,33 +14,6 @@ int init_display(t_player *player, int argc, char **argv)
 	return (0);
 }
 
-void signal_handler(int signum) {
-	g_game_run = 0;
-	(void)signum;
-}
-
-int init_signal_handler(void)
-{
-	if (signal(SIGINT, signal_handler) == SIG_ERR) {
-		ft_printf_fd(2, "Can't catch SIGINT\n");
-		return (-1);
-	}
-	return (0);
-}
-
-int game_display() {
-	sem_lock(g_game->ipc->semid);
-	display_uint16_array(g_game->ipc->ptr);
-	if (get_attached_processnb(g_game->ipc) <= 1) {
-		ft_printf_fd(2, RED"Shutdown display\n"RESET);
-		g_game_run = 0;
-	}
-	sem_unlock(g_game->ipc->semid);
-	sleep(1);
-	return (0);
-}
-
-/* to put in header file */
 
 int destroy_windows()
 {
@@ -73,6 +24,23 @@ int destroy_windows()
 	ft_printf_fd(1, "Exit MLX\n");
 	exit(0);
 }
+
+int game_display() {
+	sem_lock(g_game->ipc->semid);
+	if (get_attached_processnb(g_game->ipc) <= 1) {
+		ft_printf_fd(2, RED"Shutdown display\n"RESET);
+		g_game_run = 0;
+		sem_unlock(g_game->ipc->semid);
+		destroy_windows();
+	}
+	display_uint16_array(g_game->ipc->ptr);
+	sem_unlock(g_game->ipc->semid);
+	sleep(1);
+	return (0);
+}
+
+/* to put in header file */
+
 
 int	key_hooks_press(int keycode, t_game *game)
 {

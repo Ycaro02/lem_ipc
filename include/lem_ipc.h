@@ -84,12 +84,6 @@ typedef struct s_player {
 } t_player;
 
 
-typedef struct s_game
-{
-	void	*mlx;
-	void	*win;
-	t_ipc	*ipc;
-}	t_game;
 
 /* init semaphore */
 int			init_game(t_ipc *ipc, char *path, int8_t allow);

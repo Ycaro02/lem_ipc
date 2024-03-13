@@ -1,20 +1,18 @@
 include rsc/mk/color.mk
 include rsc/mk/source.mk
 
-DISPLAY_NAME	= lemipc_display
-NAME		=	lemipc
-CC			=	gcc
-CFLAGS		=	-Wall -Wextra -Werror -O3 -g
+DISPLAY_NAME	=	lemipc_display
+NAME			=	lemipc
+CC				=	gcc
+CFLAGS			=	-Wall -Wextra -Werror -O3 -g
 
-ASCII_ART	=	./rsc/mk/ascii.sh
-ASCII_NAME	=	${NAME}
-IPCS_FREE		= ./rsc/sh/check_ipcs_free.sh
-LEMIPC_RUN		= ./rsc/sh/run_lemipc.sh
+ASCII_ART		=	./rsc/mk/ascii.sh
+ASCII_NAME		=	${NAME}
+IPCS_FREE		=	./rsc/sh/check_ipcs_free.sh
 
-
-DISPLAY_TEST	= ./rsc/sh/display_test.sh
-
-MLX_FLAG =  -L minilibx-linux -lmlx -lX11 -lXext -lm
+LEMIPC_RUN		=	./rsc/sh/run_lemipc.sh
+DISPLAY_TEST	=	./rsc/sh/display_test.sh
+MLX_FLAG 		=	-L minilibx-linux -lmlx -lX11 -lXext -lm
 
 all:		$(NAME)
 
