@@ -38,13 +38,13 @@ void game_loop(t_ipc *ipc, uint32_t id) {
 	(void)ipc;
 	(void)id;
 	while (g_game_run) {
-		semaphore_lock(ipc->semid);
+		sem_lock(ipc->semid);
 		display_uint16_array(ipc->ptr);
 		if (get_attached_processnb(ipc) <= 1) {
 			ft_printf_fd(2, RED"Shutdown display\n"RESET);
 			g_game_run = 0;
 		}
-		semaphore_unlock(ipc->semid);
+		sem_unlock(ipc->semid);
 		sleep(1);
 	}
 }
@@ -68,9 +68,9 @@ int main(int argc, char **argv)
 	// ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
 
 	game_loop(&ipc, player.team_id);
-	semaphore_lock(ipc.semid);
+	sem_lock(ipc.semid);
 	ft_printf_fd(2, RED"Lem-ipc Display Handler end\n"RESET, player.team_id);	
-	semaphore_unlock(ipc.semid);
+	sem_unlock(ipc.semid);
 
 	return (0);
 }

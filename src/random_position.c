@@ -44,9 +44,9 @@ t_vec get_reachable_point(uint32_t *array)
 {
     t_vec board_size = create_vector(BOARD_H, BOARD_W);
     t_vec new_point = generate_random_board_point(BOARD_H * BOARD_W);
-    int ret = -1;
+    int found = -1;
     int max_iter = 0;
-    while (ret != 0 && max_iter < 100)
+    while (found != 0 && max_iter < 100)
     {
         if (get_tile_board_val(array, new_point) != 0) { /* ugly brut force case */
             if (new_point.x < board_size.x - 1)
@@ -58,7 +58,7 @@ t_vec get_reachable_point(uint32_t *array)
                     new_point.y = 0;
             }
         } else {
-            ret = 0;
+            found = 0;
 		}
         max_iter++;
     }

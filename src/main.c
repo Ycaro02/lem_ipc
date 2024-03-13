@@ -43,17 +43,18 @@ int init_signal_handler(void)
 	return (0);
 }
 
+
 void game_loop(t_ipc *ipc, uint32_t id) {
 	init_signal_handler();
 	(void)ipc;
 	(void)id;
 	while (g_game_run) {
-		semaphore_lock(ipc->semid);
+		sem_lock(ipc->semid);
 		t_vec point = get_reachable_point(ipc->ptr);
 		// ft_printf_fd(2, YELLOW"Lem-ipc Client team number %u goto pos [%u][%u]\n"RESET, id, point.x, point.y);
 		set_tile_board_val(ipc->ptr, point, id);
-		semaphore_unlock(ipc->semid);
-		sleep(1);
+		sem_unlock(ipc->semid);
+		usleep(1000);
 	}
 }
 
@@ -75,25 +76,25 @@ int main(int argc, char **argv)
 	}
 	
 	// ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
-	uint32_t val = player.team_id;
+	// uint32_t val = player.team_id;
 
-	semaphore_lock(ipc.semid);
-	t_vec point = get_reachable_point(ipc.ptr);
-	ft_printf_fd(2, YELLOW"Lem-ipc Client team number %u start pos [%u][%u]\n"RESET, player.team_id, point.x, point.y);
-	set_tile_board_val(ipc.ptr, point, val);
-	semaphore_unlock(ipc.semid);
+	// sem_lock(ipc.semid);
+	// t_vec point = get_reachable_point(ipc.ptr);
+	// ft_printf_fd(2, YELLOW"Lem-ipc Client team number %u start pos [%u][%u]\n"RESET, player.team_id, point.x, point.y);
+	// set_tile_board_val(ipc.ptr, point, val);
+	// sem_unlock(ipc.semid);
 
 	game_loop(&ipc, player.team_id);
 
-	semaphore_lock(ipc.semid);
+	sem_lock(ipc.semid);
 	ft_printf_fd(2, YELLOW"Lem-ipc Client team number %d end\n"RESET, player.team_id);	
-	semaphore_unlock(ipc.semid);
+	sem_unlock(ipc.semid);
 
 
 	if (get_attached_processnb(&ipc) == 1) {
 		// display_uint16_array(ipc.ptr);
 		ft_printf_fd(1, RED"Lem-ipc Server Down %d %d\n"RESET, g_game_run, player.team_id);
-		// semctl(ipc.semid, 0, GETVAL) == 0 ? semaphore_unlock(ipc.semid) : ft_printf_fd(2, "Nothing todo\n");
+		// semctl(ipc.semid, 0, GETVAL) == 0 ? sem_unlock(ipc.semid) : ft_printf_fd(2, "Nothing todo\n");
 		clean_shared_memory(&ipc);
 	}
 	return (ret);

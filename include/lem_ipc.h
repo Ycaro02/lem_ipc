@@ -81,9 +81,8 @@ typedef struct s_player {
 int			init_game(t_ipc *ipc, char *path, int8_t allow);
 int 		destroy_semaphore_set(int semid);
 
-
-int semaphore_unlock(int semid);
-int semaphore_lock(int semid);
+int 		sem_lock(int semid);
+int 		sem_unlock(int semid);
 
 /* start ipc */
 int			init_shared_memory(t_ipc *ipc);

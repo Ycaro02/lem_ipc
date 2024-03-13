@@ -15,7 +15,7 @@ int destroy_semaphore_set(int semid) {
  * @param semid The semaphore id
  * @return 0 on success, -1 on error
 */
-int semaphore_lock(int semid) {
+int sem_lock(int semid) {
 	struct sembuf sops = {0, -1, 0};
 	return (semop(semid, &sops, 1));
 }
@@ -26,7 +26,7 @@ int semaphore_lock(int semid) {
  * @param semid The semaphore id
  * @return 0 on success, -1 on error
 */
-int semaphore_unlock(int semid) {
+int sem_unlock(int semid) {
 	struct sembuf sops = {0, 1, 0};
 	return (semop(semid, &sops, 1));
 }
@@ -148,6 +148,6 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	if (ipc->shmid == -1 || attach_shared_memory(ipc) == -1) {
 		return (-1);
 	}
-	semaphore_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
+	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
 	return (0);
 }
