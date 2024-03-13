@@ -78,28 +78,29 @@ static int get_shared_mem_id(key_t key)
 
 	errno = 0;
 	shmid = shmget(key, ALIGN_SHARED_MEM, 0666);
+	ft_printf_fd(1, GREEN"Try to get mem id key: %u\n"RESET, key);
 	if (shmid == -1) {
 		syscall_perror("shmget");
+		ft_printf_fd(2, RED"Error child can't get shared data shmget"RESET);
 		return (-1);
 	}
-	// ft_printf_fd(1, GREEN"Child get shared mem ID  %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
+	ft_printf_fd(1, GREEN"Child get shared mem ID key: %u\n"RESET, key);
 	return (shmid);
 }
 
 
 int sem_detect_child(t_ipc *ipc, int8_t allow)
 {
+	int flag = 0666;
+	
+	if (allow)
+		flag |= (IPC_CREAT | IPC_EXCL);
 
-	if (allow) {
-		ipc->semid = semget(ipc->key, 1, (IPC_CREAT | IPC_EXCL | 0666));
-	} else {
-		ipc->semid = semget(ipc->key, 1, 0666);
-	}
-	// ipc->semid = semget(ipc->key, 1, (IPC_CREAT | IPC_EXCL | 0666));
+	ipc->semid = semget(ipc->key, 1, (flag | 0666));
 	if (allow == 0 && ipc->semid == -1) { /* if error and can't create sem (vizualizer case) */
 		syscall_perror("semget");
 		return (-1);
-	} else if ( ipc->semid == -1 ) { /* if ressource already created */
+	} else if ((!allow && ipc->semid != -1 ) || (allow && ipc->semid == -1)) { /* if ressource already created */
 		/* need to get semaphore first */
 		ipc->semid = get_sem_set_id(ipc->key);
 		ipc->shmid = get_shared_mem_id(ipc->key);
@@ -112,9 +113,23 @@ int sem_detect_child(t_ipc *ipc, int8_t allow)
 	return (0); /* parent case */
 }
 
+int chek_path_exist(char *path)
+{
+	if (access(path, F_OK | R_OK | W_OK) == -1) {
+		ft_printf_fd(2, RED"Error file %s not found"RESET, path);
+		return (0);
+	}
+	return (1);
+}
+
 int init_semaphores_set(t_ipc *ipc, char *path, int8_t allow)
 {
 	/* Same here active protection when debug start is finish */
+
+	if (!chek_path_exist(path)) {
+		return (-1);
+	}
+
 	ipc->key = file_to_key(path);
 	if (ipc->key == -1) {
 		ft_printf_fd(2, RED"Error can't get key for %s"RESET, path);

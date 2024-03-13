@@ -20,7 +20,7 @@ void signal_handler(int signum)
 {
 	g_game_run = 0;
 	(void)signum;
-	ft_printf_fd(2, RED"\nSIGINT Catch in display: %d\n"RESET, signum);
+	// ft_printf_fd(2, RED"\nSIGINT Catch in display: %d\n"RESET, signum);
 	return ;
 }
 
@@ -40,7 +40,7 @@ void game_loop(t_ipc *ipc, uint32_t id) {
 	while (g_game_run) {
 		semaphore_lock(ipc->semid);
 		display_uint16_array(ipc->ptr);
-		if (get_attached_processnb(ipc) <= 2) {
+		if (get_attached_processnb(ipc) <= 1) {
 			ft_printf_fd(2, RED"Shutdown display\n"RESET);
 			g_game_run = 0;
 		}
@@ -68,9 +68,8 @@ int main(int argc, char **argv)
 	// ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
 
 	game_loop(&ipc, player.team_id);
-
 	semaphore_lock(ipc.semid);
-	ft_printf_fd(2, RED"Lem-ipc number %d end\n"RESET, player.team_id);	
+	ft_printf_fd(2, RED"Lem-ipc number %u end\n"RESET, player.team_id);	
 	semaphore_unlock(ipc.semid);
 
 	return (0);

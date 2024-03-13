@@ -17,31 +17,40 @@ sigint_test() {
 	
 	${LEMIPC} 1 &
 	pid1=$!
+	sleep 1
 
-	${LEMIPC} 2 &
+	${LEMIPC} 8 &
 	pid2=$!
-
-	${LEMIPC} 3 &
-	pid3=$!
-
-	${LEMIPC} 88 &
-	pid88=$!
+	sleep 1
 
 	${LEMIPC} 19 &
-	pid19=$!
+	pid3=$!
+	sleep 1
+
+	${LEMIPC} 88 &
+	pid4=$!
+	sleep 1
+
+	${LEMIPC} 42 &
+	pid5=$!
+	
+	display_color_msg ${YELLOW} "Lauch display handler ..."
+	./lemipc_display &
+	pid6=$!
 	
 	display_color_msg ${YELLOW} "Let runing for 5 seconds ..."
 	sleep 5
 	
 	send_sigint ${pid1}
-	send_sigint ${pid19}
+	send_sigint ${pid5}
 	send_sigint ${pid2}
 	send_sigint ${pid3}
-	send_sigint ${pid88}
+	send_sigint ${pid4}
 
+	send_sigint ${pid6}
 	
 	# display_color_msg ${YELLOW} "Waiting for process to finish ..."
-	wait ${pid1} && wait ${pid19} && wait ${pid2} && wait ${pid3} && wait ${pid88}
+	wait ${pid1} && wait ${pid5} && wait ${pid2} && wait ${pid3} && wait ${pid4} && wait ${pid6}
 	# display_color_msg ${YELLOW} "Waiting protect ..."
 	sleep 5
 	display_color_msg ${YELLOW} "Waiting protect finish ..."

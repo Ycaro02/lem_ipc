@@ -52,7 +52,7 @@
 
 # define PLAYER 1
 
-# define IPC_NAME "lemipc"
+# define IPC_NAME "/tmp/lemipc_key"
 
 /* game status */
 extern int g_game_run;

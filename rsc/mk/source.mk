@@ -27,6 +27,9 @@ OBJS 			= $(addprefix $(OBJ_DIR)/, $(SRCS:.c=.o))
 
 DISPLAY_OBJS	= $(addprefix $(OBJ_DIR)/, $(DISPLAY_SRCS:.c=.o))
 
+IPCS_FREE		= ./rsc/sh/check_ipcs_free.sh
+
+LEMIPC_RUN		= ./rsc/sh/run_lemipc.sh
 
 # SRCS_BONUS		=	main_bonus.c
 
