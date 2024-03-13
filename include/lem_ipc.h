@@ -52,6 +52,8 @@
 
 # define PLAYER 1
 
+# define IPC_NAME "lemipc"
+
 /* game status */
 extern int g_game_run;
 

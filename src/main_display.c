@@ -61,7 +61,7 @@ int main(int argc, char **argv)
 		return (1);
 	}
 
-	if (init_semaphores_set(&ipc, argv[0], DISPLAY_HANDLER) != 0) {
+	if (init_semaphores_set(&ipc, IPC_NAME, DISPLAY_HANDLER) == -1) {
 		return (1);
 	}
 	

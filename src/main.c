@@ -68,7 +68,7 @@ int main(int argc, char **argv)
 		return (1);
 	}
 
-	if (init_semaphores_set(&ipc, argv[0], PLAYER) == -1) {
+	if (init_semaphores_set(&ipc, IPC_NAME, PLAYER) == -1) {
 		return (1);
 	}
 	
