@@ -78,13 +78,13 @@ static int get_shared_mem_id(key_t key)
 
 	errno = 0;
 	shmid = shmget(key, ALIGN_SHARED_MEM, 0666);
-	ft_printf_fd(1, GREEN"Try to get mem id key: %u\n"RESET, key);
+	// ft_printf_fd(1, GREEN"Try to get mem id key: %u\n"RESET, key);
 	if (shmid == -1) {
 		syscall_perror("shmget");
 		ft_printf_fd(2, RED"Error child can't get shared data shmget"RESET);
 		return (-1);
 	}
-	ft_printf_fd(1, GREEN"Child get shared mem ID key: %u\n"RESET, key);
+	// ft_printf_fd(1, GREEN"Child get shared mem ID key: %u\n"RESET, key);
 	return (shmid);
 }
 

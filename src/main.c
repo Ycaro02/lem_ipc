@@ -48,9 +48,10 @@ void game_loop(t_ipc *ipc, uint32_t id) {
 	(void)ipc;
 	(void)id;
 	while (g_game_run) {
-		// semaphore_lock(ipc->semid);
-		// ft_printf_fd(1, "Lem-ipc number %d run\n",id);
-		// semaphore_unlock(ipc->semid);
+		semaphore_lock(ipc->semid);
+		ft_printf_fd(1, "Lem-ipc number %d run\n",id);
+		set_tile_board_val(ipc->ptr, create_vector(0, 0), id);
+		semaphore_unlock(ipc->semid);
 		sleep(1);
 	}
 }
@@ -82,13 +83,13 @@ int main(int argc, char **argv)
 	game_loop(&ipc, player.team_id);
 
 	semaphore_lock(ipc.semid);
-	ft_printf_fd(2, RED"Lem-ipc number %d end\n"RESET, player.team_id);	
+	ft_printf_fd(2, YELLOW"Lem-ipc Client team number %d end\n"RESET, player.team_id);	
 	semaphore_unlock(ipc.semid);
 
 
 	if (get_attached_processnb(&ipc) == 1) {
-		display_uint16_array(ipc.ptr);
-		ft_printf_fd(1, CYAN"Lem-ipc end %d %d\n"RESET, g_game_run, player.team_id);
+		// display_uint16_array(ipc.ptr);
+		ft_printf_fd(1, RED"Lem-ipc Server Down %d %d\n"RESET, g_game_run, player.team_id);
 		// semctl(ipc.semid, 0, GETVAL) == 0 ? semaphore_unlock(ipc.semid) : ft_printf_fd(2, "Nothing todo\n");
 		clean_shared_memory(&ipc);
 	}

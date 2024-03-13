@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 
 	game_loop(&ipc, player.team_id);
 	semaphore_lock(ipc.semid);
-	ft_printf_fd(2, RED"Lem-ipc number %u end\n"RESET, player.team_id);	
+	ft_printf_fd(2, RED"Lem-ipc Display Handler end\n"RESET, player.team_id);	
 	semaphore_unlock(ipc.semid);
 
 	return (0);

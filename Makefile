@@ -5,14 +5,11 @@ DISPLAY_NAME	= lemipc_display
 NAME		=	lemipc
 CC			=	gcc
 CFLAGS		=	-Wall -Wextra -Werror -O3 -g
-# CFLAGS		=	-Wall -Wextra -Werror -O3 -g -fsanitize=address
 
 ASCII_ART	=	./rsc/mk/ascii.sh
 ASCII_NAME	=	${NAME}
 
 CHECK_IPC	=	./rsc/sh/check_ipcs_free.sh
-
-# TESTER_DIR	=	${NAME}Tester
 
 all:		$(NAME)
 
@@ -26,7 +23,7 @@ $(NAME):	$(OBJ_DIR) $(OBJS) $(DISPLAY_NAME) $(LIST) $(LIBFT)
 
 $(DISPLAY_NAME): $(DISPLAY_OBJS) $(LIST) $(LIBFT)
 	@printf "$(CYAN)Compiling ${DISPLAY_NAME} ...$(RESET)\n"
-	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST)  
+	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST)
 	@printf "$(GREEN)Compiling $(DISPLAY_NAME) done$(RESET)\n"
 
 $(LIST):
@@ -80,7 +77,7 @@ test: $(NAME)
 clear:
 	@$(IPCS_FREE)
 
-run:
+run: $(NAME)
 	@$(LEMIPC_RUN)
 
 re:			fclean all
