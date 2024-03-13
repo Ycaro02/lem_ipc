@@ -17,6 +17,7 @@ int init_display(t_player *player, int argc, char **argv)
 
 int destroy_windows()
 {
+	mlx_destroy_image(g_game->mlx, g_game->img.image);
 	mlx_destroy_window(g_game->mlx, g_game->win);
 	mlx_destroy_display(g_game->mlx);
 	free(g_game->mlx);
@@ -55,16 +56,26 @@ int boardmlx_display() {
 	sem_lock(g_game->ipc->semid);
 	uint32_t pixel_x = 0, pixel_y = 0;
 	int color = 0;
+	
+	if (get_attached_processnb(g_game->ipc) <= 2) {
+		ft_printf_fd(2, RED"Shutdown display\n"RESET);
+		g_game_run = 0;
+		sem_unlock(g_game->ipc->semid);
+		destroy_windows();
+	}
 
+	mlx_clear_window(g_game->mlx, g_game->win);
 
-	for (uint32_t y  = 0; y < SCREEN_HEIGHT; y++) {
-		for (uint32_t x = 0; x < SCREEN_WIDTH; x++) {
+	for (uint32_t y  = 1; y < SCREEN_HEIGHT - 1; y++) {
+		for (uint32_t x = 1; x < SCREEN_WIDTH - 1; x++) {
 			uint32_t idx = ((pixel_x / TILE_SIZE) % BOARD_W) + ((pixel_y / TILE_SIZE) * BOARD_W);
 			uint32_t tile_state = g_game->ipc->ptr[idx];
 			// ft_printf_fd(1, "idx: %d\n", idx);
 			color = tile_state == TILE_EMPTY ? 0xFFFFFF : tile_state % 2 ? 0x0000FF : 0xFF0000;
+			if (pixel_x % TILE_SIZE != 0 && pixel_y % TILE_SIZE != 0) {
+				((int *)g_game->img.data)[x + (y * SCREEN_WIDTH)] = color;
+			}
 			/* need to change this write in buffer instead and flush at the end of loop */
-			((int *)g_game->img.data)[x + (y * SCREEN_WIDTH)] = color;
 			// mlx_pixel_put(g_game->mlx, g_game->win, x, y, color);
 			pixel_x++;
 		}

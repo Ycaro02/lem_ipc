@@ -13,7 +13,7 @@ sigint_loop_test() {
 	./rsc/mk/ascii.sh "tester"
 	rm_pid_log ${PID_LOG}
 
-	for i in {1..4}
+	for i in {1..12}
 	do
 		${LEMIPC} ${i} &
 		local loc_pid=$!
@@ -24,12 +24,12 @@ sigint_loop_test() {
 	display_color_msg ${YELLOW} "Lauch display handler ..."
 	./lemipc_display &
 	local display_pid=$!
-	display_color_msg ${YELLOW} "Let runing for 5 seconds ..."
-	sleep 5
+	display_color_msg ${YELLOW} "Let runing for 10 seconds ..."
+	sleep 10
 
 	local all_pid=$(cat ${PID_LOG} | tr '\n' ' ') 
-	send_sigint ${display_pid}
-	sleep 1
+	# send_sigint ${display_pid}
+	# sleep 1
 	send_sigint_all
 	wait ${all_pid}
 	sleep 1

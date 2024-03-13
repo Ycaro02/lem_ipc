@@ -44,17 +44,17 @@ int init_signal_handler(void)
 }
 
 
-void game_loop(t_ipc *ipc, uint32_t id) {
+void game_loop(t_ipc *ipc, t_player *player) {
 	init_signal_handler();
-	(void)ipc;
-	(void)id;
 	while (g_game_run) {
 		sem_lock(ipc->semid);
 		t_vec point = get_reachable_point(ipc->ptr);
+		set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+		player->pos = point;
 		// ft_printf_fd(2, YELLOW"Lem-ipc Client team number %u goto pos [%u][%u]\n"RESET, id, point.x, point.y);
-		set_tile_board_val(ipc->ptr, point, id);
+		set_tile_board_val(ipc->ptr, point, player->team_id);
 		sem_unlock(ipc->semid);
-		sleep(1);
+		usleep(100000); /* 1/10 sec */
 	}
 }
 
@@ -75,13 +75,13 @@ int main(int argc, char **argv)
 		return (1);
 	}
 
-	game_loop(&ipc, player.team_id);
+	game_loop(&ipc, &player);
 	sem_lock(ipc.semid);
 	ft_printf_fd(2, YELLOW"Lem-ipc Client team number %d end\n"RESET, player.team_id);	
 	sem_unlock(ipc.semid);
 
 
-	if (get_attached_processnb(&ipc) == 1) {
+	if (get_attached_processnb(&ipc) == 1) { /* need to check here for victory instead */
 		// display_uint16_array(ipc.ptr);
 		ft_printf_fd(1, RED"Lem-ipc Server Down %d %d\n"RESET, g_game_run, player.team_id);
 		// semctl(ipc.semid, 0, GETVAL) == 0 ? sem_unlock(ipc.semid) : ft_printf_fd(2, "Nothing todo\n");
