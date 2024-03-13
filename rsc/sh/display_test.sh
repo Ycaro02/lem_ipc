@@ -1,34 +1,39 @@
 #!/bin/bash
 
-SOLO_LOG="solo_pid.txt"
+FIRST="first_pid.txt"
+SECOND="second_pid.txt"
 
 source ./rsc/sh/handle_sigint.sh
 
 
-display_test() {
-	${LEMIPC} 1 &
+solo_exec() {
+	local file="${1}"
+	${LEMIPC} "${2}" &
 	local loc_pid=$!
-	echo ${loc_pid} > ${SOLO_LOG}
+	echo ${loc_pid} > ${file}
 	sleep 0.5
-	display_color_msg ${YELLOW} "Lauch display handler ..."
-	./lemipc_display &
 }
 
-rm_solo_log() {
-	if [ -f "${SOLO_LOG}" ]; then
-		local pid=$(cat ${SOLO_LOG})
+clear_exec() {
+	local file="${1}"
+	if [ -f "${file}" ]; then
+		local pid=$(cat ${file})
 		if [ "${pid}" != "" ]; then
 			send_sigint ${pid}
-			rm  ${SOLO_LOG}
+			rm  ${file}
 		fi
 	fi
 }
 
 if [ "$1" == "rm" ]; then
-	rm_solo_log
+	clear_exec ${FIRST}
+	clear_exec ${SECOND}
 else
 	source ./rsc/sh/color.sh
-	rm_solo_log
-	sleep 1
-	display_test
+	clear_exec ${FIRST}
+	clear_exec ${SECOND}
+	solo_exec ${FIRST} 1
+	solo_exec ${SECOND} 2
+	display_color_msg ${YELLOW} "Lauch display handler ..."
+	./lemipc_display
 fi

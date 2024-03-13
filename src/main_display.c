@@ -50,8 +50,6 @@ int	key_hooks_press(int keycode, t_game *game)
 	return (0);
 }
 
-
-
 int boardmlx_display() {
 	sem_lock(g_game->ipc->semid);
 	uint32_t pixel_x = 0, pixel_y = 0;
@@ -90,31 +88,24 @@ int boardmlx_display() {
 	return (0);
 }
 
-
-
-void init_mlx() {
+int8_t init_mlx() {
 	int endian = 0;
 	g_game->mlx = mlx_init();
 	if (!g_game->mlx) {
 		ft_printf_fd(2, "mlx_init failed\n");
-		exit(1);
+		return (ERROR_CASE);
 	}
 	g_game->win = mlx_new_window(g_game->mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "LEM_IPC");
-	if (!g_game->win) {
-		ft_printf_fd(2, "mlx_new_window failed\n");
-		exit(1);
-	}
 	g_game->img.image = mlx_new_image(g_game->mlx, SCREEN_WIDTH, SCREEN_HEIGHT);
-	if (!g_game->img.image) {
-		ft_printf_fd(2, "mlx_new_image failed\n");
-		exit(1);
+	if (!g_game->win || !g_game->img.image) {
+		ft_printf_fd(2, "mlx_new_window or image failed\n");
+		return (ERROR_CASE);
 	}
-
 	g_game->img.data = mlx_get_data_addr(g_game->img.image, &g_game->img.bpp,
 			&g_game->img.width, &endian);
 	if (!g_game->img.data) {
 		ft_printf_fd(2, "mlx_get_data_addr failed\n");
-		exit(1);
+		return (ERROR_CASE);
 	}
 
 	mlx_hook(g_game->win, 2, 1L, key_hooks_press, g_game);
@@ -122,7 +113,7 @@ void init_mlx() {
 	// mlx_loop_hook(g_game->mlx, game_display, g_game);
 	mlx_loop_hook(g_game->mlx, boardmlx_display, g_game);
 	mlx_loop(g_game->mlx);
-	
+	return (0);
 
 }
 
