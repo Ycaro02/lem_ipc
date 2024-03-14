@@ -38,10 +38,10 @@
 # define PAGE_SIZE              (size_t)getpagesize()
 
 /* Map height */
-# define BOARD_H 20U
+# define BOARD_H 40U
 
 /* Map width */
-# define BOARD_W 20U
+# define BOARD_W 80U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
@@ -128,6 +128,6 @@ void 		set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value);
 int			init_player(t_player *player, int argc, char **argv);
 void 		player_routine(t_ipc *ipc, t_player *player);
 /* random position */
-t_vec 		get_reachable_point(uint32_t *array);
+t_vec get_reachable_point(uint32_t *array, t_vec player_pos);
 
 # endif /* LEM_IPC_HEADER */ 

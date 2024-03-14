@@ -9,15 +9,15 @@
 
 /* t_vec 2d point vector */
 typedef struct vec_t {
-	u_int16_t	x;
-	u_int16_t	y;
+	uint32_t	x;
+	uint32_t	y;
 }	t_vec;
 
  /********************************************************************
  *                        PUBLIC FUNCTIONS                          *
  ********************************************************************/
 
-t_vec		create_vector(int y, int x);
+t_vec		create_vector(uint32_t y, uint32_t x);
 t_vec		add_vector(t_vec a, t_vec b);
 t_vec		sub_vector(t_vec a, t_vec b);
 t_vec		mult_vec(t_vec a, t_vec b);

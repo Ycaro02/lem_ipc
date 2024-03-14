@@ -35,6 +35,45 @@ static int init_signal_handler(void)
 	return (0);
 }
 
+static uint8_t check_arround_point(uint32_t *board, t_vec point, uint32_t team_id)
+{
+	t_vec	 	arround[8] = {
+		{point.x - 1, point.y - 1},
+		{point.x - 1, point.y},
+		{point.x - 1, point.y + 1},
+		{point.x, point.y - 1},
+		{point.x, point.y + 1},
+		{point.x + 1, point.y - 1},
+		{point.x + 1, point.y},
+		{point.x + 1, point.y + 1}
+	};
+	uint8_t		enemy_arround = 0;
+	uint32_t	ret = 0;
+
+	for (int i = 0; i < 8; i++) {
+		if (get_board_index(arround[i]) >= BOARD_SIZE) {
+			continue;
+		}
+		ret = get_tile_board_val(board, arround[i]);
+		if (ret != team_id && ret != TILE_EMPTY) {
+			++enemy_arround;
+		}
+	}
+	ret = (enemy_arround >= 2); /* if dead return 1 otherwise 0 */
+	return (ret);
+}
+
+/* Check if player is dead */
+static uint8_t check_player_death(t_ipc *ipc, t_player *player)
+{
+	uint8_t		ret = 0;
+	
+	sem_lock(ipc->semid);
+	ret = check_arround_point(ipc->ptr, player->pos, player->team_id);
+	sem_unlock(ipc->semid);
+	return (ret);
+}
+
 void player_routine(t_ipc *ipc, t_player *player) 
 {
 	uint32_t	to_rush;
@@ -47,13 +86,19 @@ void player_routine(t_ipc *ipc, t_player *player)
 		sem_lock(ipc->semid);
 		to_rush =  extract_msg(ipc, player);
 		send_msg(ipc, player, to_rush);
-		point = get_reachable_point(ipc->ptr);
-		/* Set empty last position tile */
-		set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
-		player->pos = point;
-		/* Set team id value in new player position */
-		set_tile_board_val(ipc->ptr, point, player->team_id);
+		point = get_reachable_point(ipc->ptr, player->pos);
+		if (!vector_cmp(point, player->pos)) {
+			/* Set empty last position tile */
+			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+			player->pos = point;
+			/* Set team id value in new player position */
+			set_tile_board_val(ipc->ptr, point, player->team_id);
+		}
 		sem_unlock(ipc->semid);
+		if (check_player_death(ipc, player)) {
+			g_game_run = 0;
+			break;
+		}
 		usleep(100000); /* 1/10 sec */
 	}
 }

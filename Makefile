@@ -12,7 +12,7 @@ IPCS_FREE		=	./rsc/sh/check_ipcs_free.sh
 
 LEMIPC_RUN		=	./rsc/sh/run_lemipc.sh
 DISPLAY_TEST	=	./rsc/sh/display_test.sh
-MLX_FLAG 		=	-L minilibx-linux -lmlx -lX11 -lXext -lm
+MLX_FLAG 		=	-Lminilibx-linux -lmlx -lX11 -lXext -lm
 
 all:		$(NAME)
 

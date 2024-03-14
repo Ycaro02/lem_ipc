@@ -5,17 +5,21 @@
 */
 uint32_t     gener_number(int max)
 {
-    time_t  t;
-    int             nb;
+	uint32_t nb = 0;
 
-    if (max == 0)
-        return (0);
-    if (time(&t) == (time_t)-1) {
-        printf("Funtion time faillure\n");
-        return (-1);
-    }
-    srand((unsigned)t);
-    nb = rand() % max;
+	int fd = open("/dev/urandom", O_RDONLY); 
+	if (fd != -1)
+	{
+		char buff[4] = {0};
+		int len = read(fd, &buff, 4);
+		if (len == -1) {
+			printf("Error reading from /dev/urandom\n");
+			close(fd);
+		}
+		// ft_printf_fd(1, "buff = %d%d%d%d\n", buff[0], buff[1], buff[2], buff[3]);
+		nb = (*(uint32_t *)buff) % max;
+		close(fd);
+	}
     return (nb);
 }
 
@@ -26,29 +30,33 @@ uint32_t     gener_number(int max)
 t_vec generate_random_board_point(uint32_t max)
 {
     uint32_t idx = gener_number(max);
+	// ft_printf_fd(1, "idx generated: %d\n", idx);
 	// int idx = (board_size.y * BOARD_W) +  board_size.x;
 	uint32_t y = idx / BOARD_W;
 	uint32_t x = idx % BOARD_W;
 
-	// ft_printf_fd(1, "idx = %u max= %u\n", idx, max);
-	// ft_printf_fd(1, "y = %u, x = %u\n", y, x);
 	t_vec pos = create_vector(y, x);
-	// ft_printf_fd(1, CYAN"pos = [%u][%u]\n"RESET, pos.y, pos.x);
     return (pos);
 }
 
 /**
 * Get random reachable board position
 */
-t_vec get_reachable_point(uint32_t *array)
+t_vec get_reachable_point(uint32_t *array, t_vec player_pos)
 {
     t_vec board_size = create_vector(BOARD_H, BOARD_W);
     t_vec new_point = generate_random_board_point(BOARD_H * BOARD_W);
     int found = -1;
     int max_iter = 0;
+	(void)player_pos;
+	// ft_printf_fd(1, "player_pos: [%d][%d]\n", player_pos.y, player_pos.x);
+	// ft_printf_fd(1, "new_point: [%d][%d]\n", new_point.y, new_point.x);
+	// if (get_tile_board_val(array, new_point) != 0) {
+	// 	return (player_pos);
+	// }
     while (found != 0 && max_iter < 100)
     {
-        if (get_tile_board_val(array, new_point) != 0) { /* ugly brut force case */
+        if (get_tile_board_val(array, new_point) != TILE_EMPTY) { /* ugly brut force case */
             if (new_point.x < board_size.x - 1)
                 new_point.x++;
             else {

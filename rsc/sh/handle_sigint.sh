@@ -14,7 +14,7 @@ rm_pid_log() {
 send_sigint() {
 	PID=$1
 	# display_color_msg ${YELLOW} "Sending SIGINT to pid: ${PID}"
-	kill -2 ${PID}
+	kill -2 ${PID} 2> /dev/null
 }
 
 send_sigint_all() {

@@ -36,7 +36,7 @@ int game_display() {
 	}
 	display_uint16_array(g_game->ipc->ptr);
 	sem_unlock(g_game->ipc->semid);
-	sleep(1);
+	usleep(10000); /* 1/10 sec */
 	return (0);
 }
 
@@ -62,24 +62,20 @@ int boardmlx_display() {
 		destroy_windows();
 	}
 
-
 	for (uint32_t y = 0; y < SCREEN_HEIGHT; ++y) {
 		for (uint32_t x = 1; x < SCREEN_WIDTH - 1; ++x) {
 			uint32_t idx = ((pixel_x / TILE_SIZE) % BOARD_W) + ((pixel_y / TILE_SIZE) * BOARD_W);
 			uint32_t tile_state = g_game->ipc->ptr[idx];
 			color = tile_state == TILE_EMPTY ? 0xFFFFFF : tile_state % 2 ? 0x0000FF : 0xFF0000;
 			if (pixel_x % TILE_SIZE != 0 && pixel_y % TILE_SIZE != 0) {
-				((int *)g_game->img.data)[x + (y * SCREEN_WIDTH)] = color;
+				((uint32_t *)g_game->img.data)[x + (y * SCREEN_WIDTH)] = color;
 			}
 			++pixel_x;
 		}
 		pixel_x = 0;
 		++pixel_y;
 	}
-
-
 	mlx_put_image_to_window(g_game->mlx, g_game->win, g_game->img.image, 0, 0);
-
 	sem_unlock(g_game->ipc->semid);
 	return (0);
 }

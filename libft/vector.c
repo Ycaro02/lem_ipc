@@ -13,7 +13,7 @@ void display_lst_vec(t_list *lst)
 }
 
 /* @brief create a vector */
-t_vec create_vector(int y, int x) {
+t_vec create_vector(uint32_t y, uint32_t x) {
         t_vec vec;
         vec.x = x;
         vec.y = y;

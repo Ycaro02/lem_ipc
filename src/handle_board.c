@@ -10,7 +10,6 @@ uint32_t get_board_index (t_vec vec)
 {
 	uint32_t idx = (vec.y * BOARD_W) +  vec.x;
 	if (idx >= BOARD_SIZE) {
-		ft_printf_fd(2, RED"Get_board_index error: invalid index: [%d]\n"RESET, idx);
 		return (OUT_OF_BOARD);
 	}
 	return (idx);
@@ -26,6 +25,7 @@ void set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value)
 {
 	int idx = get_board_index(vec);
 	if (idx == OUT_OF_BOARD) {
+		ft_printf_fd(2, RED"Get_board_index error: invalid index: [%d]\n"RESET, idx);
 		return ;
 	}
 	array[idx] = value;

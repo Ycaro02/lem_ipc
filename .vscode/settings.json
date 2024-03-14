@@ -21,6 +21,11 @@
 		"msq.h": "c",
 		"struct_msqid_ds.h": "c",
 		"struct_msqid64_ds.h": "c",
-		"struct_timespec.h": "c"
+		"struct_timespec.h": "c",
+		"xshm.h": "c",
+		"mman.h": "c",
+		"xlib.h": "c",
+		"xutil.h": "c",
+		"xkblib.h": "c"
 	}
 }
