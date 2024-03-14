@@ -38,10 +38,10 @@
 # define PAGE_SIZE              (size_t)getpagesize()
 
 /* Map height */
-# define BOARD_H 30U
+# define BOARD_H 35U
 
 /* Map width */
-# define BOARD_W 60U
+# define BOARD_W 70U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)

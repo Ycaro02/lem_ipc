@@ -27,11 +27,12 @@ int main(int argc, char **argv)
 	ft_printf_fd(2, YELLOW"Lem-Ipc Client team nb [%d] die on [%d][%d]\n"RESET, player.team_id, player.pos.y, player.pos.x);
 	set_tile_board_val(ipc.ptr, player.pos, TILE_EMPTY);
 	team_handling(ipc.ptr, player.team_id, RM_TEAM);
-	sem_unlock(ipc.semid);
 
-	if (get_attached_processnb(&ipc) == 1) { /* need to check here for victory instead */
-		ft_printf_fd(1, RED"Lem-ipc Server Down %d %d\n"RESET, g_game_run, player.team_id);
+	if (get_attached_processnb(&ipc) == 1) {
 		clean_shared_rsc(&ipc);
+		ft_printf_fd(1, RED"Lem-ipc Server Down Team %u Won\n"RESET, player.team_id);
+	} else {
+		sem_unlock(ipc.semid);
 	}
 	return (ret);
 }

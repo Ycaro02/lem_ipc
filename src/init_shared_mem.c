@@ -90,11 +90,13 @@ int clean_shared_rsc(t_ipc *ipc)
 {
 	int ret = 0;
 
+
 	ret = detach_shared_memory(ipc);
 	if (ret == -1) {
 		return (ret);
 	}
 	ret = destroy_shared_memory(ipc->shmid);
+	sem_unlock(ipc->semid);
 	destroy_semaphore_set(ipc->semid);
 	remove_msg_queue(ipc);
 	return (ret);
