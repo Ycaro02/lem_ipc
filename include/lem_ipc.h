@@ -49,8 +49,10 @@
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
+# define TEAM_NB BOARD_SIZE
+
 /* Shared memory data size needed */
-# define SHM_DATA_SIZE ((sizeof(uint32_t) * BOARD_SIZE) + sizeof(t_list)) /* (4 * (30 * 60)) + 16 */
+# define SHM_DATA_SIZE ((sizeof(uint32_t) * BOARD_SIZE) + sizeof(uint32_t)) /* (4 * (30 * 60)) + 4, last for team number */
 
 # define TEAM_LST_OFF	BOARD_SIZE /* Team list head pointer */
 
@@ -118,11 +120,13 @@ typedef struct s_player {
 } t_player;
 
 
+
+# define ADD_TEAM	1
+# define RM_TEAM	0
+
 void display_team_lst(t_list *team);
-void *get_lstteam_head(void *ptr);
-
-int8_t		team_handling(t_list **lst, uint32_t team_id);
-
+int8_t build_list_number_team(t_player *player ,uint32_t *array);
+void team_handling(uint32_t *array, uint32_t team_id, int8_t add);
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
 uint32_t 	extract_msg(t_ipc *ipc, t_player *player);

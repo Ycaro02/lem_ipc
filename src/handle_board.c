@@ -40,7 +40,6 @@ uint32_t get_tile_board_val(uint32_t *array, t_vec vec)
 	return (array[idx]);
 }
 
-
 /* @brief display board in stdout */
 void display_uint16_array(uint32_t *array)
 {

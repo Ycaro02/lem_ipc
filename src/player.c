@@ -74,9 +74,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 	}
 	/* Set First player position randomly */
 	sem_lock(ipc->semid);
-
-	team_handling(&player->team, player->team_id);
-	// ft_printf_fd(1, "head = %p\n", get_lstteam_head(ipc->ptr));
+	team_handling(ipc->ptr, player->team_id, ADD_TEAM);
 	display_team_lst(player->team);
 
 	point = get_random_point(ipc->ptr, player->pos);
@@ -106,6 +104,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 			player->pos = point;
 			/* Set team id value in new player position */
 			set_tile_board_val(ipc->ptr, point, player->team_id);
+			ft_printf_fd(2,"team number %u\n", ipc->ptr[TEAM_NB]);
 		}
 		sem_unlock(ipc->semid);
 		usleep(100000); /* 1/10 sec */

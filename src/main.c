@@ -26,6 +26,7 @@ int main(int argc, char **argv)
 	sem_lock(ipc.semid);
 	ft_printf_fd(2, YELLOW"Lem-ipc Client team number %d die restore [%d][%d]\n"RESET, player.team_id, player.pos.y, player.pos.x);
 	set_tile_board_val(ipc.ptr, player.pos, TILE_EMPTY);
+	team_handling(ipc.ptr, player.team_id, RM_TEAM);
 	sem_unlock(ipc.semid);
 
 	if (get_attached_processnb(&ipc) == 1) { /* need to check here for victory instead */

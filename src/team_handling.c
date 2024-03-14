@@ -68,20 +68,40 @@ void display_team_lst(t_list *team)
     }
 }
 
-
-void *get_lstteam_head(void *ptr)
+void team_handling(uint32_t *array, uint32_t team_id, int8_t add)
 {
-	return (ptr + TEAM_LST_OFF);
+	uint32_t i = 0;
+	for (i = 0; i < BOARD_SIZE; i++) {
+		if (array[i] == team_id) {
+            return ;
+		}
+	}
+    if (add) {
+        array[TEAM_NB] += 1U;
+        return ;
+    }
+    if (array[TEAM_NB] > 0U) {
+        array[TEAM_NB] -= 1U;
+    }
 }
 
-int8_t team_handling(t_list **lst, uint32_t team_id)
+
+int8_t build_list_number_team(t_player *player ,uint32_t *array)
 {
-    if (!team_exist(lst, team_id)) {
-        if (!add_team(lst, team_id)) {
+	uint32_t i = 0;
+	for (i = 0; i < BOARD_SIZE; i++) {
+		if (array[i] != 0 && !team_exist(&player->team, array[i])) {
+            if (!add_team(&player->team, array[i])) {
+                ft_printf_fd(2, "Malloc err build team lst\n");
+                return (0);
+            }
+		}
+	}
+    if (!team_exist(&player->team, player->team_id)) {
+        if (!add_team(&player->team, player->team_id)) {
+            ft_printf_fd(2, "Malloc err build team lst\n");
             return (0);
         }
     }
-    // display_team_lst(*team);
-    return (1);
+	return (1);
 }
-
