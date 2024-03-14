@@ -102,7 +102,7 @@ uint32_t extract_msg(t_ipc *ipc, t_player *player)
 	// ft_printf_fd(1, GREEN"Extracting message from team %d, val flag %d\n"RESET, player->team_id, IPC_NOWAIT);
 	if (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), player->team_id, IPC_NOWAIT) == -1) {
 		if (errno != ENOMSG) {
-			ft_printf_fd(2, YELLOW"No msgrcv from %d\n", player->team_id, RESET);
+			ft_printf_fd(2, YELLOW"No msg rcv from %d\n", player->team_id, RESET);
 			return (get_board_index(player->pos));
 		}
 		ft_printf_fd(2, RED"Error msgrcv from %d\n", player->team_id, RESET);

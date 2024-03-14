@@ -124,6 +124,9 @@ uint32_t	get_board_index(t_vec vec);
 void		display_uint16_array(uint32_t *array);
 void 		set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value);
 
+/* player */
+int			init_player(t_player *player, int argc, char **argv);
+void 		player_routine(t_ipc *ipc, t_player *player);
 /* random position */
 t_vec 		get_reachable_point(uint32_t *array);
 

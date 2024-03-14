@@ -12,6 +12,7 @@ SHARED_SRCS		=	init_shared_mem.c\
 					sem_handling.c\
 					random_position.c\
 					ipcs_utils.c\
+					player.c\
 
 
 DISPLAY_SRCS	= 	${SHARED_SRCS}\
