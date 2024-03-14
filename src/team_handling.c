@@ -74,15 +74,13 @@ void *get_lstteam_head(void *ptr)
 	return (ptr + TEAM_LST_OFF);
 }
 
-int8_t team_handling(void *ptr, uint32_t team_id)
+int8_t team_handling(t_list **lst, uint32_t team_id)
 {
-    void *team = get_lstteam_head(ptr);
-    if (!team_exist((t_list **)team, team_id)) {
-        if (!add_team((t_list **)team, team_id)) {
+    if (!team_exist(lst, team_id)) {
+        if (!add_team(lst, team_id)) {
             return (0);
         }
     }
-    ft_printf_fd(1, "*team = %p\n", team);
     // display_team_lst(*team);
     return (1);
 }

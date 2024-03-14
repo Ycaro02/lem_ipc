@@ -121,7 +121,8 @@ typedef struct s_player {
 void display_team_lst(t_list *team);
 void *get_lstteam_head(void *ptr);
 
-int8_t team_handling(void *ptr, uint32_t team_id);
+int8_t		team_handling(t_list **lst, uint32_t team_id);
+
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
 uint32_t 	extract_msg(t_ipc *ipc, t_player *player);

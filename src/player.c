@@ -74,10 +74,11 @@ void player_routine(t_ipc *ipc, t_player *player)
 	}
 	/* Set First player position randomly */
 	sem_lock(ipc->semid);
-	// t_list *team_ptr = ;
-	team_handling(ipc->ptr, player->team_id);
-	ft_printf_fd(1, "head = %p\n", get_lstteam_head(ipc->ptr));
-	display_team_lst(*(t_list **)get_lstteam_head(ipc->ptr));
+
+	team_handling(&player->team, player->team_id);
+	// ft_printf_fd(1, "head = %p\n", get_lstteam_head(ipc->ptr));
+	display_team_lst(player->team);
+
 	point = get_random_point(ipc->ptr, player->pos);
 	set_tile_board_val(ipc->ptr, point, player->team_id);
 	player->pos = point;
@@ -86,15 +87,18 @@ void player_routine(t_ipc *ipc, t_player *player)
 	while (g_game_run) {
 		sem_lock(ipc->semid);
 		if (check_player_death(ipc, player)) {
-			char *color = player->team_id % 2  ? RED : BLUE;
-			ft_printf_fd(1, "%sDEAD FOUND\n"RESET, color);
+			// char *color = player->team_id % 2  ? RED : BLUE;
+			// ft_printf_fd(1, "%sDEAD FOUND\n"RESET, color);
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;
 		}
+
 		to_rush =  extract_msg(ipc, player);
 		send_msg(ipc, player, to_rush);
+
+
 		point = get_random_point(ipc->ptr, player->pos);
 		if (!vector_cmp(point, player->pos)) {
 			/* Set empty last position tile */
