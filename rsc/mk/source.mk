@@ -13,6 +13,7 @@ SHARED_SRCS		=	init_shared_mem.c\
 					random_position.c\
 					ipcs_utils.c\
 					player.c\
+					team_handling.c\
 
 
 DISPLAY_SRCS	= 	${SHARED_SRCS}\

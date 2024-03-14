@@ -38,10 +38,10 @@
 # define PAGE_SIZE              (size_t)getpagesize()
 
 /* Map height */
-# define BOARD_H 40U
+# define BOARD_H 30U
 
 /* Map width */
-# define BOARD_W 80U
+# define BOARD_W 60U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
@@ -50,7 +50,9 @@
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
 /* Shared memory data size needed */
-# define SHM_DATA_SIZE ((sizeof(uint32_t) * BOARD_SIZE))
+# define SHM_DATA_SIZE ((sizeof(uint32_t) * BOARD_SIZE) + sizeof(t_list)) /* (4 * (30 * 60)) + 16 */
+
+# define TEAM_LST_OFF	BOARD_SIZE /* Team list head pointer */
 
 /* Modulo data size % page size */
 # define MOD_PAGESIZE (size_t) (SHM_DATA_SIZE % PAGE_SIZE)
@@ -71,30 +73,55 @@
 /* Number used in ftok call */
 # define IPC_PROJ_ID	42
 
+# define ARROUND_VEC_SIZE 8
+
+# define ARROUND_VEC_ARRAY(point) { \
+	{point.x - 1, point.y - 1}, \
+	{point.x - 1, point.y}, \
+	{point.x - 1, point.y + 1}, \
+	{point.x, point.y - 1}, \
+	{point.x, point.y + 1}, \
+	{point.x + 1, point.y - 1}, \
+	{point.x + 1, point.y}, \
+	{point.x + 1, point.y + 1} \
+}
+
 /* game status */
 extern int g_game_run;
 
 
 typedef struct s_msgbuf {
-	long mtype;       	/* type of received/sent message */
-	char mtext[4];    	/* msg content */
+	long mtype;       	/* type of received/sent message (team id, each tean receive is own team message) */
+	char mtext[4];    	/* msg content (uint32 val, board pos to rush )*/
 } t_msgbuf ;
 
+
+typedef struct s_team {
+	uint32_t	tid;		/* Team Id */
+	uint32_t	tsize;		/* Team Size */
+	uint32_t	tcolor;		/* Team color ? */
+} t_team;
+
 typedef struct s_ipc {
+	uint32_t	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
 	key_t		key;		/* Key result ftok */
 	int			shmid;		/* Shared memory id */
-	uint32_t	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
 	int			semid;		/* Semaphore id */
-	int			msgid;
+	int			msgid;		/* Message queue id */
 } t_ipc;
 
 typedef struct s_player {
 	t_vec		pos;		/* Player position */
 	t_vec		target;		/* Target position */
 	uint32_t	team_id;	/* Team id */
+	t_list 		*team;		/* Linkek list of t_team */
 } t_player;
 
 
+void display_team_lst(t_list *team);
+void *get_lstteam_head(void *ptr);
+
+int8_t team_handling(void *ptr, uint32_t team_id);
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
 uint32_t 	extract_msg(t_ipc *ipc, t_player *player);
@@ -128,6 +155,6 @@ void 		set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value);
 int			init_player(t_player *player, int argc, char **argv);
 void 		player_routine(t_ipc *ipc, t_player *player);
 /* random position */
-t_vec get_reachable_point(uint32_t *array, t_vec player_pos);
+t_vec get_random_point(uint32_t *array, t_vec player_pos);
 
 # endif /* LEM_IPC_HEADER */ 

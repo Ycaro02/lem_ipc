@@ -38,7 +38,7 @@ int main(int argc, char **argv)
 // ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
 // uint32_t val = player.team_id;
 // sem_lock(ipc.semid);
-// t_vec point = get_reachable_point(ipc.ptr);
+// t_vec point = get_random_point(ipc.ptr);
 // ft_printf_fd(2, YELLOW"Lem-ipc Client team number %u start pos [%u][%u]\n"RESET, player.team_id, point.x, point.y);
 // set_tile_board_val(ipc.ptr, point, val);
 // sem_unlock(ipc.semid);

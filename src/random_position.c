@@ -42,7 +42,7 @@ t_vec generate_random_board_point(uint32_t max)
 /**
 * Get random reachable board position
 */
-t_vec get_reachable_point(uint32_t *array, t_vec player_pos)
+t_vec get_random_point(uint32_t *array, t_vec player_pos)
 {
     t_vec board_size = create_vector(BOARD_H, BOARD_W);
     t_vec new_point = generate_random_board_point(BOARD_H * BOARD_W);
@@ -56,7 +56,7 @@ t_vec get_reachable_point(uint32_t *array, t_vec player_pos)
 	// }
     while (found != 0 && max_iter < 100)
     {
-        if (get_tile_board_val(array, new_point) != TILE_EMPTY) { /* ugly brut force case */
+        if (get_tile_board_val(array, new_point) != TILE_EMPTY) { /* brut force case */
             if (new_point.x < board_size.x - 1)
                 new_point.x++;
             else {

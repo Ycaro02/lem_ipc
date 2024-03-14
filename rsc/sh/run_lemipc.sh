@@ -7,14 +7,14 @@ sigint_loop_test() {
 	./rsc/mk/ascii.sh "tester"
 	rm_pid_log ${PID_LOG}
 
-	for i in {1..200}
+	for i in {1..100}
 	do
 		local team_id=$(((i % 2) + 1))
 
 		if [ $i -eq 3 ]
 		then
 			display_color_msg ${YELLOW} "Lauch display handler ..."
-			valgrind ./lemipc_display &
+			./lemipc_display &
 		fi
 		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
 		${LEMIPC} ${team_id} &

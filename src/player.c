@@ -35,27 +35,19 @@ static int init_signal_handler(void)
 	return (0);
 }
 
+/* check 8 point arround  */
 static uint8_t check_arround_point(uint32_t *board, t_vec point, uint32_t team_id)
 {
-	t_vec	 	arround[8] = {
-		{point.x - 1, point.y - 1},
-		{point.x - 1, point.y},
-		{point.x - 1, point.y + 1},
-		{point.x, point.y - 1},
-		{point.x, point.y + 1},
-		{point.x + 1, point.y - 1},
-		{point.x + 1, point.y},
-		{point.x + 1, point.y + 1}
-	};
+	t_vec	 	arround[ARROUND_VEC_SIZE] = ARROUND_VEC_ARRAY(point);
 	uint8_t		enemy_arround = 0;
 	uint32_t	ret = 0;
 
-	for (int i = 0; i < 8; i++) {
+	for (int i = 0; i < ARROUND_VEC_SIZE; i++) {
 		if (get_board_index(arround[i]) >= BOARD_SIZE) {
 			continue;
 		}
 		ret = get_tile_board_val(board, arround[i]);
-		if (ret != team_id && ret != TILE_EMPTY) {
+		if (ret != team_id && ret != TILE_EMPTY) { /* basic implementation need to store value for each enemy team and leave if 2 is reached */
 			++enemy_arround;
 		}
 	}
@@ -80,9 +72,13 @@ void player_routine(t_ipc *ipc, t_player *player)
 	if (init_signal_handler() == -1) {
 		return ;
 	}
-	/* Set team id value in player position */
+	/* Set First player position randomly */
 	sem_lock(ipc->semid);
-	point = get_reachable_point(ipc->ptr, player->pos);
+	// t_list *team_ptr = ;
+	team_handling(ipc->ptr, player->team_id);
+	ft_printf_fd(1, "head = %p\n", get_lstteam_head(ipc->ptr));
+	display_team_lst(*(t_list **)get_lstteam_head(ipc->ptr));
+	point = get_random_point(ipc->ptr, player->pos);
 	set_tile_board_val(ipc->ptr, point, player->team_id);
 	player->pos = point;
 	sem_unlock(ipc->semid);
@@ -99,7 +95,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 		to_rush =  extract_msg(ipc, player);
 		send_msg(ipc, player, to_rush);
-		point = get_reachable_point(ipc->ptr, player->pos);
+		point = get_random_point(ipc->ptr, player->pos);
 		if (!vector_cmp(point, player->pos)) {
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
