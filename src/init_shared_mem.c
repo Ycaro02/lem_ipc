@@ -96,5 +96,6 @@ int clean_shared_rsc(t_ipc *ipc)
 	}
 	ret = destroy_shared_memory(ipc->shmid);
 	destroy_semaphore_set(ipc->semid);
+	remove_msg_queue(ipc);
 	return (ret);
 }

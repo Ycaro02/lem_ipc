@@ -27,7 +27,9 @@ clear_exec() {
 
 if [ "$1" == "rm" ]; then
 	clear_exec ${FIRST}
+	sleep 0.5
 	clear_exec ${SECOND}
+	sleep 0.5
 else
 	source ./rsc/sh/color.sh
 	clear_exec ${FIRST}

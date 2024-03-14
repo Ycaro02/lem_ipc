@@ -10,6 +10,7 @@
 # include <time.h>				/* Time for random gen */
 
 # include <sys/sem.h>			/* Semaphore */
+# include <sys/msg.h>			/* Message queue */
 
 # include <errno.h>				/* Error handling */
 # include <stdio.h>				/* Standard input/output used for perror */
@@ -79,6 +80,7 @@ typedef struct s_ipc {
 	int			shmid;		/* Shared memory id */
 	uint32_t	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
 	int			semid;		/* Semaphore id */
+	int			msgid;
 } t_ipc;
 
 typedef struct s_player {
@@ -88,6 +90,8 @@ typedef struct s_player {
 } t_player;
 
 
+/* msg */
+int 		remove_msg_queue(t_ipc *ipc);
 
 /* init semaphore */
 int			init_game(t_ipc *ipc, char *path, int8_t allow);

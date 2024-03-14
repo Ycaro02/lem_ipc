@@ -30,4 +30,5 @@ free_ipcs() {
 
 free_ipcs -m "Shared memory"
 free_ipcs -s "Semaphore"
+free_ipcs -q "Message queue"
 all_check

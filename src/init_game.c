@@ -1,5 +1,26 @@
 # include "../include/lem_ipc.h"
 
+static int init_msg_queue(t_ipc *ipc, int flag)
+{
+	errno = 0;
+	ipc->msgid = msgget(ipc->key, (flag | 0666));
+	if (ipc->msgid == -1) {
+		syscall_perror("msgget");
+		return (-1);
+	}
+	return (0);
+}
+
+int remove_msg_queue(t_ipc *ipc)
+{
+	errno = 0;
+	if (msgctl(ipc->msgid, IPC_RMID, NULL) == -1) {
+		syscall_perror("msgctl");
+		return (-1);
+	}
+	return (0);
+}
+
 
 /**
  * @brief Get key from file path
@@ -76,7 +97,8 @@ static int shared_rsc_handler(t_ipc *ipc, int8_t allow)
 	} else if ((!allow && ipc->semid != -1 ) || (allow && ipc->semid == -1)) { /* if ressource already created */
 		ipc->semid = get_sem_set_id(ipc->key);
 		ipc->shmid = get_shared_mem_id(ipc->key);
-		if (ipc->shmid == -1 || ipc->semid == -1) {
+		init_msg_queue(ipc, 0);
+		if (ipc->shmid == -1 || ipc->semid == -1 || ipc->msgid == -1) {
 			ft_printf_fd(2, RED"Error child can't get shared data"RESET);
 			return (ERROR_CASE); /* error case */
 		} 
@@ -143,6 +165,10 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	// ft_printf_fd(1, YELLOW"Semaphore value: "RESET""CYAN"%d\n"RESET, semctl(ipc->semid, 0, GETVAL));
 	ipc->shmid = init_shared_memory(ipc);
 	if (ipc->shmid == -1 || attach_shared_memory(ipc) == -1) {
+		return (-1);
+	}
+
+	if (init_msg_queue(ipc, IPC_CREAT | IPC_EXCL) == -1) {
 		return (-1);
 	}
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
