@@ -62,23 +62,19 @@ int boardmlx_display() {
 		destroy_windows();
 	}
 
-	mlx_clear_window(g_game->mlx, g_game->win);
 
-	for (uint32_t y  = 1; y < SCREEN_HEIGHT - 1; y++) {
-		for (uint32_t x = 1; x < SCREEN_WIDTH - 1; x++) {
+	for (uint32_t y = 0; y < SCREEN_HEIGHT; ++y) {
+		for (uint32_t x = 1; x < SCREEN_WIDTH - 1; ++x) {
 			uint32_t idx = ((pixel_x / TILE_SIZE) % BOARD_W) + ((pixel_y / TILE_SIZE) * BOARD_W);
 			uint32_t tile_state = g_game->ipc->ptr[idx];
-			// ft_printf_fd(1, "idx: %d\n", idx);
 			color = tile_state == TILE_EMPTY ? 0xFFFFFF : tile_state % 2 ? 0x0000FF : 0xFF0000;
 			if (pixel_x % TILE_SIZE != 0 && pixel_y % TILE_SIZE != 0) {
 				((int *)g_game->img.data)[x + (y * SCREEN_WIDTH)] = color;
 			}
-			/* need to change this write in buffer instead and flush at the end of loop */
-			// mlx_pixel_put(g_game->mlx, g_game->win, x, y, color);
-			pixel_x++;
+			++pixel_x;
 		}
 		pixel_x = 0;
-		pixel_y++;
+		++pixel_y;
 	}
 
 
@@ -108,6 +104,7 @@ int8_t init_mlx() {
 		return (ERROR_CASE);
 	}
 
+	mlx_clear_window(g_game->mlx, g_game->win);
 	mlx_hook(g_game->win, 2, 1L, key_hooks_press, g_game);
 	mlx_hook(g_game->win, DestroyNotify, StructureNotifyMask, destroy_windows, g_game);
 	// mlx_loop_hook(g_game->mlx, game_display, g_game);
@@ -126,16 +123,12 @@ int main(int argc, char **argv)
 
 	g_game->ipc = &ipc;
 
-	if (init_display(&player, argc, argv) != 0) {
-		return (1);
-	}
-
-	if (init_game(&ipc, IPC_NAME, DISPLAY_HANDLER) == ERROR_CASE) {
+	if (init_display(&player, argc, argv) != 0\
+		|| init_game(&ipc, IPC_NAME, DISPLAY_HANDLER) == ERROR_CASE\
+		|| init_mlx() == ERROR_CASE) {
 		return (1);
 	}
 	
-	init_mlx();
-	// ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
 
 	sem_lock(ipc.semid);
 	ft_printf_fd(2, RED"Lem-ipc Display Handler end\n"RESET, player.team_id);	

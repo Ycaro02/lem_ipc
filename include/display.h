@@ -3,7 +3,7 @@
 
 # include "lem_ipc.h"
 
-# define TILE_SIZE 30
+# define TILE_SIZE 32
 
 # define SCREEN_WIDTH TILE_SIZE * BOARD_W
 # define SCREEN_HEIGHT TILE_SIZE * BOARD_H

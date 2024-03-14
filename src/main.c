@@ -13,14 +13,11 @@ int init_player(t_player *player, int argc, char **argv)
 		ft_printf_fd(2, "Usage: %s <TEAM_ID>\n", argv[0]);
 		return (-1);
 	}
-	// player->pos = create_vector(0, 0);
-	// player->target = create_vector(0, 0);
 	id_check = array_to_uint32(argv[1]);
 	if (id_check == OUT_OF_UINT32) {
 		ft_printf_fd(2, "Invalid team id\n");
 		return (-1);
 	}
-	// ft_printf_fd(2, YELLOW"New player Join team number:%s %s[%u]%s\n", RESET, RED, (uint32_t)id_check, RESET);
 	player->team_id = (uint32_t)id_check;
 	return (0);
 }
@@ -76,15 +73,15 @@ int main(int argc, char **argv)
 	}
 
 	game_loop(&ipc, &player);
+
+
 	sem_lock(ipc.semid);
-	ft_printf_fd(2, YELLOW"Lem-ipc Client team number %d end\n"RESET, player.team_id);	
+	ft_printf_fd(2, YELLOW"Lem-ipc Client team number %d die restore [%d][%d]\n"RESET, player.team_id, player.pos.y, player.pos.x);
+	set_tile_board_val(ipc.ptr, player.pos, TILE_EMPTY);
 	sem_unlock(ipc.semid);
 
-
 	if (get_attached_processnb(&ipc) == 1) { /* need to check here for victory instead */
-		// display_uint16_array(ipc.ptr);
 		ft_printf_fd(1, RED"Lem-ipc Server Down %d %d\n"RESET, g_game_run, player.team_id);
-		// semctl(ipc.semid, 0, GETVAL) == 0 ? sem_unlock(ipc.semid) : ft_printf_fd(2, "Nothing todo\n");
 		clean_shared_memory(&ipc);
 	}
 	return (ret);

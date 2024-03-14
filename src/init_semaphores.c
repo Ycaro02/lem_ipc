@@ -9,7 +9,6 @@ int destroy_semaphore_set(int semid) {
 	return (semctl(semid, 0, IPC_RMID));
 }
 
-
 /**
  * @brief Lock a semaphore
  * @param semid The semaphore id
@@ -41,13 +40,12 @@ static int file_to_key(char *path)
 
 	errno = 0;
 	key = ftok(path, 42);
-	if (key == -1) {
+	if (key == (key_t)-1) {
 		syscall_perror("ftok");
 		return (-1);
 	}
 	return (key);
 }
-
 
 /**
  * @brief Get semaphore set id
@@ -66,7 +64,6 @@ static int get_sem_set_id(key_t key)
 	// ft_printf_fd(1, GREEN"Child get shared mem ID  %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
 	return (shmid);
 }
-
 
 /**
  *	@brief Get shared memory id
@@ -88,6 +85,13 @@ static int get_shared_mem_id(key_t key)
 	return (shmid);
 }
 
+
+
+/**
+ * @brief Attach shared memory
+ * @param ipc The ipc structure
+ * @return 0 for server case (first launch), 1 for a child (basic client or display handler), -1 on error
+*/
 int shared_rsc_handler(t_ipc *ipc, int8_t allow)
 {
 	int flag = 0666;
@@ -111,6 +115,11 @@ int shared_rsc_handler(t_ipc *ipc, int8_t allow)
 	return (SERVER_CASE); /* parent case */
 }
 
+/**
+ *	@brief check if file exist and have good perm
+ *	@param path The file path
+ *	@return 1 on success, 0 on error
+*/
 int chek_path_exist(char *path)
 {
 	int fd = -1;
@@ -128,6 +137,11 @@ int chek_path_exist(char *path)
 	return (1);
 }
 
+/**
+ * @brief Init shared memory
+ * @param ipc The ipc structure
+ * @return The shared memory id, -1 on error
+*/
 int init_game(t_ipc *ipc, char *path, int8_t allow)
 {
 	/* Same here active protection when debug start is finish */

@@ -67,7 +67,7 @@ ifeq ($(shell [ -d ${OBJ_DIR} ] && echo 0 || echo 1), 0)
 	@$(RM) ${TESTER_OUT_FILES}
 endif
 
-fclean:		clean
+fclean:		clean clear
 	@printf "$(RED)Clean $(NAME)/lib$(RESET)\n"
 	@$(RM) $(NAME) ${TESTER_OUT_FILES} ${DISPLAY_NAME}
 
@@ -79,7 +79,7 @@ clean_lib:
 test: $(NAME)
 	@./$(NAME) 1 && ${CHECK_IPC}
 
-display: $(DISPLAY_NAME)
+display: $(NAME)
 	@$(DISPLAY_TEST)
 
 clear:
