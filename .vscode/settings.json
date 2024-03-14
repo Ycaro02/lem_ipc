@@ -19,6 +19,8 @@
 		"sem.h": "c",
 		"msg.h": "c",
 		"msq.h": "c",
-		"struct_msqid_ds.h": "c"
+		"struct_msqid_ds.h": "c",
+		"struct_msqid64_ds.h": "c",
+		"struct_timespec.h": "c"
 	}
 }

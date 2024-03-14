@@ -4,7 +4,7 @@ include rsc/mk/source.mk
 DISPLAY_NAME	=	lemipc_display
 NAME			=	lemipc
 CC				=	gcc
-CFLAGS			=	-Wall -Wextra -Werror -O3 -g
+CFLAGS			=	-Wall -Wextra -Werror -O3 -g -D_GNU_SOURCE
 
 ASCII_ART		=	./rsc/mk/ascii.sh
 ASCII_NAME		=	${NAME}

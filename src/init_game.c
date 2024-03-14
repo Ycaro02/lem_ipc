@@ -62,6 +62,17 @@ int set_msg_len (t_ipc *ipc, msglen_t len)
 }
 
 
+void fill_msgbuff(t_msgbuf *msg, uint32_t team_id, uint32_t data)
+{
+	char *ptr = (char *)&data;
+
+	msg->mtype = team_id;
+	msg->mtext[0] = ptr[0];
+	msg->mtext[1] = ptr[1];
+	msg->mtext[2] = ptr[2];
+	msg->mtext[3] = ptr[3];
+}
+
 /**
  *	@brief Send a message to the message queue
  *	@param ipc The ipc structure
@@ -70,14 +81,11 @@ int set_msg_len (t_ipc *ipc, msglen_t len)
 */
 int8_t send_msg(t_ipc *ipc, t_player *player, uint32_t data)
 {
-	t_msgbuf msg;
+	t_msgbuf msg = {};
 
-	char *ptr = (char *)&data;
-	msg.mtype = player->team_id;
-	msg.mtext[0] = ptr[0];
-	msg.mtext[1] = ptr[1];
-	msg.mtext[2] = ptr[2];
-	msg.mtext[3] = ptr[3];
+
+	fill_msgbuff(&msg, player->team_id, data);
+
 	ft_printf_fd(1, YELLOW"Sending message to team %d value: %u\n"RESET, player->team_id, data);
 	// display_msg_text
 	ft_printf_fd(1, YELLOW"msg.text [%d|%d|%d|%d]\nAfter cast: [%u] \n"RESET, msg.mtext[0], msg.mtext[1], msg.mtext[2], msg.mtext[3], (*(uint32_t *)msg.mtext));
@@ -87,6 +95,20 @@ int8_t send_msg(t_ipc *ipc, t_player *player, uint32_t data)
 		return (-1);
 	}
 	return (0);
+}
+
+int32_t extract_msg(t_ipc *ipc, t_player *player)
+{
+	t_msgbuf msg = {};
+	// int cpy_flag = 040000;
+	errno = 0;
+	ft_printf_fd(1, YELLOW"Extracting message from team %d, val flag %d\n"RESET, player->team_id, 0);
+	if (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), player->team_id, 0) == -1) {
+		syscall_perror("msgrcv");
+		return (-1);
+	}
+	ft_printf_fd(1, PURPLE"Received message from team %d value: %u\n"RESET, player->team_id, (*(uint32_t *)msg.mtext));
+	return (*(uint32_t *)msg.mtext);
 }
 
 
@@ -222,6 +244,8 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 
 	set_msg_len(ipc, sizeof(uint32_t) + 1);
 	send_msg(ipc, &(t_player){.team_id = 1}, 42);
+
+	extract_msg(ipc, &(t_player){.team_id = 1});
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
 	return (0);
 }
