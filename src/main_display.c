@@ -55,8 +55,8 @@ int boardmlx_display() {
 	uint32_t pixel_x = 0, pixel_y = 0;
 	int color = 0;
 	
-	if (get_attached_processnb(g_game->ipc) <= 2) {
-		ft_printf_fd(2, RED"Shutdown display\n"RESET);
+	if (g_game->ipc->ptr[TEAM_NB] == 1) {
+		ft_printf_fd(2, PURPLE"Shutdown display team number [NB] won\n"RESET);
 		g_game_run = 0;
 		sem_unlock(g_game->ipc->semid);
 		destroy_windows();

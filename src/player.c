@@ -84,10 +84,10 @@ void player_routine(t_ipc *ipc, t_player *player)
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
-		if (check_player_death(ipc, player)) {
+		if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] == 1) {
 			// char *color = player->team_id % 2  ? RED : BLUE;
 			// ft_printf_fd(1, "%sDEAD FOUND\n"RESET, color);
-			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+			// set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;
@@ -104,7 +104,6 @@ void player_routine(t_ipc *ipc, t_player *player)
 			player->pos = point;
 			/* Set team id value in new player position */
 			set_tile_board_val(ipc->ptr, point, player->team_id);
-			ft_printf_fd(2,"team number %u\n", ipc->ptr[TEAM_NB]);
 		}
 		sem_unlock(ipc->semid);
 		usleep(100000); /* 1/10 sec */
