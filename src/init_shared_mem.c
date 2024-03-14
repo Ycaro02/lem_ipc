@@ -1,16 +1,6 @@
 # include "../include/lem_ipc.h"
 
 /**
- *	@brief Print an error message and the error string of a syscall
- *	@param syscall_name The name of the syscall
-*/
-void syscall_perror(char *syscall_name)
-{
-	ft_printf_fd(2, "%s failed\n", syscall_name);
-	perror(syscall_name);
-}
-
-/**
  *	@brief Initialize a shared memory segment
  *	@param path Path to the file to use ftok
  *	@return The shared memory id
@@ -96,7 +86,7 @@ static int destroy_shared_memory(int shmid)
  *	@param ipc The ipc structure
  *	@return 0 on success, -1 on error
 */
-int clean_shared_memory(t_ipc *ipc)
+int clean_shared_rsc(t_ipc *ipc)
 {
 	int ret = 0;
 
@@ -105,8 +95,6 @@ int clean_shared_memory(t_ipc *ipc)
 		return (ret);
 	}
 	ret = destroy_shared_memory(ipc->shmid);
-
 	destroy_semaphore_set(ipc->semid);
-
 	return (ret);
 }

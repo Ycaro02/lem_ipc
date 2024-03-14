@@ -36,10 +36,10 @@
 /* Return of getpagesize function casted in size_t 4096 */
 # define PAGE_SIZE              (size_t)getpagesize()
 
-/* Map height for NULL ptr */
+/* Map height */
 # define BOARD_H 20U
 
-/* Map width for \0 bytes */
+/* Map width */
 # define BOARD_W 20U
 
 /* Board size */
@@ -60,11 +60,15 @@
 /* Tile empty value */
 # define TILE_EMPTY 0
 
+/* Boolean value for init_game call */
 # define DISPLAY_HANDLER 0
-
 # define PLAYER 1
 
-# define IPC_NAME "/tmp/lemipc_key"
+/* File used in ftok call */
+# define IPC_NAME		"/tmp/lemipc_key"
+
+/* Number used in ftok call */
+# define IPC_PROJ_ID	42
 
 /* game status */
 extern int g_game_run;
@@ -87,26 +91,29 @@ typedef struct s_player {
 
 /* init semaphore */
 int			init_game(t_ipc *ipc, char *path, int8_t allow);
-int 		destroy_semaphore_set(int semid);
 
+/* sem handling */
+int 		destroy_semaphore_set(int semid);
 int 		sem_lock(int semid);
 int 		sem_unlock(int semid);
 
-/* start ipc */
+/* init shared mem */
 int			init_shared_memory(t_ipc *ipc);
 int			attach_shared_memory(t_ipc *ipc);
 int			detach_shared_memory(t_ipc *ipc);
-int 		clean_shared_memory(t_ipc *ipc);
+int 		clean_shared_rsc(t_ipc *ipc);
 int			get_attached_processnb(t_ipc *ipc);
-/* utils*/
-void syscall_perror(char *syscall_name);
-/* utils*/
+
+/* ipcs utils*/
+void 		syscall_perror(char *syscall_name);
+
 /* handle board */
 uint32_t	get_tile_board_val(uint32_t *array, t_vec vec);
 uint32_t	get_board_index(t_vec vec);
 void		display_uint16_array(uint32_t *array);
 void 		set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value);
 
+/* random position */
 t_vec 		get_reachable_point(uint32_t *array);
 
 # endif /* LEM_IPC_HEADER */ 

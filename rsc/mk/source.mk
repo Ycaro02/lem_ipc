@@ -7,9 +7,12 @@ MAIN_MANDATORY	=	main.c
 MAIN_DISPLAY	=	main_display.c
 
 SHARED_SRCS		=	init_shared_mem.c\
+					init_game.c\
 					handle_board.c\
-					init_semaphores.c\
+					sem_handling.c\
 					random_position.c\
+					ipcs_utils.c\
+
 
 DISPLAY_SRCS	= 	${SHARED_SRCS}\
 					${MAIN_DISPLAY}

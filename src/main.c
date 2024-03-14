@@ -82,7 +82,7 @@ int main(int argc, char **argv)
 
 	if (get_attached_processnb(&ipc) == 1) { /* need to check here for victory instead */
 		ft_printf_fd(1, RED"Lem-ipc Server Down %d %d\n"RESET, g_game_run, player.team_id);
-		clean_shared_memory(&ipc);
+		clean_shared_rsc(&ipc);
 	}
 	return (ret);
 }

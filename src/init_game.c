@@ -1,34 +1,5 @@
 # include "../include/lem_ipc.h"
 
-/**
- * @brief Destroy a semaphore set
- * @param semid The semaphore id
- * @return 0 on success, -1 on error
-*/
-int destroy_semaphore_set(int semid) {
-	return (semctl(semid, 0, IPC_RMID));
-}
-
-/**
- * @brief Lock a semaphore
- * @param semid The semaphore id
- * @return 0 on success, -1 on error
-*/
-int sem_lock(int semid) {
-	struct sembuf sops = {0, -1, 0};
-	return (semop(semid, &sops, 1));
-}
-
-
-/**
- * @brief Unlock a semaphore
- * @param semid The semaphore id
- * @return 0 on success, -1 on error
-*/
-int sem_unlock(int semid) {
-	struct sembuf sops = {0, 1, 0};
-	return (semop(semid, &sops, 1));
-}
 
 /**
  * @brief Get key from file path
@@ -39,7 +10,7 @@ static int file_to_key(char *path)
 	key_t key;
 
 	errno = 0;
-	key = ftok(path, 42);
+	key = ftok(path, IPC_PROJ_ID);
 	if (key == (key_t)-1) {
 		syscall_perror("ftok");
 		return (-1);
@@ -92,7 +63,7 @@ static int get_shared_mem_id(key_t key)
  * @param ipc The ipc structure
  * @return 0 for server case (first launch), 1 for a child (basic client or display handler), -1 on error
 */
-int shared_rsc_handler(t_ipc *ipc, int8_t allow)
+static int shared_rsc_handler(t_ipc *ipc, int8_t allow)
 {
 	int flag = 0666;
 	
@@ -103,13 +74,17 @@ int shared_rsc_handler(t_ipc *ipc, int8_t allow)
 		syscall_perror("semget");
 		return (ERROR_CASE);
 	} else if ((!allow && ipc->semid != -1 ) || (allow && ipc->semid == -1)) { /* if ressource already created */
-		/* need to get semaphore first */
 		ipc->semid = get_sem_set_id(ipc->key);
 		ipc->shmid = get_shared_mem_id(ipc->key);
-		if (ipc->shmid == -1 || ipc->semid == -1 || attach_shared_memory(ipc) == -1) {
+		if (ipc->shmid == -1 || ipc->semid == -1) {
 			ft_printf_fd(2, RED"Error child can't get shared data"RESET);
 			return (ERROR_CASE); /* error case */
+		} 
+		sem_lock(ipc->semid);
+		if (attach_shared_memory(ipc) == -1) {
+			return (ERROR_CASE);
 		}
+		sem_unlock(ipc->semid);
 		return (CLIENT_CASE); /* child case */
 	} 
 	return (SERVER_CASE); /* parent case */
@@ -120,7 +95,7 @@ int shared_rsc_handler(t_ipc *ipc, int8_t allow)
  *	@param path The file path
  *	@return 1 on success, 0 on error
 */
-int chek_path_exist(char *path)
+static int chek_path_exist(char *path)
 {
 	int fd = -1;
 	if (access(path, F_OK | R_OK | W_OK) == -1) {
