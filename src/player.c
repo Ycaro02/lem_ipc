@@ -68,9 +68,7 @@ static uint8_t check_player_death(t_ipc *ipc, t_player *player)
 {
 	uint8_t		ret = 0;
 	
-	sem_lock(ipc->semid);
 	ret = check_arround_point(ipc->ptr, player->pos, player->team_id);
-	sem_unlock(ipc->semid);
 	return (ret);
 }
 
@@ -82,8 +80,23 @@ void player_routine(t_ipc *ipc, t_player *player)
 	if (init_signal_handler() == -1) {
 		return ;
 	}
+	/* Set team id value in player position */
+	sem_lock(ipc->semid);
+	point = get_reachable_point(ipc->ptr, player->pos);
+	set_tile_board_val(ipc->ptr, point, player->team_id);
+	player->pos = point;
+	sem_unlock(ipc->semid);
+	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
+		if (check_player_death(ipc, player)) {
+			char *color = player->team_id % 2  ? RED : BLUE;
+			ft_printf_fd(1, "%sDEAD FOUND\n"RESET, color);
+			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+			g_game_run = 0;
+			sem_unlock(ipc->semid);			
+			break;
+		}
 		to_rush =  extract_msg(ipc, player);
 		send_msg(ipc, player, to_rush);
 		point = get_reachable_point(ipc->ptr, player->pos);
@@ -95,10 +108,6 @@ void player_routine(t_ipc *ipc, t_player *player)
 			set_tile_board_val(ipc->ptr, point, player->team_id);
 		}
 		sem_unlock(ipc->semid);
-		if (check_player_death(ipc, player)) {
-			g_game_run = 0;
-			break;
-		}
 		usleep(100000); /* 1/10 sec */
 	}
 }
