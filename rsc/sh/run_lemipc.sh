@@ -7,7 +7,7 @@ sigint_loop_test() {
 	./rsc/mk/ascii.sh "tester"
 	rm_pid_log ${PID_LOG}
 
-	for i in {1..100}
+	for i in {1..200}
 	do
 		local team_id=$(((i % 2) + 1))
 
@@ -20,6 +20,7 @@ sigint_loop_test() {
 		${LEMIPC} ${team_id} &
 		local loc_pid=$!
 		echo ${loc_pid} >> ${PID_LOG}
+		sleep 0.01
 	done
 	
 	display_color_msg ${YELLOW} "Let runing for 20 seconds ..."

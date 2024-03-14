@@ -87,7 +87,8 @@ void player_routine(t_ipc *ipc, t_player *player)
 		if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] == 1) {
 			// char *color = player->team_id % 2  ? RED : BLUE;
 			// ft_printf_fd(1, "%sDEAD FOUND\n"RESET, color);
-			// set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+			// set_tile_board_val(ipc->ptr, player->pos, 10U);
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;

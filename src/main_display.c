@@ -67,6 +67,8 @@ int boardmlx_display() {
 			uint32_t idx = ((pixel_x / TILE_SIZE) % BOARD_W) + ((pixel_y / TILE_SIZE) * BOARD_W);
 			uint32_t tile_state = g_game->ipc->ptr[idx];
 			color = tile_state == TILE_EMPTY ? 0xFFFFFF : tile_state % 2 ? 0x0000FF : 0xFF0000;
+			if (tile_state == 10U)
+				color = 0x00FF00;
 			if (pixel_x % TILE_SIZE != 0 && pixel_y % TILE_SIZE != 0) {
 				((uint32_t *)g_game->img.data)[x + (y * SCREEN_WIDTH)] = color;
 			}
