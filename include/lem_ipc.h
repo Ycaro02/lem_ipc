@@ -97,6 +97,8 @@ typedef struct s_player {
 
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
+uint32_t 	extract_msg(t_ipc *ipc, t_player *player);
+int8_t		send_msg(t_ipc *ipc, t_player *player, uint32_t data);
 
 /* init semaphore */
 int			init_game(t_ipc *ipc, char *path, int8_t allow);

@@ -40,6 +40,4 @@ sigint_loop_test() {
 	rm_pid_log ${PID_LOG}
 }
 
-
-
 sigint_loop_test

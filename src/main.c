@@ -45,6 +45,9 @@ void game_loop(t_ipc *ipc, t_player *player) {
 	init_signal_handler();
 	while (g_game_run) {
 		sem_lock(ipc->semid);
+		uint32_t to_rush =  extract_msg(ipc, player);
+		send_msg(ipc, player, to_rush);
+
 		t_vec point = get_reachable_point(ipc->ptr);
 		set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 		player->pos = point;
