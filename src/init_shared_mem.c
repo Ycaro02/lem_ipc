@@ -5,13 +5,13 @@
  *	@param path Path to the file to use ftok
  *	@return The shared memory id
 */
-int init_shared_memory(t_ipc *ipc)
+int get_shared_memory(key_t key, int flag)
 {
 	int shmid;
 
 	errno = 0;
 	/* IPC_EXCL: Fail if key exists protect against double creation */
-	shmid = shmget(ipc->key, ALIGN_SHARED_MEM, (IPC_CREAT | IPC_EXCL | 0666));
+	shmid = shmget(key, ALIGN_SHARED_MEM, (flag | 0666));
 	if (shmid == -1) {
 		syscall_perror("shmget");
 		return (-1);

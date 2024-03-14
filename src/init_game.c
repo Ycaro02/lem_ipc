@@ -1,21 +1,89 @@
 # include "../include/lem_ipc.h"
 
-static int init_msg_queue(t_ipc *ipc, int flag)
+
+/**
+ *	@brief Get message queue id
+ *	@param key The key reference the message queue
+ *	@param flag The flag to create or not the message queue
+ *	@return The message queue id, -1 on error 
+*/
+static int get_msg_queue(key_t key, int flag)
 {
+	int msgid;
+
 	errno = 0;
-	ipc->msgid = msgget(ipc->key, (flag | 0666));
-	if (ipc->msgid == -1) {
+	msgid = msgget(key, (flag | 0666));
+	if (msgid == -1) {
 		syscall_perror("msgget");
+		return (-1);
+	}
+	return (msgid);
+}
+
+
+/**
+ *	@brief Remove a message queue
+ *	@param ipc The ipc structure
+ *	@return 0 on success, -1 on error
+*/
+int8_t remove_msg_queue(t_ipc *ipc)
+{
+
+	errno = 0;
+	if (msgctl(ipc->msgid, IPC_RMID, NULL) == -1) {
+		syscall_perror("msgctl");
 		return (-1);
 	}
 	return (0);
 }
 
-int remove_msg_queue(t_ipc *ipc)
+/**
+ *	@brief Set message length
+ *	@param ipc The ipc structure
+ *	@param len The new message length
+ *	@return 0 on success, -1 on error
+*/
+int set_msg_len (t_ipc *ipc, msglen_t len)
 {
+	struct msqid_ds buf;
+
 	errno = 0;
-	if (msgctl(ipc->msgid, IPC_RMID, NULL) == -1) {
+	if (msgctl(ipc->msgid, IPC_STAT, &buf) == -1) {
 		syscall_perror("msgctl");
+		return (-1);
+	}
+	buf.msg_qbytes = len;
+	errno = 0;
+	if (msgctl(ipc->msgid, IPC_SET, &buf) == -1) {
+		syscall_perror("msgctl");
+		return (-1);
+	}
+	return (0);
+}
+
+
+/**
+ *	@brief Send a message to the message queue
+ *	@param ipc The ipc structure
+ *	@param player The player structure
+ *	@return 0 on success, -1 on error
+*/
+int8_t send_msg(t_ipc *ipc, t_player *player, uint32_t data)
+{
+	t_msgbuf msg;
+
+	char *ptr = (char *)&data;
+	msg.mtype = player->team_id;
+	msg.mtext[0] = ptr[0];
+	msg.mtext[1] = ptr[1];
+	msg.mtext[2] = ptr[2];
+	msg.mtext[3] = ptr[3];
+	ft_printf_fd(1, YELLOW"Sending message to team %d value: %u\n"RESET, player->team_id, data);
+	// display_msg_text
+	ft_printf_fd(1, YELLOW"msg.text [%d|%d|%d|%d]\nAfter cast: [%u] \n"RESET, msg.mtext[0], msg.mtext[1], msg.mtext[2], msg.mtext[3], (*(uint32_t *)msg.mtext));
+	errno = 0;
+	if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), 0) == -1) {
+		syscall_perror("msgsnd");
 		return (-1);
 	}
 	return (0);
@@ -58,28 +126,6 @@ static int get_sem_set_id(key_t key)
 }
 
 /**
- *	@brief Get shared memory id
- *	@param key The key reference the shared memory
-*/
-static int get_shared_mem_id(key_t key) 
-{
-	int shmid;
-
-	errno = 0;
-	shmid = shmget(key, ALIGN_SHARED_MEM, 0666);
-	// ft_printf_fd(1, GREEN"Try to get mem id key: %u\n"RESET, key);
-	if (shmid == -1) {
-		syscall_perror("shmget");
-		ft_printf_fd(2, RED"Error child can't get shared data shmget"RESET);
-		return (-1);
-	}
-	// ft_printf_fd(1, GREEN"Child get shared mem ID key: %u\n"RESET, key);
-	return (shmid);
-}
-
-
-
-/**
  * @brief Attach shared memory
  * @param ipc The ipc structure
  * @return 0 for server case (first launch), 1 for a child (basic client or display handler), -1 on error
@@ -90,14 +136,15 @@ static int shared_rsc_handler(t_ipc *ipc, int8_t allow)
 	
 	if (allow)
 		flag |= (IPC_CREAT | IPC_EXCL);
+	errno = 0;
 	ipc->semid = semget(ipc->key, 1, (flag | 0666));
 	if (allow == 0 && ipc->semid == -1) { /* if error and can't create sem (vizualizer case) */
 		syscall_perror("semget");
 		return (ERROR_CASE);
 	} else if ((!allow && ipc->semid != -1 ) || (allow && ipc->semid == -1)) { /* if ressource already created */
 		ipc->semid = get_sem_set_id(ipc->key);
-		ipc->shmid = get_shared_mem_id(ipc->key);
-		init_msg_queue(ipc, 0);
+		ipc->shmid = get_shared_memory(ipc->key, 0);
+		ipc->msgid = get_msg_queue(ipc->key, 0);
 		if (ipc->shmid == -1 || ipc->semid == -1 || ipc->msgid == -1) {
 			ft_printf_fd(2, RED"Error child can't get shared data"RESET);
 			return (ERROR_CASE); /* error case */
@@ -163,14 +210,18 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	}
 	
 	// ft_printf_fd(1, YELLOW"Semaphore value: "RESET""CYAN"%d\n"RESET, semctl(ipc->semid, 0, GETVAL));
-	ipc->shmid = init_shared_memory(ipc);
-	if (ipc->shmid == -1 || attach_shared_memory(ipc) == -1) {
+	ipc->shmid = get_shared_memory(ipc->key, IPC_CREAT | IPC_EXCL);
+	ipc->msgid = get_msg_queue(ipc->key, IPC_CREAT | IPC_EXCL);
+	if (ipc->shmid == -1 || ipc->msgid == -1 || attach_shared_memory(ipc) == -1) {
 		return (-1);
 	}
 
-	if (init_msg_queue(ipc, IPC_CREAT | IPC_EXCL) == -1) {
-		return (-1);
-	}
+	// display msg_len
+	// ft_printf_fd(1, YELLOW"Msg len: "RESET""CYAN"%u\n"RESET, get_msg_len(ipc));
+	// ft_printf_fd(1, YELLOW"Uint32 max: "RESET""CYAN"%u\n"RESET, UINT32_MAX);
+
+	set_msg_len(ipc, sizeof(uint32_t) + 1);
+	send_msg(ipc, &(t_player){.team_id = 1}, 42);
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
 	return (0);
 }

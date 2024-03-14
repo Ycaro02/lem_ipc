@@ -16,6 +16,9 @@
 		"stdint.h": "c",
 		"errno.h": "c",
 		"semaphore.h": "c",
-		"sem.h": "c"
+		"sem.h": "c",
+		"msg.h": "c",
+		"msq.h": "c",
+		"struct_msqid_ds.h": "c"
 	}
 }

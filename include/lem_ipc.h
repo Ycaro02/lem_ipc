@@ -75,6 +75,11 @@
 extern int g_game_run;
 
 
+typedef struct s_msgbuf {
+	long mtype;       	/* type of received/sent message */
+	char mtext[4];    	/* msg content */
+} t_msgbuf ;
+
 typedef struct s_ipc {
 	key_t		key;		/* Key result ftok */
 	int			shmid;		/* Shared memory id */
@@ -91,7 +96,7 @@ typedef struct s_player {
 
 
 /* msg */
-int 		remove_msg_queue(t_ipc *ipc);
+int8_t		remove_msg_queue(t_ipc *ipc);
 
 /* init semaphore */
 int			init_game(t_ipc *ipc, char *path, int8_t allow);
@@ -102,7 +107,7 @@ int 		sem_lock(int semid);
 int 		sem_unlock(int semid);
 
 /* init shared mem */
-int			init_shared_memory(t_ipc *ipc);
+int			get_shared_memory(key_t key, int flag);
 int			attach_shared_memory(t_ipc *ipc);
 int			detach_shared_memory(t_ipc *ipc);
 int 		clean_shared_rsc(t_ipc *ipc);
