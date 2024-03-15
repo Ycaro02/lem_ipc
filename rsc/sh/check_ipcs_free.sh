@@ -30,7 +30,23 @@ free_ipcs() {
 	fi
 }
 
-send_sigint_all
+check_kali() {
+	CHECK_KALI=$(uname -n | cut -d ' ' -f 1)
+	if [ ${CHECK_KALI} != "" ]; then
+		if [ ${CHECK_KALI} == "Kali" ]; then
+			FREE_ARGS="3"
+			display_color_msg ${YELLOW} "Kali detected."
+		fi
+	fi
+
+}
+
+
+FREE_ARGS="1"
+
+
+check_kali
+send_sigint_all ${FREE_ARGS}
 free_ipcs -m "Shared memory"
 free_ipcs -s "Semaphore"
 free_ipcs -q "Message queue"

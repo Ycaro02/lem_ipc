@@ -104,15 +104,15 @@ int	display_team_info(t_team *team, uint32_t pad_y)
 
 	uint32_t x = start_x;
 
-	mystring_put(g_game->mlx, g_game->win, x, y, team->data.color, "TEAM ID : ");
+	mlx_string_put(g_game->mlx, g_game->win, x, y, team->data.color, "TEAM ID : ");
 	x += skip_x("TEAM ID : ");
-	mystring_put(g_game->mlx, g_game->win, x, y, CYAN_INT, team->strid);
+	mlx_string_put(g_game->mlx, g_game->win, x, y, CYAN_INT, team->strid);
 	
 	x = start_x;
 	y += PAD_YTEAM;
-	mystring_put(g_game->mlx, g_game->win, x, y, team->data.color, "TEAM SIZE : ");
+	mlx_string_put(g_game->mlx, g_game->win, x, y, team->data.color, "TEAM SIZE : ");
 	x += skip_x("TEAM SIZE : ");
-	mystring_put(g_game->mlx, g_game->win, x, y, CYAN_INT, team->strsize);
+	mlx_string_put(g_game->mlx, g_game->win, x, y, CYAN_INT, team->strsize);
 	
 	return (0);
 }
@@ -122,7 +122,7 @@ void display_teamlist(t_list *list)
 	t_list *tmp = list;
 	uint32_t y = 20U;
 
-	mystring_put(g_game->mlx, g_game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, "TEAM INFO : ");
+	mlx_string_put(g_game->mlx, g_game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, "TEAM INFO : ");
 	y += PAD_YTEAM;
 	while (tmp) {
 		display_team_info(tmp->content, y);
@@ -172,9 +172,9 @@ int boardmlx_display()
 	// ft_printf_fd(2, RED"len : %u, sizeof %u\n"RESET, len, sizeof(g_game->img.data));
 	// ft_bzero(g_game->img.data, len);
 
-	if (g_game->team) {
-		display_teamlist(g_game->team);
-	}
+	// if (g_game->team) {
+	// 	display_teamlist(g_game->team);
+	// }
 
 
 	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
@@ -197,6 +197,9 @@ int boardmlx_display()
 		}
 	}
 	mlx_put_image_to_window(g_game->mlx, g_game->win, g_game->img.image, 0, 0);
+	if (g_game->team) {
+		display_teamlist(g_game->team);
+	}
 	sem_unlock(g_game->ipc->semid);
 	usleep(100000); /* 1/10 sec */
 	return (0);

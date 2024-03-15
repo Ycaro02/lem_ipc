@@ -22,7 +22,8 @@
 # define COLOR_MAX 10U
 
 /* Tile size in pixel */
-# define TILE_SIZE 28U
+// # define TILE_SIZE 28U
+# define TILE_SIZE 20U
 
 /* Right band tile number */
 # define RIGHTBAND_TILE_NB 5U

@@ -10,7 +10,6 @@ ASCII_ART		=	./rsc/mk/ascii.sh
 ASCII_NAME		=	${NAME}
 IPCS_FREE		=	./rsc/sh/check_ipcs_free.sh
 
-LEMIPC_DOWN		= 	./rsc/sh/handle_sigint.sh
 LEMIPC_RUN		=	./rsc/sh/run_lemipc.sh
 DISPLAY_TEST	=	./rsc/sh/display_test.sh
 MLX_FLAG 		=	-Lminilibx-linux -lmlx -lX11 -lXext -lm
@@ -84,9 +83,8 @@ display: $(NAME)
 	@$(DISPLAY_TEST)
 
 clear:
-	@$(LEMIPC_DOWN)
-	@$(DISPLAY_TEST) rm
 	@$(IPCS_FREE)
+	@$(DISPLAY_TEST) rm
 
 run: $(NAME)
 	@$(LEMIPC_RUN)
