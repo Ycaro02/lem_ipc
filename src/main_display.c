@@ -48,6 +48,9 @@ int destroy_windows()
 	mlx_destroy_image(g_game->mlx, g_game->img.image);
 	mlx_destroy_window(g_game->mlx, g_game->win);
 	mlx_destroy_display(g_game->mlx);
+	if (g_game->team) {
+		ft_lstclear(&g_game->team, free_team);
+	}
 	free(g_game->mlx);
 	free(g_game);
 	ft_printf_fd(1, "Exit MLX\n");
@@ -180,7 +183,7 @@ int boardmlx_display()
 
 
 	/* Check if only one team left */
-	if (g_game->ipc->ptr[TEAM_NB] == 1) {
+	if (g_game->ipc->ptr[TEAM_NB] == 1 || get_attached_processnb(g_game->ipc) <= 3) {
 		ft_printf_fd(2, PURPLE"Shutdown display team number [NB] won\n"RESET);
 		g_game_run = 0;
 		sem_unlock(g_game->ipc->semid);
