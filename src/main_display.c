@@ -182,7 +182,7 @@ int boardmlx_display()
 	}
 
 
-	/* Check if only one team left */
+	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
 	if (g_game->ipc->ptr[TEAM_NB] == 1 || get_attached_processnb(g_game->ipc) <= 3) {
 		ft_printf_fd(2, PURPLE"Shutdown display team number [NB] won\n"RESET);
 		g_game_run = 0;
@@ -217,7 +217,7 @@ int8_t init_mlx()
 	}
 	g_game->win = mlx_new_window(g_game->mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "LEM_IPC");
 	g_game->img.image = mlx_new_image(g_game->mlx, SCREEN_WIDTH, SCREEN_HEIGHT);
-	ft_printf_fd(1, CYAN"SCREEN WIDTH %u SCREEN HEIGHT %u\n"RESET, SCREEN_WIDTH, SCREEN_HEIGHT);
+	// ft_printf_fd(1, CYAN"SCREEN WIDTH %u SCREEN HEIGHT %u\n"RESET, SCREEN_WIDTH, SCREEN_HEIGHT);
 	if (!g_game->win || !g_game->img.image) {
 		ft_printf_fd(2, "mlx_new_window or image failed\n");
 		return (ERROR_CASE);

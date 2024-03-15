@@ -1,6 +1,8 @@
 #!/bin/bash
 
-source $PWD/rsc/sh/color.sh
+# source $PWD/rsc/sh/color.sh
+
+source $PWD/rsc/sh/handle_sigint.sh
 
 all_check() {
 	ipcs | grep -e "0x" | grep "666" | cut -d ' ' -f 2 > /dev/null
@@ -28,6 +30,7 @@ free_ipcs() {
 	fi
 }
 
+send_sigint_all
 free_ipcs -m "Shared memory"
 free_ipcs -s "Semaphore"
 free_ipcs -q "Message queue"
