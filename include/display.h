@@ -8,36 +8,43 @@
 
 // # define BOARD_PWIDTH (TILE_SIZE * BOARD_W)
 
+/* Tile size in pixel */
 # define TILE_SIZE 28U
 
+/* Right band tile number */
 # define RIGHTBAND_TILE_NB 5U
 
+/* Right band width in pixel */
 # define RIGHTBAND_WIDTH (TILE_SIZE * RIGHTBAND_TILE_NB)
 
+/* Screen width */
 # define SCREEN_WIDTH (uint32_t)(TILE_SIZE * BOARD_W)
-// # define SCREEN_HEIGHT (uint32_t)(TILE_SIZE * BOARD_H) + TOPBAND_HEIGHT
+
+/* Screen height */
 # define SCREEN_HEIGHT (uint32_t)(TILE_SIZE * BOARD_H)
 
-
+/* Team color struct */
 typedef struct s_teamcolor {
-	char		*name;
-	int			color;
+	char		*strcolor;	/* Team color name */
+	int			color;		/* Team color value */
 } t_teamcolor;
 
 typedef struct s_team {
 	uint32_t	tid;		/* Team Id */
+	char		*strid;		/* Team Id String */
 	uint32_t	tsize;		/* Team Size */
+	char		*strsize;	/* Team Size String */
 	t_teamcolor	data;		/* Team color ? */
 } t_team;
 
 typedef struct s_game
 {
-	t_xvar		*mlx;
-	void		*win;
-	t_img		img;
-	t_ipc		*ipc;
-	t_list		*team;
-	uint32_t	team_nb;
+	t_xvar		*mlx;		/* mlx handler */
+	void		*win;		/* mlx window */
+	t_img		img;		/* mlx image */
+	t_ipc		*ipc;		/* ipc handler */
+	t_list		*team;		/* team list */
+	uint32_t	team_nb;	/* last team number store */
 }	t_game;
 
 /* global var to handle display with mlx*/

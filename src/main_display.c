@@ -76,13 +76,14 @@ static int	rgb_to_int(int r, int g, int b)
 	return ((r << 16) | (g << 8) | b);
 }
 
-int	display_team_info()
+int	display_team_info(t_list *team)
 {
 	// char	*nb = "koala";
-
+	int y = 20U;
+	(void)team;
 	int red = rgb_to_int(255, 10, 10);
-	int x = SCREEN_WIDTH - (TILE_SIZE * 5) + 10U;
-	mlx_string_put (g_game->mlx, g_game->win, x, 80, red, "Team Info : ");
+	int x = SCREEN_WIDTH - (TILE_SIZE * 5) + 5U;
+	mlx_string_put (g_game->mlx, g_game->win, x, y, red, "Team Info : ");
 	// mlx_string_put (game->mlx, game->win, SCREEN_WIDTH + 10, 100, 0x0F0, "TESTTTTTTTTTTTTTTTTTTTTTTTTTTT : ");
 	// mlx_string_put (game->mlx, game->win, SCREEN_WIDTH + 80, 32, 0xFFF, nb);
 	return (0);
@@ -95,18 +96,29 @@ int	key_hooks_press(int keycode, t_game *game)
 	return (0);
 }
 
+
 int boardmlx_display() {
+	int color = 0;
+
 	sem_lock(g_game->ipc->semid);
 
-	int color = 0;
-	
-	display_team_info();
-
+	/* Update team info lst */
 	if (!build_list_number_team(&g_game->team, g_game->ipc->ptr)) {
 		ft_printf_fd(2, RED"Error: build_list_number_team\n"RESET);
 	}
-	// display_team_lst(g_game->team);
 
+	/* CLear pixel buff */
+	size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
+	// ft_printf_fd(2, RED"len : %u, sizeof %u\n"RESET, len, sizeof(g_game->img.data));
+	ft_bzero(g_game->img.data, len);
+
+	if (get_attached_processnb(g_game->ipc) > 30) {
+		ft_printf_fd(2, RED"DISPLAY TEAM INFO\n"RESET);
+		display_team_info(g_game->team);
+	}
+
+
+	/* Check if only one team left */
 	if (g_game->ipc->ptr[TEAM_NB] == 1) {
 		ft_printf_fd(2, PURPLE"Shutdown display team number [NB] won\n"RESET);
 		g_game_run = 0;
@@ -114,6 +126,7 @@ int boardmlx_display() {
 		destroy_windows();
 	}
 
+	/* Draw board */
 	for (uint32_t y = 1; y < SCREEN_HEIGHT; ++y) {
 		for (uint32_t x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
 			uint32_t idx = ((x / TILE_SIZE) % BOARD_W) + ((y / TILE_SIZE) * BOARD_W);
