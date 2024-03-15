@@ -3,6 +3,18 @@
 
 # include "lem_ipc.h"
 
+# define RED_INT 0xFF0000
+# define GREEN_INT 0x00FF00
+# define YELLOW_INT 0xFFFF00
+# define BLUE_INT 0x0000FF
+# define PURPLE_INT 0x800080
+# define CYAN_INT 0x00FFFF
+# define ORANGE_INT 0xFFA500
+# define PINK_INT 0xFFC0CB
+# define BROWN_INT 0xA52A2A
+# define BLACK_INT 0x000000
+
+
 
 // # define TOPBAND_HEIGHT (TILE_SIZE * 2)
 

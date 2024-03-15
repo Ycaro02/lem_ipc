@@ -19,14 +19,14 @@ t_teamcolor get_new_color(uint32_t current_team_nb, uint32_t team_id)
 		{"Black", 0x000000},
 		{(void*)0, 0}/* Terminator. */
 	};
-	(void)team_id;
-	int idx = 0;
-	for (uint32_t i = 0; i < current_team_nb; ++i) {
-			if (i == current_team_nb) {
-				idx = i % 10U;
+	uint32_t idx = 0;
+	for (uint32_t i = 0; 10U ; i++) {
+			if (i == current_team_nb % 10U) {
+				idx = i;
 				break ;
 			}
 		}
+	ft_printf_fd(2, CYAN"idx %d\n"RESET, idx);
 	return (team_color[idx]);
 }
 
@@ -71,22 +71,64 @@ int game_display() {
 /* to put in header file */
 
 
-static int	rgb_to_int(int r, int g, int b)
+// static int	rgb_to_int(int r, int g, int b)
+// {
+// 	return ((r << 16) | (g << 8) | b);
+// }
+
+
+void		mystring_put(t_xvar *xvar,t_win_list *win,int x,int y,int color,char *string)
 {
-	return ((r << 16) | (g << 8) | b);
+   XGCValues	xgcv;
+   
+   xgcv.foreground = mlx_int_get_good_color(xvar,color);
+   XChangeGC(xvar->display,win->gc,GCForeground,&xgcv);
+   XDrawString(xvar->display,win->window,win->gc,x,y,string,strlen(string));
 }
 
-int	display_team_info(t_list *team)
+
+int skip_x(char *str)
 {
-	// char	*nb = "koala";
-	int y = 20U;
-	(void)team;
-	int red = rgb_to_int(255, 10, 10);
-	int x = SCREEN_WIDTH - (TILE_SIZE * 5) + 5U;
-	mlx_string_put (g_game->mlx, g_game->win, x, y, red, "Team Info : ");
-	// mlx_string_put (game->mlx, game->win, SCREEN_WIDTH + 10, 100, 0x0F0, "TESTTTTTTTTTTTTTTTTTTTTTTTTTTT : ");
-	// mlx_string_put (game->mlx, game->win, SCREEN_WIDTH + 80, 32, 0xFFF, nb);
+	return (ft_strlen(str) * 6);
+}
+
+# define PAD_YTEAM 25U
+
+int	display_team_info(t_team *team, uint32_t pad_y)
+{
+	uint32_t start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
+	uint32_t y = 20U + pad_y;
+
+	uint32_t x = start_x;
+	
+	
+	
+
+	mystring_put (g_game->mlx, g_game->win, x, y, team->data.color, "TEAM ID : ");
+	x += skip_x("TEAM ID : ");
+	mystring_put (g_game->mlx, g_game->win, x, y, CYAN_INT, team->strid);
+	
+	x = start_x;
+	y += PAD_YTEAM;
+	mystring_put (g_game->mlx, g_game->win, x, y, team->data.color, "TEAM SIZE : ");
+	x += skip_x("TEAM SIZE : ");
+	mystring_put (g_game->mlx, g_game->win, x, y, CYAN_INT, team->strsize);
+	
 	return (0);
+}
+
+void display_teamlist(t_list *list)
+{
+	t_list *tmp = list;
+	uint32_t y = 20U;
+
+	mystring_put (g_game->mlx, g_game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, "TEAM INFO : ");
+	y += PAD_YTEAM;
+	while (tmp) {
+		display_team_info(tmp->content, y);
+		tmp = tmp->next;
+		y += (PAD_YTEAM * 2);
+	}
 }
 
 int	key_hooks_press(int keycode, t_game *game)
@@ -108,13 +150,12 @@ int boardmlx_display() {
 	}
 
 	/* CLear pixel buff */
-	size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
+	// size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
 	// ft_printf_fd(2, RED"len : %u, sizeof %u\n"RESET, len, sizeof(g_game->img.data));
-	ft_bzero(g_game->img.data, len);
+	// ft_bzero(g_game->img.data, len);
 
-	if (get_attached_processnb(g_game->ipc) > 30) {
-		ft_printf_fd(2, RED"DISPLAY TEAM INFO\n"RESET);
-		display_team_info(g_game->team);
+	if (g_game->team) {
+		display_teamlist(g_game->team);
 	}
 
 

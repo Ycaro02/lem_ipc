@@ -37,9 +37,12 @@ int8_t add_team(t_list **team, uint32_t team_id)
 		lst_size = ft_lstsize(*team);
 	}
     new_team->tid = team_id;
-    new_team->tsize = 1;
+    new_team->tsize	= 1;
     new_team->data = get_new_color(lst_size, team_id);
-    ft_lstadd_back(team, ft_lstnew(new_team));
+
+	new_team->strid = ft_itoa(team_id);
+    new_team->strsize = ft_itoa(1);
+	ft_lstadd_back(team, ft_lstnew(new_team));
     return (1);
 }
 
