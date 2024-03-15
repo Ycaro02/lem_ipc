@@ -75,17 +75,77 @@ void display_team_lst(t_list *team)
     }
 }
 
+void increment_team_size(t_list **team, uint32_t team_id)
+{
+	t_list *current = *team;
+
+	while (current != NULL) {
+		if (((t_team *)current->content)->tid == team_id) {
+			((t_team *)current->content)->tsize += 1;
+			free(((t_team *)current->content)->strsize);
+			((t_team *)current->content)->strsize = ft_itoa(((t_team *)current->content)->tsize);
+			return ;
+		}
+		current = current->next;
+	}
+}
+
+
+void free_team(void *team)
+{
+	t_team *tmp = (t_team *)team;
+	free(tmp->strid);
+	free(tmp->strsize);
+	free(tmp);
+}
+
+int get_min_id(void *next, void *current)
+{
+	return (((t_team *)next)->tid >= ((t_team *)current)->tid);
+}
+
+/* list sort function */
+void    list_sort(t_list **lst, int (*cmp)())
+{
+	t_list  *next;
+	t_list  *current;
+
+	if (cmp == NULL || lst == NULL || *lst == NULL)
+		return ;
+	current = *lst;
+	next = current;
+	while (next && current && current->next)
+	{
+		next = current->next;
+		if (cmp(next->content, current->content) <= 0) { /* if next value lower than current value reverse for strcmp works */
+
+			void *tmp_data = current->content; /* just swap data using tmp */
+			current->content = next->content;
+			next->content = tmp_data;
+			current = *lst;         /* reset current and next */
+			continue ;
+		}
+		current = next;
+	}
+}
 
 int8_t build_list_number_team(t_list **lst, uint32_t *array)
 {
 	uint32_t i = 0;
 	for (i = 0; i < BOARD_SIZE; i++) {
-		if (array[i] != TILE_EMPTY && !team_exist(lst, array[i])) {
-            if (!add_team(lst, array[i])) {
-                ft_printf_fd(2, "Malloc err build team lst\n");
-                return (0);
-            }
+		if (array[i] != TILE_EMPTY) 
+		{
+			if (!team_exist(lst, array[i])) 
+			{
+				if (!add_team(lst, array[i])) {
+					ft_printf_fd(2, "Malloc err build team lst\n");
+					return (0);
+				}
+				// TEAM ADDED CASE
+			}
+			increment_team_size(lst, array[i]);
 		}
 	}
+	list_sort(lst, get_min_id);
 	return (1);
 }

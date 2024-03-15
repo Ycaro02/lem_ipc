@@ -10,23 +10,23 @@ t_teamcolor get_new_color(uint32_t current_team_nb, uint32_t team_id)
 		{"Red", 0xFF0000},
 		{"Blue", 0x0000FF},
 		{"Green", 0x00FF00},
+		{"Pink", 0xFFC0CB},
 		{"Yellow", 0xFFFF00},
 		{"Purple", 0x800080},
 		{"Cyan", 0x00FFFF},
 		{"Orange", 0xFFA500},
-		{"Pink", 0xFFC0CB},
 		{"Brown", 0xA52A2A},
 		{"Black", 0x000000},
-		{(void*)0, 0}/* Terminator. */
 	};
+	(void)current_team_nb;
 	uint32_t idx = 0;
-	for (uint32_t i = 0; 10U ; i++) {
-			if (i == current_team_nb % 10U) {
+	for (uint32_t i = 0; COLOR_MAX ; i++) {
+			if (i == (team_id - 1) % COLOR_MAX) {
 				idx = i;
 				break ;
 			}
 		}
-	ft_printf_fd(2, CYAN"idx %d\n"RESET, idx);
+	// ft_printf_fd(2, CYAN"idx %d\n"RESET, idx);
 	return (team_color[idx]);
 }
 
@@ -100,9 +100,6 @@ int	display_team_info(t_team *team, uint32_t pad_y)
 	uint32_t y = 20U + pad_y;
 
 	uint32_t x = start_x;
-	
-	
-	
 
 	mystring_put (g_game->mlx, g_game->win, x, y, team->data.color, "TEAM ID : ");
 	x += skip_x("TEAM ID : ");
@@ -139,15 +136,38 @@ int	key_hooks_press(int keycode, t_game *game)
 }
 
 
-int boardmlx_display() {
+static int get_team_color(t_list *team, uint32_t team_id)
+{
+	t_list *tmp = team;
+	while (tmp) {
+		if (((t_team *)tmp->content)->tid == team_id) {
+			return (((t_team *)tmp->content)->data.color);
+		}
+		tmp = tmp->next;
+	}
+	return (0);
+}
+
+int boardmlx_display() 
+{
 	int color = 0;
 
 	sem_lock(g_game->ipc->semid);
 
 	/* Update team info lst */
-	if (!build_list_number_team(&g_game->team, g_game->ipc->ptr)) {
-		ft_printf_fd(2, RED"Error: build_list_number_team\n"RESET);
+
+	if ((uint32_t) get_attached_processnb(g_game->ipc) != g_game->player_nb) {
+		ft_lstclear(&g_game->team, free_team);
+		if (!build_list_number_team(&g_game->team, g_game->ipc->ptr)) {
+			ft_printf_fd(2, RED"Error: build_list_number_team\n"RESET);
+		}
+		g_game->player_nb = get_attached_processnb(g_game->ipc);
 	}
+
+
+	// if (!build_list_number_team(&g_game->team, g_game->ipc->ptr)) {
+	// 	ft_printf_fd(2, RED"Error: build_list_number_team\n"RESET);
+	// }
 
 	/* CLear pixel buff */
 	// size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
@@ -172,7 +192,7 @@ int boardmlx_display() {
 		for (uint32_t x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
 			uint32_t idx = ((x / TILE_SIZE) % BOARD_W) + ((y / TILE_SIZE) * BOARD_W);
 			uint32_t tile_state = g_game->ipc->ptr[idx];
-			color = tile_state == TILE_EMPTY ? 0xFFFFFF : tile_state % 2 ? 0x0000FF : 0xFF0000;
+			color = tile_state == TILE_EMPTY ? 0xFFFFFF : get_team_color(g_game->team, tile_state);
 			if (x % TILE_SIZE != 0 && y % TILE_SIZE != 0) {
 				((uint32_t *)g_game->img.data)[x + (y * SCREEN_WIDTH)] = color;
 			}
@@ -184,7 +204,8 @@ int boardmlx_display() {
 	return (0);
 }
 
-int8_t init_mlx() {
+int8_t init_mlx() 
+{
 	int endian = 0;
 	g_game->mlx = mlx_init();
 	if (!g_game->mlx) {
@@ -223,7 +244,7 @@ int main(int argc, char **argv)
 	g_game = malloc(sizeof(t_game));
 	g_game->ipc = &ipc;
 	g_game->team = NULL;
-	g_game->team_nb = 0;
+	g_game->player_nb = 0;
 
 	if (init_display(&player, argc, argv) != 0\
 		|| init_game(&ipc, IPC_NAME, DISPLAY_HANDLER) == ERROR_CASE\

@@ -7,9 +7,9 @@ sigint_loop_test() {
 	./rsc/mk/ascii.sh "tester"
 	rm_pid_log ${PID_LOG}
 
-	for i in {1..200}
+	for i in {1..100}
 	do
-		local team_id=$(((i % 2) + 1))
+		local team_id=$(((i % 4) + 1))
 
 		if [ $i -eq 3 ]
 		then

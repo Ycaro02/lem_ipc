@@ -19,6 +19,7 @@
 // # define TOPBAND_HEIGHT (TILE_SIZE * 2)
 
 // # define BOARD_PWIDTH (TILE_SIZE * BOARD_W)
+# define COLOR_MAX 10U
 
 /* Tile size in pixel */
 # define TILE_SIZE 28U
@@ -56,7 +57,7 @@ typedef struct s_game
 	t_img		img;		/* mlx image */
 	t_ipc		*ipc;		/* ipc handler */
 	t_list		*team;		/* team list */
-	uint32_t	team_nb;	/* last team number store */
+	uint32_t	player_nb;	/* last team number store */
 }	t_game;
 
 /* global var to handle display with mlx*/
@@ -76,6 +77,6 @@ typedef enum e_keyboard_key
 }	t_keyboard_key;
 
 t_teamcolor	get_new_color(uint32_t current_team_nb, uint32_t team_id);
-
+void free_team(void *team);
 
 #endif /* DISPLAY_LEMIPC_H */ 
