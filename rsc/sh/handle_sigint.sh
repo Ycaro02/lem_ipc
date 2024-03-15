@@ -17,16 +17,19 @@ send_sigint() {
 
 send_sigint_all() {
 	display_color_msg ${YELLOW} "Sending SIGINT to all pid ..."
-	local field="${1}"
+	# Olf field gestion
+	# local field="${1}" 
 	# display_color_msg ${YELLOW} "Field value: ${field}"
+	# PID_FOUND=$(ps | grep lemipc | cut -d ' ' -f ${field})
 
-	PID_FOUND=$(ps | grep lemipc | cut -d ' ' -f ${field})
+	PID_FOUND=$(ps | grep lemipc | awk '{print $1}')
 	for pid in ${PID_FOUND}
 	do
 		send_sigint ${pid}
-		sleep 0.5
+		sleep 0.05
 	done
-	PID_FOUND=$(ps | grep lemipc | cut -d ' ' -f ${field})
+	# PID_FOUND=$(ps | grep lemipc | cut -d ' ' -f ${field})
+	PID_FOUND=$(ps | grep lemipc | awk '{print $1}')
 	if [ "${PID_FOUND}" == "" ]; then
 		display_color_msg ${GREEN} "No pid found, all lemipc instance clean up"
 	else
