@@ -66,7 +66,7 @@ static uint8_t check_player_death(t_ipc *ipc, t_player *player)
 
 void player_routine(t_ipc *ipc, t_player *player) 
 {
-	uint32_t	to_rush;
+	// uint32_t	to_rush;
 	t_vec	 	point;
 
 	if (init_signal_handler() == -1) {
@@ -75,7 +75,6 @@ void player_routine(t_ipc *ipc, t_player *player)
 	/* Set First player position randomly */
 	sem_lock(ipc->semid);
 	team_handling(ipc->ptr, player->team_id, ADD_TEAM);
-	display_team_lst(player->team);
 
 	point = get_random_point(ipc->ptr, player->pos);
 	set_tile_board_val(ipc->ptr, point, player->team_id);
@@ -94,9 +93,8 @@ void player_routine(t_ipc *ipc, t_player *player)
 			break;
 		}
 
-		to_rush =  extract_msg(ipc, player);
-		send_msg(ipc, player, to_rush);
-
+		// to_rush =  extract_msg(ipc, player);
+		// send_msg(ipc, player, to_rush);
 
 		point = get_random_point(ipc->ptr, player->pos);
 		if (!vector_cmp(point, player->pos)) {

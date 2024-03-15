@@ -17,7 +17,8 @@ SHARED_SRCS		=	init_shared_mem.c\
 
 
 DISPLAY_SRCS	= 	${SHARED_SRCS}\
-					${MAIN_DISPLAY}
+					${MAIN_DISPLAY}\
+					display_team.c\
 
 SRCS			=	${SHARED_SRCS}
 

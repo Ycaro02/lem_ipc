@@ -38,10 +38,10 @@
 # define PAGE_SIZE              (size_t)getpagesize()
 
 /* Map height */
-# define BOARD_H 35U
+# define BOARD_H 30U
 
 /* Map width */
-# define BOARD_W 70U
+# define BOARD_W 65U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
@@ -49,12 +49,10 @@
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
-# define TEAM_NB BOARD_SIZE
+# define TEAM_NB BOARD_SIZE /* offset team number */
 
 /* Shared memory data size needed */
 # define SHM_DATA_SIZE ((sizeof(uint32_t) * BOARD_SIZE) + sizeof(uint32_t)) /* (4 * (30 * 60)) + 4, last for team number */
-
-# define TEAM_LST_OFF	BOARD_SIZE /* Team list head pointer */
 
 /* Modulo data size % page size */
 # define MOD_PAGESIZE (size_t) (SHM_DATA_SIZE % PAGE_SIZE)
@@ -97,13 +95,6 @@ typedef struct s_msgbuf {
 	char mtext[4];    	/* msg content (uint32 val, board pos to rush )*/
 } t_msgbuf ;
 
-
-typedef struct s_team {
-	uint32_t	tid;		/* Team Id */
-	uint32_t	tsize;		/* Team Size */
-	uint32_t	tcolor;		/* Team color ? */
-} t_team;
-
 typedef struct s_ipc {
 	uint32_t	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
 	key_t		key;		/* Key result ftok */
@@ -116,7 +107,6 @@ typedef struct s_player {
 	t_vec		pos;		/* Player position */
 	t_vec		target;		/* Target position */
 	uint32_t	team_id;	/* Team id */
-	t_list 		*team;		/* Linkek list of t_team */
 } t_player;
 
 
@@ -125,7 +115,7 @@ typedef struct s_player {
 # define RM_TEAM	0
 
 void display_team_lst(t_list *team);
-int8_t build_list_number_team(t_player *player ,uint32_t *array);
+int8_t 		build_list_number_team(t_list **lst, uint32_t *array);
 void team_handling(uint32_t *array, uint32_t team_id, int8_t add);
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
