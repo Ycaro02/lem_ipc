@@ -36,9 +36,9 @@ int8_t add_team(t_list **team, uint32_t team_id)
 	if (team && *team) {
 		lst_size = ft_lstsize(*team);
 	}
-    new_team->tid = team_id;
-    new_team->tsize	= 1;
-    new_team->data = get_new_color(lst_size, team_id);
+    new_team->tid	= team_id;
+    new_team->tsize	= 0;
+    new_team->data	= get_new_color(lst_size, team_id);
 
 	new_team->strid = ft_itoa(team_id);
     new_team->strsize = ft_itoa(1);
@@ -47,33 +47,10 @@ int8_t add_team(t_list **team, uint32_t team_id)
 }
 
 /* team compare fun for remove if */
-static int team_cmp(void *node)
-{
-    return (((t_team *)node)->tid == 0);
-}
-
-/**
- * @brief Remove team from the list
- * @param team linked list of team
- * @param team_id team id
-*/
-void remove_team(t_list **team)
-{
-    ft_lst_remove_if(team, free, team_cmp);
-}
-
-
-void display_team_lst(t_list *team)
-{
-    t_list *current = team;
-    int lstid = 0;
-
-    while (current != NULL) {
-        ft_printf_fd(1, CYAN"team_id: %d lst pos |%d|\n"RESET, ((t_team *)current->content)->tid, lstid);
-        current = current->next;
-        ++lstid;
-    }
-}
+// static int team_cmp(void *node)
+// {
+//     return (((t_team *)node)->tid == 0);
+// }
 
 void increment_team_size(t_list **team, uint32_t team_id)
 {
@@ -133,15 +110,12 @@ int8_t build_list_number_team(t_list **lst, uint32_t *array)
 {
 	uint32_t i = 0;
 	for (i = 0; i < BOARD_SIZE; i++) {
-		if (array[i] != TILE_EMPTY) 
-		{
-			if (!team_exist(lst, array[i])) 
-			{
+		if (array[i] != TILE_EMPTY)  {
+			if (!team_exist(lst, array[i])) {
 				if (!add_team(lst, array[i])) {
 					ft_printf_fd(2, "Malloc err build team lst\n");
 					return (0);
 				}
-				// TEAM ADDED CASE
 			}
 			increment_team_size(lst, array[i]);
 		}

@@ -76,7 +76,8 @@ typedef enum e_keyboard_key
 	ARROW_DOWN = 65364,
 }	t_keyboard_key;
 
+void		free_team(void *team);
 t_teamcolor	get_new_color(uint32_t current_team_nb, uint32_t team_id);
-void free_team(void *team);
+int8_t 		build_list_number_team(t_list **lst, uint32_t *array);
 
 #endif /* DISPLAY_LEMIPC_H */ 

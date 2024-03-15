@@ -104,15 +104,15 @@ int	display_team_info(t_team *team, uint32_t pad_y)
 
 	uint32_t x = start_x;
 
-	mystring_put (g_game->mlx, g_game->win, x, y, team->data.color, "TEAM ID : ");
+	mystring_put(g_game->mlx, g_game->win, x, y, team->data.color, "TEAM ID : ");
 	x += skip_x("TEAM ID : ");
-	mystring_put (g_game->mlx, g_game->win, x, y, CYAN_INT, team->strid);
+	mystring_put(g_game->mlx, g_game->win, x, y, CYAN_INT, team->strid);
 	
 	x = start_x;
 	y += PAD_YTEAM;
-	mystring_put (g_game->mlx, g_game->win, x, y, team->data.color, "TEAM SIZE : ");
+	mystring_put(g_game->mlx, g_game->win, x, y, team->data.color, "TEAM SIZE : ");
 	x += skip_x("TEAM SIZE : ");
-	mystring_put (g_game->mlx, g_game->win, x, y, CYAN_INT, team->strsize);
+	mystring_put(g_game->mlx, g_game->win, x, y, CYAN_INT, team->strsize);
 	
 	return (0);
 }
@@ -122,7 +122,7 @@ void display_teamlist(t_list *list)
 	t_list *tmp = list;
 	uint32_t y = 20U;
 
-	mystring_put (g_game->mlx, g_game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, "TEAM INFO : ");
+	mystring_put(g_game->mlx, g_game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, "TEAM INFO : ");
 	y += PAD_YTEAM;
 	while (tmp) {
 		display_team_info(tmp->content, y);
@@ -166,11 +166,6 @@ int boardmlx_display()
 		}
 		g_game->player_nb = get_attached_processnb(g_game->ipc);
 	}
-
-
-	// if (!build_list_number_team(&g_game->team, g_game->ipc->ptr)) {
-	// 	ft_printf_fd(2, RED"Error: build_list_number_team\n"RESET);
-	// }
 
 	/* CLear pixel buff */
 	// size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);

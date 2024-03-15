@@ -3,6 +3,10 @@
 source ./rsc/sh/color.sh
 LEMIPC="./lemipc"
 
+if [ ! -f "${LEMIPC}" ]; then
+	make -s
+fi
+
 sigint_loop_test() {
 	
 	./rsc/mk/ascii.sh "tester"
@@ -12,26 +16,18 @@ sigint_loop_test() {
 	do
 		local team_id=$(((i % 8) + 1))
 
-		if [ $i -eq 3 ]
+		if [ $i -eq 10 ]
 		then
 			display_color_msg ${YELLOW} "Lauch display handler ..."
 			./lemipc_display &
+			sleep 1
 		fi
 		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
 		${LEMIPC} ${team_id} &
-		# local loc_pid=$!
-		# echo ${loc_pid} >> ${PID_LOG}
 		sleep 0.01
 	done
 	
 	display_color_msg ${YELLOW} "Let runing make clear for clean ..."
-	# local all_pid=$(ps | grep lemipc | cut -d ' ' -f 1 | tr '\n' ' ') 
-	# send_sigint_all
-	# wait ${all_pid}
-	# sleep 1
-	# display_color_msg ${YELLOW} "Waiting protect finish ..."
-	# ./rsc/sh/check_ipcs_free.sh
-	# rm_pid_log ${PID_LOG}
 }
 
 sigint_loop_test

@@ -114,9 +114,7 @@ typedef struct s_player {
 # define ADD_TEAM	1
 # define RM_TEAM	0
 
-void display_team_lst(t_list *team);
-int8_t 		build_list_number_team(t_list **lst, uint32_t *array);
-void team_handling(uint32_t *array, uint32_t team_id, int8_t add);
+void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
 uint32_t 	extract_msg(t_ipc *ipc, t_player *player);
