@@ -24,7 +24,7 @@ send_sigint_all() {
 	for pid in ${PID_FOUND}
 	do
 		send_sigint ${pid}
-		sleep 0.1
+		sleep 0.5
 	done
 	PID_FOUND=$(ps | grep lemipc | cut -d ' ' -f ${field})
 	if [ "${PID_FOUND}" == "" ]; then

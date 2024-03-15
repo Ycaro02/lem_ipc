@@ -31,11 +31,11 @@ free_ipcs() {
 }
 
 check_kali() {
-	CHECK_KALI=$(uname -n | cut -d ' ' -f 1)
-	if [ ${CHECK_KALI} != "" ]; then
-		if [ ${CHECK_KALI} == "Kali" ]; then
+	local os_version=$(uname -n | cut -d ' ' -f 1)
+	if [ ${os_version} != "" ]; then
+		if [ ${os_version} == "Kali" ]; then
 			FREE_ARGS="3"
-			display_color_msg ${YELLOW} "Kali detected."
+			display_color_msg ${YELLOW} "${os_version} detected."
 		fi
 	fi
 
