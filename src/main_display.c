@@ -203,8 +203,10 @@ int boardmlx_display()
 
 	/* Draw board */
 	for (uint32_t y = 1; y < SCREEN_HEIGHT; ++y) {
-		for (uint32_t x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
-			uint32_t idx = ((x / TILE_SIZE) % (BOARD_W - RIGHTBAND_TILE_NB)) + ((y / TILE_SIZE) * (BOARD_W - RIGHTBAND_TILE_NB));
+		for (uint32_t x = 1; x < SCREEN_WIDTH - RIGHTBAND_WIDTH; ++x) {
+			uint32_t x_compute =  ((x / TILE_SIZE) % BOARD_W);
+			uint32_t y_compute = ((y / TILE_SIZE) * BOARD_W);   
+			uint32_t idx = x_compute + y_compute;
 			uint32_t tile_state = g_game->ipc->ptr[idx];
 			color = tile_state == TILE_EMPTY ? 0xFFFFFF : get_team_color(g_game->team, tile_state);
 			if (x % TILE_SIZE != 0 && y % TILE_SIZE != 0) {
@@ -248,6 +250,7 @@ int8_t init_mlx()
 	// mlx_loop_hook(g_game->mlx, game_display, g_game);
 	// mlx_loop_hook(g_game->mlx, display_team_info, g_game);
 	mlx_loop_hook(g_game->mlx, boardmlx_display, g_game);
+	// mlx_loop_hook(g_game->mlx, game_display, g_game);
 	mlx_loop(g_game->mlx);
 	return (0);
 

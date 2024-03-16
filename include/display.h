@@ -25,14 +25,21 @@
 // # define TILE_SIZE 28U
 # define TILE_SIZE 32U
 
+
+/* Right band tile number */
+# define RIGHTBAND_TILE_NB 5U
+
+
 /* Right band width in pixel */
 # define RIGHTBAND_WIDTH (TILE_SIZE * RIGHTBAND_TILE_NB)
 
+# define TOTAL_SCREEN_WIDTH ((TILE_SIZE * BOARD_W) + RIGHTBAND_WIDTH)
+
 /* Screen width */
-# define SCREEN_WIDTH (uint32_t)(TILE_SIZE * BOARD_W)
+# define SCREEN_WIDTH TOTAL_SCREEN_WIDTH
 
 /* Screen height */
-# define SCREEN_HEIGHT (uint32_t)(TILE_SIZE * BOARD_H)
+# define SCREEN_HEIGHT (TILE_SIZE * BOARD_H)
 
 /* Team color struct */
 typedef struct s_teamcolor {

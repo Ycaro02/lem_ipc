@@ -43,13 +43,10 @@
 
 /* Map width */
 // # define BOARD_W 65U
-# define BOARD_W 25U
-
-/* Right band tile number */
-# define RIGHTBAND_TILE_NB 5U
+# define BOARD_W 20U
 
 /* Board size */
-# define BOARD_SIZE (BOARD_H * (BOARD_W - RIGHTBAND_TILE_NB))
+# define BOARD_SIZE (BOARD_H * BOARD_W)
 
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
@@ -78,33 +75,48 @@
 /* Number used in ftok call */
 # define IPC_PROJ_ID	42
 
-# define ARROUND_VEC_SIZE 8
 
 # define ARROUND_VEC_ARRAY(point) { \
-	{point.x - 1, point.y - 1}, \
-	{point.x - 1, point.y}, \
-	{point.x - 1, point.y + 1}, \
 	{point.x, point.y - 1}, \
 	{point.x, point.y + 1}, \
-	{point.x + 1, point.y - 1}, \
+	{point.x - 1, point.y}, \
 	{point.x + 1, point.y}, \
+	{point.x - 1, point.y - 1}, \
+	{point.x - 1, point.y + 1}, \
+	{point.x + 1, point.y - 1}, \
 	{point.x + 1, point.y + 1} \
 }
 
-
 # define ARROUND_VECX_ARRAY(point, range) { \
-	{point.x - range, point.y - range}, \
-	{point.x - range, point.y}, \
-	{point.x - range, point.y + range}, \
 	{point.x, point.y - range}, \
 	{point.x, point.y + range}, \
-	{point.x + range, point.y - range}, \
+	{point.x - range, point.y}, \
 	{point.x + range, point.y}, \
+	{point.x - range, point.y - range}, \
+	{point.x - range, point.y + range}, \
+	{point.x + range, point.y - range}, \
 	{point.x + range, point.y + range} \
+}
+
+# define HEURISTIC_ARRAY(point) { \
+	{UINT32_MAX, {point.x, point.y - 1}}, \
+	{UINT32_MAX, {point.x, point.y + 1}}, \
+	{UINT32_MAX, {point.x - 1, point.y}}, \
+	{UINT32_MAX, {point.x + 1, point.y}}, \
+	{UINT32_MAX, {point.x - 1, point.y - 1}}, \
+	{UINT32_MAX, {point.x - 1, point.y + 1}}, \
+	{UINT32_MAX, {point.x + 1, point.y - 1}}, \
+	{UINT32_MAX, {point.x + 1, point.y + 1}} \
 }
 
 /* game status */
 extern int g_game_run;
+
+typedef struct s_heuristic {
+	uint32_t	cost;
+	t_vec		pos;
+} t_heuristic;
+
 
 
 typedef struct s_msgbuf {
@@ -126,11 +138,30 @@ typedef struct s_player {
 	uint32_t	team_id;	/* Team id */
 } t_player;
 
+enum e_player_state {
+	S_WAITING,
+	S_TRACKER,
+	S_FOLLOWER,
+};
+
+enum e_direction {
+	NORTH,
+	SOUTH,
+	EAST,
+	WEST,
+	NORTH_EAST,
+	NORTH_WEST,
+	SOUTH_EAST,
+	SOUTH_WEST,
+	DIR_MAX
+};
 
 
 # define ADD_TEAM	1
 # define RM_TEAM	0
 
+// t_vec		find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end);
+t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end);
 void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
