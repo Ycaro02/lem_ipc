@@ -29,7 +29,7 @@ int main(int argc, char **argv)
 	team_handling(ipc.ptr, player.team_id, RM_TEAM);
 
 	if (get_attached_processnb(&ipc) == 1) {
-		// clean_shared_rsc(&ipc);
+		clean_shared_rsc(&ipc);
 		ft_printf_fd(1, RED"Lem-ipc Server Down Team %u Won\n"RESET, player.team_id);
 	} else {
 		sem_unlock(ipc.semid);

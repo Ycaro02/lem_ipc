@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   libft.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: nfour <nfour@student.42.fr>                +#+  +:+       +#+        */
+/*   By: ycaro <ycaro@student.42.fr>                +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/10/01 15:40:12 by nfour             #+#    #+#             */
-/*   Updated: 2024/01/10 11:23:35 by nfour            ###   ########.fr       */
+/*   Updated: 2024/03/16 07:07:32 by ycaro            ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,10 @@
 # include "limits.h"
 
 # define OUT_OF_UINT32 (uint64_t)(UINT32_MAX + 1)
+
+uint32_t abs_diff(uint32_t a, uint32_t b);
+uint32_t max_uint32(uint32_t a, uint32_t b);
+uint32_t min_uint32(uint32_t a, uint32_t b);
 
 uint64_t array_to_uint32(const char *nptr);
 char	*ft_ultoa(unsigned long n);

@@ -110,6 +110,45 @@ void player_routine(t_ipc *ipc, t_player *player)
 }
 
 
+// static t_vec find_smarter_possible_move(t_vec current, t_vec end)
+// {
+// 	t_vec possible_move[] = ARROUND_VEC_ARRAY(current);
+// 	t_vec arround_end[] = ARROUND_VEC_ARRAY(end);
+
+
+// }
+
+// static t_vec find_enemy_inrange(t_ipc *ipc, t_vec pos, uint32_t team_id, uint32_t range)
+// {
+// 	uint32_t	tile_state = TILE_EMPTY;
+// 	t_vec		arround[ARROUND_VEC_SIZE] = ARROUND_VECX_ARRAY(pos, range);
+
+
+// 	for (int i = 0; i < ARROUND_VEC_SIZE; i++) {
+// 		if (get_board_index(arround[i]) >= BOARD_SIZE) {
+// 			continue;
+// 		}
+// 		tile_state = get_tile_board_val(ipc->ptr, arround[i]);
+// 		if (tile_state != team_id && tile_state != TILE_EMPTY) {
+// 			return (arround[i]);
+// 		}
+// 	}
+// 	return (pos);
+// }
+
+// static int8_t scan_board_arround(t_ipc *ipc, t_player *player, uint32_t range_max)
+// {
+// 	uint32_t	tile_state = TILE_EMPTY;
+
+// 	for (uint32_t range = 1; range <= range_max; range++) {
+// 		player->target = find_enemy_inrange(ipc, player->pos, player->team_id, range);
+// 		if (!vector_cmp(player->target, player->pos)) {
+// 			return (1);
+// 		}
+// 	}
+// 	return (0);
+// }
+
 /*
 
 enum e_player_state {

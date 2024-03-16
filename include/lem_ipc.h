@@ -86,6 +86,18 @@
 	{point.x + 1, point.y + 1} \
 }
 
+
+# define ARROUND_VECX_ARRAY(point, range) { \
+	{point.x - range, point.y - range}, \
+	{point.x - range, point.y}, \
+	{point.x - range, point.y + range}, \
+	{point.x, point.y - range}, \
+	{point.x, point.y + range}, \
+	{point.x + range, point.y - range}, \
+	{point.x + range, point.y}, \
+	{point.x + range, point.y + range} \
+}
+
 /* game status */
 extern int g_game_run;
 
