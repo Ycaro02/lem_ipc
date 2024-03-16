@@ -38,13 +38,18 @@
 # define PAGE_SIZE              (size_t)getpagesize()
 
 /* Map height */
-# define BOARD_H 30U
+// # define BOARD_H 30U
+# define BOARD_H 20U
 
 /* Map width */
-# define BOARD_W 65U
+// # define BOARD_W 65U
+# define BOARD_W 25U
+
+/* Right band tile number */
+# define RIGHTBAND_TILE_NB 5U
 
 /* Board size */
-# define BOARD_SIZE (BOARD_H * BOARD_W)
+# define BOARD_SIZE (BOARD_H * (BOARD_W - RIGHTBAND_TILE_NB))
 
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)

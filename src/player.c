@@ -36,7 +36,7 @@ static int init_signal_handler(void)
 }
 
 /* check 8 point arround  */
-static uint8_t check_arround_point(uint32_t *board, t_vec point, uint32_t team_id)
+uint8_t check_arround_point(uint32_t *board, t_vec point, uint32_t team_id)
 {
 	t_vec	 	arround[ARROUND_VEC_SIZE] = ARROUND_VEC_ARRAY(point);
 	uint8_t		enemy_arround = 0;
@@ -56,7 +56,7 @@ static uint8_t check_arround_point(uint32_t *board, t_vec point, uint32_t team_i
 }
 
 /* Check if player is dead */
-static uint8_t check_player_death(t_ipc *ipc, t_player *player)
+uint8_t check_player_death(t_ipc *ipc, t_player *player)
 {
 	uint8_t		ret = 0;
 	
@@ -77,33 +77,32 @@ void player_routine(t_ipc *ipc, t_player *player)
 	team_handling(ipc->ptr, player->team_id, ADD_TEAM);
 
 	point = get_random_point(ipc->ptr, player->pos);
+	ft_printf_fd(2, "Player %u start at %u %u\n", player->team_id, point.x, point.y);
 	set_tile_board_val(ipc->ptr, point, player->team_id);
 	player->pos = point;
 	sem_unlock(ipc->semid);
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
-		if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] == 1) {
-			// char *color = player->team_id % 2  ? RED : BLUE;
-			// ft_printf_fd(1, "%sDEAD FOUND\n"RESET, color);
-			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
-			// set_tile_board_val(ipc->ptr, player->pos, 10U);
-			g_game_run = 0;
-			sem_unlock(ipc->semid);			
-			break;
-		}
+		// if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] == 1) {
+		// 	// char *color = player->team_id % 2  ? RED : BLUE;
+		// 	set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+		// 	g_game_run = 0;
+		// 	sem_unlock(ipc->semid);			
+		// 	break;
+		// }
 
-		// to_rush =  extract_msg(ipc, player);
-		// send_msg(ipc, player, to_rush);
+		// // to_rush =  extract_msg(ipc, player);
+		// // send_msg(ipc, player, to_rush);
 
-		point = get_random_point(ipc->ptr, player->pos);
-		if (!vector_cmp(point, player->pos)) {
-			/* Set empty last position tile */
-			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
-			player->pos = point;
-			/* Set team id value in new player position */
-			set_tile_board_val(ipc->ptr, point, player->team_id);
-		}
+		// point = get_random_point(ipc->ptr, player->pos);
+		// if (!vector_cmp(point, player->pos)) {
+		// 	/* Set empty last position tile */
+		// 	set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+		// 	player->pos = point;
+		// 	/* Set team id value in new player position */
+		// 	set_tile_board_val(ipc->ptr, point, player->team_id);
+		// }
 		sem_unlock(ipc->semid);
 		usleep(100000); /* 1/10 sec */
 	}
