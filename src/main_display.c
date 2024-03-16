@@ -3,21 +3,37 @@
 int		g_game_run; 
 t_game	*g_game;
 
-
 t_teamcolor get_new_color(uint32_t current_team_nb, uint32_t team_id) 
 {
-    t_teamcolor team_color[] = {
+	t_teamcolor team_color[] = {
 		{"Red", 0xFF0000},
-		{"Blue", 0x0000FF},
+		{"Orange", 0xFF9900},
+		{"Yellow", 0xFFCC00},
 		{"Green", 0x00FF00},
-		{"Pink", 0xFFC0CB},
+		{"Blue", 0x6699FF},
+		{"Purple", 0xCC33FF},
+		{"Brown", 0x99991E},
+		{"Grey", 0x999999},
+		{"Pink", 0xFF00CC},
+		{"Red", 0xCC0000},
+		{"Pink", 0xFFCCCC},
 		{"Yellow", 0xFFFF00},
-		{"Purple", 0x800080},
+		{"Green", 0xCCFF00},
+		{"Green", 0x358000},
+		{"Blue", 0x0000CC},
+		{"Blue", 0x99CCFF},
 		{"Cyan", 0x00FFFF},
-		{"Orange", 0xFFA500},
-		{"Brown", 0xA52A2A},
-		{"Black", 0x000000},
+		{"Cyan", 0xCCFFFF},
+		{"Purple", 0x9900CC},
+		{"Purple", 0xCC99FF},
+		{"Brown", 0x996600},
+		{"Brown", 0x666600},
+		{"Grey", 0x666666},
+		{"Grey", 0xCCCCCC},
+		{"Green", 0x79CC3D},
+		{"Grey", 0xCCCC99},
 	};
+
 	(void)current_team_nb;
 	uint32_t idx = 0;
 	for (uint32_t i = 0; COLOR_MAX ; i++) {

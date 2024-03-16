@@ -26,6 +26,9 @@
 		"mman.h": "c",
 		"xlib.h": "c",
 		"xutil.h": "c",
-		"xkblib.h": "c"
+		"xkblib.h": "c",
+		"array": "c",
+		"string": "c",
+		"string_view": "c"
 	}
 }
