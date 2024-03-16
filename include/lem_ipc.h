@@ -39,11 +39,11 @@
 
 /* Map height */
 // # define BOARD_H 30U
-# define BOARD_H 20U
+# define BOARD_H 5U
 
 /* Map width */
 // # define BOARD_W 65U
-# define BOARD_W 20U
+# define BOARD_W 5U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
@@ -96,6 +96,58 @@
 	{point.x - range, point.y + range}, \
 	{point.x + range, point.y - range}, \
 	{point.x + range, point.y + range} \
+}
+
+
+# define ARROUND_VEC3_ARRAY(point) { \
+	{point.x, point.y - 1}, \
+	{point.x, point.y + 1}, \
+	{point.x - 1, point.y}, \
+	{point.x + 1, point.y}, \
+	{point.x - 1, point.y - 1}, \
+	{point.x - 1, point.y + 1}, \
+	{point.x + 1, point.y - 1}, \
+	{point.x + 1, point.y + 1}, \
+	{point.x, point.y - 2}, \
+	{point.x - 1, point.y - 2}, \
+	{point.x + 1, point.y - 2}, \
+	{point.x - 2, point.y - 2}, \
+	{point.x + 2, point.y - 2}, \
+	{point.x, point.y + 2}, \
+	{point.x - 1, point.y + 2}, \
+	{point.x + 1, point.y + 2}, \
+	{point.x - 2, point.y + 2}, \
+	{point.x + 2, point.y + 2}, \
+	{point.x - 2, point.y}, \
+	{point.x + 2, point.y}, \
+	{point.x - 2, point.y - 1}, \
+	{point.x + 2, point.y - 1}, \
+	{point.x - 2, point.y + 1}, \
+	{point.x + 2, point.y + 1}, \
+	{point.x, point.y - 3}, \
+	{point.x - 1, point.y - 3}, \
+	{point.x + 1, point.y - 3}, \
+	{point.x - 2, point.y - 3}, \
+	{point.x + 2, point.y - 3}, \
+	{point.x - 3, point.y - 3}, \
+	{point.x + 3, point.y - 3}, \
+	{point.x, point.y + 3}, \
+	{point.x - 1, point.y + 3}, \
+	{point.x + 1, point.y + 3}, \
+	{point.x - 2, point.y + 3}, \
+	{point.x + 2, point.y + 3}, \
+	{point.x - 3, point.y + 3}, \
+	{point.x + 3, point.y + 3}, \
+	{point.x - 3, point.y}, \
+	{point.x + 3, point.y}, \
+	{point.x - 3, point.y - 1}, \
+	{point.x + 3, point.y - 1}, \
+	{point.x - 3, point.y + 1}, \
+	{point.x + 3, point.y + 1}, \
+	{point.x - 3, point.y - 2}, \
+	{point.x + 3, point.y - 2}, \
+	{point.x - 3, point.y + 2}, \
+	{point.x + 3, point.y + 2} \
 }
 
 # define HEURISTIC_ARRAY(point) { \
@@ -160,6 +212,8 @@ enum e_direction {
 # define ADD_TEAM	1
 # define RM_TEAM	0
 
+
+int8_t scan_board_arround(t_ipc *ipc, t_player *player, uint32_t range_max);
 // t_vec		find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end);
 t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end);
 void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);

@@ -87,9 +87,12 @@ void player_routine(t_ipc *ipc, t_player *player)
 		sem_lock(ipc->semid);
 
 		ft_printf_fd(2, YELLOW"Player %u before at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);
-		hp = find_smarter_possible_move(ipc, player->pos, create_vector(19, 19));
-		ft_printf_fd(2, YELLOW"Player %u after at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);
-		ft_printf_fd(2, YELLOW"Heurisctic %u after at %u %u\n"RESET, player->team_id, hp.pos.y, hp.pos.x);
+		if (scan_board_arround(ipc, player, 20)){
+			ft_printf_fd(2, RED"Enemy found at %u %u\n"RESET, player->target.y, player->target.x);
+		}
+		hp = find_smarter_possible_move(ipc, player->pos, player->target);
+		// ft_printf_fd(2, YELLOW"Player %u after at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);
+		// ft_printf_fd(2, YELLOW"Heurisctic %u after at %u %u\n"RESET, player->team_id, hp.pos.y, hp.pos.x);
 		// if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] == 1) {
 		// 	// char *color = player->team_id % 2  ? RED : BLUE;
 		// 	set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
@@ -106,7 +109,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			player->pos = create_vector(hp.pos.y, hp.pos.x);
-			ft_printf_fd(2, CYAN"Player %u move to %u %u\n\n\n"RESET, player->team_id, player->pos.y, player->pos.x);
+			// ft_printf_fd(2, CYAN"Player %u move to %u %u\n\n\n"RESET, player->team_id, player->pos.y, player->pos.x);
 			/* Set team id value in new player position */
 			set_tile_board_val(ipc->ptr, player->pos, player->team_id);
 		}
