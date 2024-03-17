@@ -40,49 +40,59 @@ t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end)
 	return (best_heuristic);
 }
 
-t_vec find_enemy_inrange(t_ipc *ipc, t_vec pos, uint32_t team_id)
+
+
+int8_t check_correct_pos(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y)
 {
 	uint32_t	tile_state = TILE_EMPTY;
-	t_vec		arround[] = ARROUND_VEC3_ARRAY(pos);
-
-
-
-	for (int i = 0; i < 48; i++) {
-		if (arround[i].x >= (BOARD_W) || arround[i].y >= BOARD_H) { /* uglys*/
-			// ft_printf_fd(2, RED"1  [%u] [%u]\n"RESET, arround[i].y, arround[i].x);
-            continue;
-        } else if (get_board_index(arround[i]) >= BOARD_SIZE) {
-			// ft_printf_fd(2, RED"2  [%u] [%u]\n"RESET, arround[i].y, arround[i].x);
-			continue;
-		}
-		ft_printf_fd(2, CYAN" [%u] [%u]\n"RESET, arround[i].y, arround[i].x);
-
-		tile_state = get_tile_board_val(ipc->ptr, arround[i]);
-		if (tile_state != team_id && tile_state != TILE_EMPTY) {
-			return (arround[i]);
-		}
+	if (x >= (BOARD_W) || y >= BOARD_H) { /* uglys*/
+		return (0);
+	} else if (get_board_index(create_vector(y, x)) >= BOARD_SIZE) {
+		return (0);
 	}
-	return (pos);
+	tile_state = get_tile_board_val(ipc->ptr, create_vector(y, x));
+	if (tile_state != player->team_id && tile_state != TILE_EMPTY) {
+		player->target = create_vector(y, x);
+		return (1);
+	}	
+	return (0);
 }
 
-int8_t scan_board_arround(t_ipc *ipc, t_player *player, uint32_t range_max)
+int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max)
 {
-	uint32_t	tile_state = TILE_EMPTY;
+	// uint32_t	tile_state = TILE_EMPTY;
+	t_vec		pos = player->pos;
 
-	(void)tile_state;
-	(void)range_max;
-	// for (uint32_t range = 1; range <= range_max; range++) {
-	player->target = find_enemy_inrange(ipc, player->pos, player->team_id);
-	if (!vector_cmp(player->target, player->pos)) {
-		return (1);
+	for (int x_change = 1; x_change <= range_max; ++x_change) {
+		for (int y_change = 1; y_change <= range_max; ++y_change) {
+			uint32_t add_y = pos.y + y_change;
+			uint32_t add_x = pos.x + x_change;
+			uint32_t sub_y = pos.y - y_change;
+			uint32_t sub_x = pos.x - x_change;
+			// ft_printf_fd(2, CYAN"Test [%u] [%u]\n"RESET, add_y, add_x);
+			if (check_correct_pos(ipc, player, pos.x, add_y)) {
+				return (1);
+			} else if (check_correct_pos(ipc, player, pos.x, sub_y)) {
+				return (1);
+			} else if (check_correct_pos(ipc, player, add_x, pos.y)) {
+				return (1);
+			} else if (check_correct_pos(ipc, player, sub_x, pos.y)) {
+				return (1);
+			} else if (check_correct_pos(ipc, player, add_x, add_y)) {
+				return (1);
+			} else if (check_correct_pos(ipc, player, sub_x, sub_y)) {
+				return (1);
+			} else if (check_correct_pos(ipc, player, add_x, sub_y)) {
+				return (1);
+			} else if (check_correct_pos(ipc, player, sub_x, add_y)) {
+				return (1);
+			}
+		}
 	}
-	// }
 	return (0);
 }
 
 /*
-
-
 
 WAITING logic
 {
@@ -132,3 +142,42 @@ TRACKER logic
 
 
 */
+
+
+// t_vec find_enemy_inrange(t_ipc *ipc, t_vec pos, uint32_t team_id)
+// {
+// 	uint32_t	tile_state = TILE_EMPTY;
+// 	t_vec		arround[] = ARROUND_VEC3_ARRAY(pos);
+
+// 	for (int i = 0; i < 48; i++) {
+// 		if (arround[i].x >= (BOARD_W) || arround[i].y >= BOARD_H) { /* uglys*/
+// 			// ft_printf_fd(2, RED"1  [%u] [%u]\n"RESET, arround[i].y, arround[i].x);
+//             continue;
+//         } else if (get_board_index(arround[i]) >= BOARD_SIZE) {
+// 			// ft_printf_fd(2, RED"2  [%u] [%u]\n"RESET, arround[i].y, arround[i].x);
+// 			continue;
+// 		}
+// 		ft_printf_fd(2, CYAN" [%u] [%u]\n"RESET, arround[i].y, arround[i].x);
+
+// 		tile_state = get_tile_board_val(ipc->ptr, arround[i]);
+// 		if (tile_state != team_id && tile_state != TILE_EMPTY) {
+// 			return (arround[i]);
+// 		}
+// 	}
+// 	return (pos);
+// }
+
+// int8_t scan_board_arround(t_ipc *ipc, t_player *player, uint32_t range_max)
+// {
+// 	uint32_t	tile_state = TILE_EMPTY;
+
+// 	(void)tile_state;
+// 	(void)range_max;
+// 	// for (uint32_t range = 1; range <= range_max; range++) {
+// 	player->target = find_enemy_inrange(ipc, player->pos, player->team_id);
+// 	if (!vector_cmp(player->target, player->pos)) {
+// 		return (1);
+// 	}
+// 	// }
+// 	return (0);
+// }

@@ -39,11 +39,11 @@
 
 /* Map height */
 // # define BOARD_H 30U
-# define BOARD_H 5U
+# define BOARD_H 20U
 
 /* Map width */
 // # define BOARD_W 65U
-# define BOARD_W 5U
+# define BOARD_W 20U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
@@ -212,6 +212,7 @@ enum e_direction {
 # define ADD_TEAM	1
 # define RM_TEAM	0
 
+int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max);
 
 int8_t scan_board_arround(t_ipc *ipc, t_player *player, uint32_t range_max);
 // t_vec		find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end);

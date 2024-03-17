@@ -89,13 +89,6 @@ int game_display() {
 
 /* to put in header file */
 
-
-// static int	rgb_to_int(int r, int g, int b)
-// {
-// 	return ((r << 16) | (g << 8) | b);
-// }
-
-
 void		mystring_put(t_xvar *xvar,t_win_list *win,int x,int y,int color,char *string)
 {
    XGCValues	xgcv;
@@ -104,7 +97,6 @@ void		mystring_put(t_xvar *xvar,t_win_list *win,int x,int y,int color,char *stri
    XChangeGC(xvar->display,win->gc,GCForeground,&xgcv);
    XDrawString(xvar->display,win->window,win->gc,x,y,string,strlen(string));
 }
-
 
 int skip_x(char *str)
 {
