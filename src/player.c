@@ -35,24 +35,29 @@ static int init_signal_handler(void)
 	return (0);
 }
 
-/* check 8 point arround  */
-uint8_t check_arround_point(uint32_t *board, t_vec point, uint32_t team_id)
+int8_t check_double_value(uint32_t *array, uint32_t team_id)
 {
-	t_vec	 	arround[DIR_MAX] = ARROUND_VEC_ARRAY(point);
-	uint8_t		enemy_arround = 0;
-	uint32_t	ret = 0;
+	for (int i = 0; i < DIR_MAX; i++) {
+		for (int j = 0; j < DIR_MAX; j++) {
+			if (i != j && array[i] == array[j] && array[i] != TILE_EMPTY && array[i] != team_id) {
+				return (1);
+			}
+		}
+	}
+	return (0);
+}
 
+int8_t check_death(uint32_t *board, t_vec point, uint32_t team_id)
+{
+	t_vec	arround[DIR_MAX] = ARROUND_VEC_ARRAY(point);
+	uint32_t arround_val[DIR_MAX] = {0};
 	for (int i = 0; i < DIR_MAX; i++) {
 		if (get_board_index(arround[i]) >= BOARD_SIZE) {
 			continue;
 		}
-		ret = get_tile_board_val(board, arround[i]);
-		if (ret != team_id && ret != TILE_EMPTY) { /* basic implementation need to store value for each enemy team and leave if 2 is reached */
-			++enemy_arround;
-		}
+		arround_val[i] = get_tile_board_val(board, arround[i]);
 	}
-	ret = (enemy_arround >= 2); /* if dead return 1 otherwise 0 */
-	return (ret);
+	return (check_double_value(arround_val, team_id));
 }
 
 /* Check if player is dead */
@@ -60,7 +65,7 @@ uint8_t check_player_death(t_ipc *ipc, t_player *player)
 {
 	uint8_t		ret = 0;
 	
-	ret = check_arround_point(ipc->ptr, player->pos, player->team_id);
+	ret = check_death(ipc->ptr, player->pos, player->team_id);
 	return (ret);
 }
 

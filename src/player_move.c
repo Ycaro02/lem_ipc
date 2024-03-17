@@ -118,6 +118,11 @@ int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max)
 	return (0);
 }
 
+// static int8_t is_suicide_tile()
+// {
+
+// }
+
 void player_waiting(t_ipc *ipc, t_player *player)
 {
 	uint32_t		to_rush = extract_msg(ipc, player);
@@ -142,7 +147,7 @@ void player_waiting(t_ipc *ipc, t_player *player)
 		player->target = get_random_point(ipc->ptr, player->pos);
 		return ;
 	} else if ((to_rush == UINT32_MAX && enemy_found) || (enemy_heuristic < hp.cost)) { /* If no message receive but enemy found || If heuristic of the nearest enemy is better */
-		ft_printf_fd(2, PURPLE"Player %u enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);
+		ft_printf_fd(2, PURPLE"Player in team [%u] enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);
 		player->state = S_TRACKER;
 		if (to_rush != UINT32_MAX) {
 			send_msg(ipc, player, to_rush);
@@ -150,7 +155,7 @@ void player_waiting(t_ipc *ipc, t_player *player)
 		send_msg(ipc, player, get_board_index(player->target));
 		return ;
 	} else if (enemy_heuristic >= hp.cost) { /* If heuristic of the nearest enemy is worst thans msg receive */
-		ft_printf_fd(2, GREEN"Player %u enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id);
+		ft_printf_fd(2, GREEN"Player in team [%u] enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id);
 		player->state = S_FOLLOWER;
 		player->target = create_vector(rush_vec.y, rush_vec.x);
 		return ;
