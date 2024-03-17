@@ -117,16 +117,13 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 }
 
 /* Need to check for message queue full and clear it */
+/* Tracker should check for ally in range and try to join another ally if he is alone */
 
 void player_tracker_follower(t_ipc *ipc, t_player *player)
 {
 	/* Bool enemy found */
+	t_vec		enemy_save = create_vector(player->target.y, player->target.x);
 	int8_t		enemy_found = (vector_cmp(player->target, player->pos) == 0);
-	/* This enemy heuristic */
-	// uint32_t	enemy_heuristic = get_heuristic_cost(player->pos, player->target);
-	// if (!enemy_found) {
-	// 	enemy_heuristic = UINT32_MAX;
-	// }
 
 	if (!enemy_found) {
 		player->state = S_WAITING;
@@ -135,6 +132,14 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 		return ;
 	} 
 	if (player->state == S_TRACKER) {
+		// find_player_in_range(ipc, player, 1, ALLY_FLAG);
+		if (find_player_in_range(ipc, player, 2, ALLY_FLAG) == 0) {
+			ft_printf_fd(2, CYAN"Tracker is alone %u reach ally\n"RESET, player->team_id);
+			find_player_in_range(ipc, player, (int)BOARD_H, ALLY_FLAG);
+			return ;
+		}
+		ft_printf_fd(2, YELLOW"Tracker not alone %u continue track\n"RESET, player->team_id);
+		player->target = enemy_save;
 		send_msg(ipc, player, get_board_index(player->target));
 	}
 }
