@@ -88,7 +88,7 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 	uint32_t 	add_y, add_x, sub_y, sub_x;
 
 	for (int x_change = 1; x_change <= range_max; ++x_change) {
-		for (int y_change = 1; y_change <= range_max; ++y_change) {
+		for (int y_change = 1; y_change <= x_change; ++y_change) {
 			add_y = pos.y + y_change;
 			add_x = pos.x + x_change;
 			sub_y = pos.y - y_change;
