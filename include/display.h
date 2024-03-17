@@ -23,7 +23,7 @@
 
 /* Tile size in pixel */
 // # define TILE_SIZE 28U
-# define TILE_SIZE 32U
+# define TILE_SIZE 20U
 
 
 /* Right band tile number */

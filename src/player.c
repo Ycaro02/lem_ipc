@@ -97,9 +97,10 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 		
 		/* Player scan his environement to find nearest enemy */
-		if (find_enemy_inXrange(ipc, player, (int)BOARD_H)) { /* Enemy found case */
-			ft_printf_fd(2, "Enemy found\n");
-		}
+		// if (find_enemy_inXrange(ipc, player, (int)BOARD_H)) { /* Enemy found case */
+		// }
+		find_enemy_inXrange(ipc, player, (int)BOARD_H); /* Enemy found case */
+		player_waiting(ipc, player);
 
 
 		// to_rush =  extract_msg(ipc, player);

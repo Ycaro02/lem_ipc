@@ -61,7 +61,7 @@ t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end)
  * @return 1 and set player->targer if enemy found, otherwise return 0
 */
 
-int8_t check_correct_pos(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y)
+int8_t is_enemy_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y)
 {
 	uint32_t	tile_state = TILE_EMPTY;
 	if (x >= (BOARD_W) || y >= BOARD_H) { /* uglys*/
@@ -96,21 +96,21 @@ int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max)
 			uint32_t sub_y = pos.y - y_change;
 			uint32_t sub_x = pos.x - x_change;
 			// ft_printf_fd(2, CYAN"Test [%u] [%u]\n"RESET, add_y, add_x);
-			if (check_correct_pos(ipc, player, pos.x, add_y)) {
+			if (is_enemy_tile(ipc, player, pos.x, add_y)) {
 				return (1);
-			} else if (check_correct_pos(ipc, player, pos.x, sub_y)) {
+			} else if (is_enemy_tile(ipc, player, pos.x, sub_y)) {
 				return (1);
-			} else if (check_correct_pos(ipc, player, add_x, pos.y)) {
+			} else if (is_enemy_tile(ipc, player, add_x, pos.y)) {
 				return (1);
-			} else if (check_correct_pos(ipc, player, sub_x, pos.y)) {
+			} else if (is_enemy_tile(ipc, player, sub_x, pos.y)) {
 				return (1);
-			} else if (check_correct_pos(ipc, player, add_x, add_y)) {
+			} else if (is_enemy_tile(ipc, player, add_x, add_y)) {
 				return (1);
-			} else if (check_correct_pos(ipc, player, sub_x, sub_y)) {
+			} else if (is_enemy_tile(ipc, player, sub_x, sub_y)) {
 				return (1);
-			} else if (check_correct_pos(ipc, player, add_x, sub_y)) {
+			} else if (is_enemy_tile(ipc, player, add_x, sub_y)) {
 				return (1);
-			} else if (check_correct_pos(ipc, player, sub_x, add_y)) {
+			} else if (is_enemy_tile(ipc, player, sub_x, add_y)) {
 				return (1);
 			}
 		}
@@ -118,31 +118,49 @@ int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max)
 	return (0);
 }
 
-// void player_waiting(t_ipc *ipc, t_player *player)
-// {
-// 	t_vec		to_rush = extract_msg(ipc, player);
-// 	// uint32_t test = 0; store heuristic from mssg here 
-// 	t_heuristic	hp = {UINT32_MAX, create_vector(to_rush.y, to_rush.x)}; 
-// 	if (vector_cmp(player->target, player->pos) && to_rush == UINT32_MAX)) { /* If no enemy found and no message receive */
-// 		ft_printf_fd(2, CYAN"Player %u stay in WAITING state, go to random pos, don't send msg\n"RESET, player->team_id);
-// 		player->target = get_random_point(ipc->ptr, player->pos);
-// 		return ;
-// 	} else if (to_rush == UINT32_MAX || (get_heuristic_cost(player.pos, player->target) < hp.cost)) { /* If no message receive but enemy found || If heuristic of the nearest enemy is better */
-// 		ft_printf_fd(2, CYAN"Player %u enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);
-// 		player->state = S_TRACKER;
-// 		// send_msg(ipc, player, );  send message here
-// 		return ;
-// 	} else if (get_heuristic_cost(player.pos, player->target) >= hp.cost) { /* If heuristic of the nearest enemy is worst thans msg receive */
-// 		ft_printf_fd(2, CYAN"Player %u enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id);
-// 		player->state = S_FOLLOWER;
-// 		return ;
-// 	} else { /* else really ?*/
-// 		ft_printf_fd(2, CYAN"Player %u stay in WAITING state, go to nearest enemy, resend msg\n"RESET, player->team_id);
-// 		player->target = create_vector(to_rush.y, to_rush.x);
-// 		// send_msg(ipc, player, to_rush);  send message here
-// 		return ;
-// 	}
+void player_waiting(t_ipc *ipc, t_player *player)
+{
+	uint32_t		to_rush = extract_msg(ipc, player);
+	
+	t_vec rush_vec = get_board_pos(to_rush);
+	// uint32_t test = 0; store heuristic from mssg here 
+	t_heuristic	hp = {UINT32_MAX, create_vector(rush_vec.y, rush_vec.x)};
+	if (to_rush != UINT32_MAX) {
+		hp.cost = get_heuristic_cost(player->pos, rush_vec);
+	}
 
+	/* Bool enemy found */
+	int8_t enemy_found = (vector_cmp(player->target, player->pos) == 0);
+	/* This enemy heuristic */
+	uint32_t enemy_heuristic = get_heuristic_cost(player->pos, player->target);
+	if (!enemy_found) {
+		enemy_heuristic = UINT32_MAX;
+	}
+	
+	if (!enemy_found && to_rush == UINT32_MAX) { /* If no enemy found and no message receive */
+		ft_printf_fd(2, CYAN"Player %u stay in WAITING state, go to random pos, don't send msg\n"RESET, player->team_id);
+		player->target = get_random_point(ipc->ptr, player->pos);
+		return ;
+	} else if ((to_rush == UINT32_MAX && enemy_found) || (enemy_heuristic < hp.cost)) { /* If no message receive but enemy found || If heuristic of the nearest enemy is better */
+		ft_printf_fd(2, PURPLE"Player %u enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);
+		player->state = S_TRACKER;
+		if (to_rush != UINT32_MAX) {
+			send_msg(ipc, player, to_rush);
+		}
+		send_msg(ipc, player, get_board_index(player->target));
+		return ;
+	} else if (enemy_heuristic >= hp.cost) { /* If heuristic of the nearest enemy is worst thans msg receive */
+		ft_printf_fd(2, GREEN"Player %u enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id);
+		player->state = S_FOLLOWER;
+		player->target = create_vector(rush_vec.y, rush_vec.x);
+		return ;
+	} else { /* else really ?*/
+		ft_printf_fd(2, RED"Player %u stay in WAITING state, else case mandatory ?????? \n"RESET, player->team_id);
+		player->target = create_vector(rush_vec.y, rush_vec.x);
+		// send_msg(ipc, player, rush_vec);  send message here
+		return ;
+	}
+}
 // }
 
 

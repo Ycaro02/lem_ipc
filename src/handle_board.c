@@ -1,6 +1,12 @@
 # include "../include/lem_ipc.h"
 
 
+t_vec get_board_pos(uint32_t idx)
+{
+	t_vec vec = {idx / BOARD_W, idx % BOARD_W};
+	return (vec);
+}
+
 /**
  * @brief get board index
  * @param vector

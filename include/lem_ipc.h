@@ -43,7 +43,7 @@
 
 /* Map width */
 // # define BOARD_W 65U
-# define BOARD_W 20U
+# define BOARD_W 40U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
@@ -147,6 +147,8 @@ enum e_direction {
 };
 
 
+void player_waiting(t_ipc *ipc, t_player *player);
+
 int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max);
 
 int8_t scan_board_arround(t_ipc *ipc, t_player *player, uint32_t range_max);
@@ -177,6 +179,7 @@ int			get_attached_processnb(t_ipc *ipc);
 void 		syscall_perror(char *syscall_name);
 
 /* handle board */
+t_vec get_board_pos(uint32_t idx);
 uint32_t	get_tile_board_val(uint32_t *array, t_vec vec);
 uint32_t	get_board_index(t_vec vec);
 void		display_uint16_array(uint32_t *array);

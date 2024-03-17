@@ -25,9 +25,9 @@ int main(int argc, char **argv)
 
 	player_routine(&ipc, &player);
 
-
 	sem_lock(ipc.semid);
-	ft_printf_fd(2, YELLOW"Lem-Ipc Client team nb [%d] die on [%d][%d] teamnb = |%u| att = |%d|\n"RESET, player.team_id, player.pos.y, player.pos.x, ipc.ptr[TEAM_NB], get_attached_processnb(&ipc));
+	ft_printf_fd(2, YELLOW"Lem-Ipc Client team nb [%d] die on [%d][%d]\nTeam id = |%u| nb att = |%d|\n"RESET\
+		, player.team_id, player.pos.y, player.pos.x, ipc.ptr[TEAM_NB], get_attached_processnb(&ipc));
 	set_tile_board_val(ipc.ptr, player.pos, TILE_EMPTY);
 	team_handling(ipc.ptr, player.team_id, RM_TEAM);
 
