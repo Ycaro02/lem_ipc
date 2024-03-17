@@ -69,13 +69,18 @@
 # define DISPLAY_HANDLER 0
 # define PLAYER 1
 
+
+/* Define to handle increment decrement team number value */
+# define ADD_TEAM	1
+# define RM_TEAM	0
+
 /* File used in ftok call */
 # define IPC_NAME		"/tmp/lemipc_key"
 
 /* Number used in ftok call */
 # define IPC_PROJ_ID	42
 
-
+/* Brut vector arround array declaration */
 # define ARROUND_VEC_ARRAY(point) { \
 	{point.x, point.y - 1}, \
 	{point.x, point.y + 1}, \
@@ -87,95 +92,24 @@
 	{point.x + 1, point.y + 1} \
 }
 
-# define ARROUND_VECX_ARRAY(point, range) { \
-	{point.x, point.y - range}, \
-	{point.x, point.y + range}, \
-	{point.x - range, point.y}, \
-	{point.x + range, point.y}, \
-	{point.x - range, point.y - range}, \
-	{point.x - range, point.y + range}, \
-	{point.x + range, point.y - range}, \
-	{point.x + range, point.y + range} \
-}
+/* Int global for sigint handle game status */
 
-
-# define ARROUND_VEC3_ARRAY(point) { \
-	{point.x, point.y - 1}, \
-	{point.x, point.y + 1}, \
-	{point.x - 1, point.y}, \
-	{point.x + 1, point.y}, \
-	{point.x - 1, point.y - 1}, \
-	{point.x - 1, point.y + 1}, \
-	{point.x + 1, point.y - 1}, \
-	{point.x + 1, point.y + 1}, \
-	{point.x, point.y - 2}, \
-	{point.x - 1, point.y - 2}, \
-	{point.x + 1, point.y - 2}, \
-	{point.x - 2, point.y - 2}, \
-	{point.x + 2, point.y - 2}, \
-	{point.x, point.y + 2}, \
-	{point.x - 1, point.y + 2}, \
-	{point.x + 1, point.y + 2}, \
-	{point.x - 2, point.y + 2}, \
-	{point.x + 2, point.y + 2}, \
-	{point.x - 2, point.y}, \
-	{point.x + 2, point.y}, \
-	{point.x - 2, point.y - 1}, \
-	{point.x + 2, point.y - 1}, \
-	{point.x - 2, point.y + 1}, \
-	{point.x + 2, point.y + 1}, \
-	{point.x, point.y - 3}, \
-	{point.x - 1, point.y - 3}, \
-	{point.x + 1, point.y - 3}, \
-	{point.x - 2, point.y - 3}, \
-	{point.x + 2, point.y - 3}, \
-	{point.x - 3, point.y - 3}, \
-	{point.x + 3, point.y - 3}, \
-	{point.x, point.y + 3}, \
-	{point.x - 1, point.y + 3}, \
-	{point.x + 1, point.y + 3}, \
-	{point.x - 2, point.y + 3}, \
-	{point.x + 2, point.y + 3}, \
-	{point.x - 3, point.y + 3}, \
-	{point.x + 3, point.y + 3}, \
-	{point.x - 3, point.y}, \
-	{point.x + 3, point.y}, \
-	{point.x - 3, point.y - 1}, \
-	{point.x + 3, point.y - 1}, \
-	{point.x - 3, point.y + 1}, \
-	{point.x + 3, point.y + 1}, \
-	{point.x - 3, point.y - 2}, \
-	{point.x + 3, point.y - 2}, \
-	{point.x - 3, point.y + 2}, \
-	{point.x + 3, point.y + 2} \
-}
-
-# define HEURISTIC_ARRAY(point) { \
-	{UINT32_MAX, {point.x, point.y - 1}}, \
-	{UINT32_MAX, {point.x, point.y + 1}}, \
-	{UINT32_MAX, {point.x - 1, point.y}}, \
-	{UINT32_MAX, {point.x + 1, point.y}}, \
-	{UINT32_MAX, {point.x - 1, point.y - 1}}, \
-	{UINT32_MAX, {point.x - 1, point.y + 1}}, \
-	{UINT32_MAX, {point.x + 1, point.y - 1}}, \
-	{UINT32_MAX, {point.x + 1, point.y + 1}} \
-}
-
-/* game status */
 extern int g_game_run;
 
+
+/* Heuristic structure */
 typedef struct s_heuristic {
 	uint32_t	cost;
 	t_vec		pos;
 } t_heuristic;
 
-
-
+/* Message buffer structure */
 typedef struct s_msgbuf {
 	long mtype;       	/* type of received/sent message (team id, each tean receive is own team message) */
 	char mtext[4];    	/* msg content (uint32 val, board pos to rush )*/
 } t_msgbuf ;
 
+/* IPCs structure */
 typedef struct s_ipc {
 	uint32_t	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
 	key_t		key;		/* Key result ftok */
@@ -184,18 +118,22 @@ typedef struct s_ipc {
 	int			msgid;		/* Message queue id */
 } t_ipc;
 
+/* Player structure */
 typedef struct s_player {
 	t_vec		pos;		/* Player position */
 	t_vec		target;		/* Target position */
 	uint32_t	team_id;	/* Team id */
+	int8_t		state;		/* Player state */
 } t_player;
 
+/* Player state */
 enum e_player_state {
-	S_WAITING,
-	S_TRACKER,
-	S_FOLLOWER,
+	S_WAITING,				/* Waiting state*/
+	S_TRACKER,				/* Tracker state */
+	S_FOLLOWER,				/* Follower state */
 };
 
+/* Direction enum */
 enum e_direction {
 	NORTH,
 	SOUTH,
@@ -208,9 +146,6 @@ enum e_direction {
 	DIR_MAX
 };
 
-
-# define ADD_TEAM	1
-# define RM_TEAM	0
 
 int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max);
 

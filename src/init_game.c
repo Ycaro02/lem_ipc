@@ -108,7 +108,7 @@ uint32_t extract_msg(t_ipc *ipc, t_player *player)
 		}
 		ft_printf_fd(2, RED"Error msgrcv from %d\n", player->team_id, RESET);
 		syscall_perror("msgrcv");
-		return (-1);
+		return (UINT32_MAX);
 	}
 	// ft_printf_fd(1, PURPLE"Received message from team %d value: %u\n"RESET, player->team_id, (*(uint32_t *)msg.mtext));
 	return (*(uint32_t *)msg.mtext);

@@ -5,10 +5,13 @@ int g_game_run;
 
 int main(int argc, char **argv) 
 {
-	t_ipc		ipc = {};
-	t_player	player = {};
+	t_ipc		ipc;
+	t_player	player;
 	int			ret = 0;
 
+
+	ft_bzero(&ipc, sizeof(t_ipc));
+	ft_bzero(&player, sizeof(t_player));
 	g_game_run = 1;
 	// ft_printf_fd(1, "Lem-ipc start %d\n", g_game_run);
 

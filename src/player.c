@@ -67,6 +67,7 @@ uint8_t check_player_death(t_ipc *ipc, t_player *player)
 void player_routine(t_ipc *ipc, t_player *player) 
 {
 	// uint32_t	to_rush;
+
 	t_vec	 	point;
 	t_heuristic hp;
 
@@ -81,17 +82,12 @@ void player_routine(t_ipc *ipc, t_player *player)
 	ft_printf_fd(2, RED"Player %u start at %u %u\n"RESET, player->team_id, point.y, point.x);
 	set_tile_board_val(ipc->ptr, point, player->team_id);
 	player->pos = point;
+	player->target = point;
 	sem_unlock(ipc->semid);
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
-
-		ft_printf_fd(2, YELLOW"\nPlayer %u before at %u %u: --> "RESET, player->team_id, player->pos.y, player->pos.x);
-		if (find_enemy_inXrange(ipc, player, 20)){
-			ft_printf_fd(2, RED"Enemy found at %u %u\n"RESET, player->target.y, player->target.x);
-		}
-		hp = find_smarter_possible_move(ipc, player->pos, player->target);
-
+		/* DEATH/END CHECK */
 		// if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] == 1) {
 		// 	// char *color = player->team_id % 2  ? RED : BLUE;
 		// 	set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
@@ -99,11 +95,19 @@ void player_routine(t_ipc *ipc, t_player *player)
 		// 	sem_unlock(ipc->semid);			
 		// 	break;
 		// }
+		
+		/* Player scan his environement to find nearest enemy */
+		if (find_enemy_inXrange(ipc, player, (int)BOARD_H)) { /* Enemy found case */
+			ft_printf_fd(2, "Enemy found\n");
+		}
 
-		// // to_rush =  extract_msg(ipc, player);
-		// // send_msg(ipc, player, to_rush);
 
-		// point = get_random_point(ipc->ptr, player->pos);
+		// to_rush =  extract_msg(ipc, player);
+		// send_msg(ipc, player, player->target);
+
+
+		hp = find_smarter_possible_move(ipc, player->pos, player->target);
+
 		if (!vector_cmp(hp.pos, player->pos)) {
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
@@ -117,6 +121,9 @@ void player_routine(t_ipc *ipc, t_player *player)
 		// usleep(100000); /* 1/10 sec */
 	}
 }
+
+// ft_printf_fd(2, YELLOW"\nPlayer %u before at %u %u: --> "RESET, player->team_id, player->pos.y, player->pos.x);
+// ft_printf_fd(2, RED"Enemy found at %u %u\n"RESET, player->target.y, player->target.x);
 
 // ft_printf_fd(2, YELLOW"Player %u after at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);
 // ft_printf_fd(2, YELLOW"Heurisctic %u after at %u %u\n"RESET, player->team_id, hp.pos.y, hp.pos.x);

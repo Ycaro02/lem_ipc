@@ -1,5 +1,11 @@
 #include "../include/lem_ipc.h"
 
+/**
+ * @brief Get the heuristic cost
+ * @param start The start position
+ * @param end The end position
+ * @return The heuristic cost
+*/
 uint32_t get_heuristic_cost(t_vec start, t_vec end)
 {
 	uint32_t cost = 0;
@@ -9,7 +15,13 @@ uint32_t get_heuristic_cost(t_vec start, t_vec end)
 	return (cost);
 }
 
-
+/**
+ * @brief Find the best possible move
+ * @param ipc The ipc structure
+ * @param current The current position
+ * @param end The end position
+ * @return The best heuristic
+*/
 t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end)
 {
 	t_vec possible_move[DIR_MAX] = ARROUND_VEC_ARRAY(current);
@@ -40,7 +52,14 @@ t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end)
 	return (best_heuristic);
 }
 
-
+/**
+ * @brief Check if the position is correct
+ * @param ipc The ipc structure
+ * @param player The player structure
+ * @param x The x position
+ * @param y The y position
+ * @return 1 and set player->targer if enemy found, otherwise return 0
+*/
 
 int8_t check_correct_pos(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y)
 {
@@ -58,6 +77,13 @@ int8_t check_correct_pos(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y)
 	return (0);
 }
 
+/**
+ * @brief Find enemy in range
+ * @param ipc The ipc structure
+ * @param player The player structure
+ * @param range_max The range to scan
+ * @return 1 and set player->targer if enemy found, otherwise return 0
+*/
 int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max)
 {
 	// uint32_t	tile_state = TILE_EMPTY;
@@ -92,8 +118,35 @@ int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max)
 	return (0);
 }
 
-/*
+// void player_waiting(t_ipc *ipc, t_player *player)
+// {
+// 	t_vec		to_rush = extract_msg(ipc, player);
+// 	// uint32_t test = 0; store heuristic from mssg here 
+// 	t_heuristic	hp = {UINT32_MAX, create_vector(to_rush.y, to_rush.x)}; 
+// 	if (vector_cmp(player->target, player->pos) && to_rush == UINT32_MAX)) { /* If no enemy found and no message receive */
+// 		ft_printf_fd(2, CYAN"Player %u stay in WAITING state, go to random pos, don't send msg\n"RESET, player->team_id);
+// 		player->target = get_random_point(ipc->ptr, player->pos);
+// 		return ;
+// 	} else if (to_rush == UINT32_MAX || (get_heuristic_cost(player.pos, player->target) < hp.cost)) { /* If no message receive but enemy found || If heuristic of the nearest enemy is better */
+// 		ft_printf_fd(2, CYAN"Player %u enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);
+// 		player->state = S_TRACKER;
+// 		// send_msg(ipc, player, );  send message here
+// 		return ;
+// 	} else if (get_heuristic_cost(player.pos, player->target) >= hp.cost) { /* If heuristic of the nearest enemy is worst thans msg receive */
+// 		ft_printf_fd(2, CYAN"Player %u enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id);
+// 		player->state = S_FOLLOWER;
+// 		return ;
+// 	} else { /* else really ?*/
+// 		ft_printf_fd(2, CYAN"Player %u stay in WAITING state, go to nearest enemy, resend msg\n"RESET, player->team_id);
+// 		player->target = create_vector(to_rush.y, to_rush.x);
+// 		// send_msg(ipc, player, to_rush);  send message here
+// 		return ;
+// 	}
 
+// }
+
+
+/*
 WAITING logic
 {
 	1: Player try to receive message:
