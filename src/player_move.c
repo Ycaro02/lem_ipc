@@ -15,6 +15,12 @@ uint32_t get_heuristic_cost(t_vec start, t_vec end)
 	return (cost);
 }
 
+
+static int8_t is_suicide_tile(uint32_t *board, t_vec point, uint32_t team_id)
+{
+	return (check_death(board, point, team_id));
+}
+
 /**
  * @brief Find the best possible move
  * @param ipc The ipc structure
@@ -22,7 +28,7 @@ uint32_t get_heuristic_cost(t_vec start, t_vec end)
  * @param end The end position
  * @return The best heuristic
 */
-t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end)
+t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id)
 {
 	t_vec 		possible_move[DIR_MAX] = ARROUND_VEC_ARRAY(current);
 	t_vec 		enemy[DIR_MAX] = ARROUND_VEC_ARRAY(end);
@@ -34,8 +40,8 @@ t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end)
 		if (possible_move[i].x < BOARD_W && possible_move[i].y < BOARD_H && get_board_index(possible_move[i]) < BOARD_SIZE) {
 			if (get_tile_board_val(ipc->ptr, possible_move[i]) == TILE_EMPTY) {
 				for (int j = 0; j < DIR_MAX; j++) {
-					test = get_heuristic_cost(possible_move[i], enemy[j]);            
-					if (test < best_heuristic.cost) {
+					test = get_heuristic_cost(possible_move[i], enemy[j]);
+					if (test < best_heuristic.cost && !is_suicide_tile(ipc->ptr, possible_move[i], team_id)) {
 						best_heuristic.cost = test;
 						best_heuristic.pos = possible_move[i];
 					}
@@ -110,10 +116,28 @@ int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max)
 	return (0);
 }
 
-// static int8_t is_suicide_tile()
-// {
+/* Need to check for message queue full and clear it */
 
-// }
+void player_tracker_follower(t_ipc *ipc, t_player *player)
+{
+	/* Bool enemy found */
+	int8_t		enemy_found = (vector_cmp(player->target, player->pos) == 0);
+	/* This enemy heuristic */
+	// uint32_t	enemy_heuristic = get_heuristic_cost(player->pos, player->target);
+	// if (!enemy_found) {
+	// 	enemy_heuristic = UINT32_MAX;
+	// }
+
+	if (!enemy_found) {
+		player->state = S_WAITING;
+		ft_printf_fd(2, "No enemy found go to waiting mod\n");
+		player_waiting(ipc, player);
+		return ;
+	} 
+	if (player->state == S_TRACKER) {
+		send_msg(ipc, player, get_board_index(player->target));
+	}
+}
 
 void player_waiting(t_ipc *ipc, t_player *player)
 {

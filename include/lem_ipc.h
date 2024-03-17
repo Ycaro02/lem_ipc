@@ -147,13 +147,16 @@ enum e_direction {
 };
 
 
+int8_t check_death(uint32_t *board, t_vec point, uint32_t team_id);
+
+void player_tracker_follower(t_ipc *ipc, t_player *player);
+
 void player_waiting(t_ipc *ipc, t_player *player);
 
 int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max);
 
 int8_t scan_board_arround(t_ipc *ipc, t_player *player, uint32_t range_max);
-// t_vec		find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end);
-t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end);
+t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id);
 void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);

@@ -107,8 +107,12 @@ void player_routine(t_ipc *ipc, t_player *player)
 		
 		/* Player scan his environement to find nearest enemy */
 		find_enemy_inXrange(ipc, player, (int)BOARD_H);
-		player_waiting(ipc, player);
-		hp = find_smarter_possible_move(ipc, player->pos, player->target);
+		if (player->state == S_WAITING) {
+			player_waiting(ipc, player);
+		} else {
+			player_tracker_follower(ipc, player);
+		}
+		hp = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 
 		if (!vector_cmp(hp.pos, player->pos)) {
 			/* Set empty last position tile */
