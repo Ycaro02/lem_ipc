@@ -78,6 +78,7 @@ int game_display() {
 	if (get_attached_processnb(g_game->ipc) <= 1) {
 		ft_printf_fd(2, RED"Shutdown display\n"RESET);
 		g_game_run = 0;
+		detach_shared_memory(g_game->ipc);
 		sem_unlock(g_game->ipc->semid);
 		destroy_windows();
 	}
@@ -142,7 +143,7 @@ void display_teamlist(t_list *list)
 int	key_hooks_press(int keycode, t_game *game)
 {
 	if (keycode == ESC)
-		destroy_windows(game);
+		destroy_windows(game); /* maybe need to check sem value and lock it to detash mem */
 	return (0);
 }
 
@@ -186,9 +187,10 @@ int boardmlx_display()
 
 
 	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
-	if (g_game->ipc->ptr[TEAM_NB] == 1 || get_attached_processnb(g_game->ipc) <= 3) {
+	if (g_game->ipc->ptr[TEAM_NB] <= 1 || get_attached_processnb(g_game->ipc) <= 3) {
 		ft_printf_fd(2, PURPLE"Shutdown display team number [NB] won\n"RESET);
 		g_game_run = 0;
+		detach_shared_memory(g_game->ipc);
 		sem_unlock(g_game->ipc->semid);
 		destroy_windows();
 	}
@@ -211,7 +213,7 @@ int boardmlx_display()
 		display_teamlist(g_game->team);
 	}
 	sem_unlock(g_game->ipc->semid);
-	usleep(100000); /* 1/10 sec */
+	usleep(10000); /* 1/10 sec */
 	return (0);
 }
 
@@ -265,9 +267,9 @@ int main(int argc, char **argv)
 	}
 	
 
-	sem_lock(ipc.semid);
-	ft_printf_fd(2, RED"Lem-ipc Display Handler end\n"RESET, player.team_id);	
-	sem_unlock(ipc.semid);
+	// sem_lock(ipc.semid);
+	// ft_printf_fd(2, RED"Lem-ipc Display Handler end\n"RESET, player.team_id);	
+	// sem_unlock(ipc.semid);
 
 	return (0);
 }

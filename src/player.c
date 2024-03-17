@@ -88,13 +88,13 @@ void player_routine(t_ipc *ipc, t_player *player)
 	while (g_game_run) {
 		sem_lock(ipc->semid);
 		/* DEATH/END CHECK */
-		// if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] == 1) {
-		// 	// char *color = player->team_id % 2  ? RED : BLUE;
-		// 	set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
-		// 	g_game_run = 0;
-		// 	sem_unlock(ipc->semid);			
-		// 	break;
-		// }
+		if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] == 1) {
+			// char *color = player->team_id % 2  ? RED : BLUE;
+			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+			g_game_run = 0;
+			sem_unlock(ipc->semid);			
+			break;
+		}
 		
 		/* Player scan his environement to find nearest enemy */
 		if (find_enemy_inXrange(ipc, player, (int)BOARD_H)) { /* Enemy found case */
@@ -117,7 +117,8 @@ void player_routine(t_ipc *ipc, t_player *player)
 			set_tile_board_val(ipc->ptr, player->pos, player->team_id);
 		}
 		sem_unlock(ipc->semid);
-		sleep(2);
+		// sleep(2);
+		usleep(500000); /* 1/10 sec */
 		// usleep(100000); /* 1/10 sec */
 	}
 }
