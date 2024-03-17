@@ -39,7 +39,8 @@ int8_t check_double_value(uint32_t *array, uint32_t team_id)
 {
 	for (int i = 0; i < DIR_MAX; i++) {
 		for (int j = 0; j < DIR_MAX; j++) {
-			if (i != j && array[i] == array[j] && array[i] != TILE_EMPTY && array[i] != team_id) {
+			if (i != j && array[i] == array[j]\
+				&& array[i] != TILE_EMPTY && array[i] != team_id) {
 				return (1);
 			}
 		}
@@ -69,26 +70,29 @@ uint8_t check_player_death(t_ipc *ipc, t_player *player)
 	return (ret);
 }
 
+static void put_player_on_board(t_ipc *ipc, t_player *player)
+{
+	t_vec	 	point;
+
+	sem_lock(ipc->semid);
+	team_handling(ipc->ptr, player->team_id, ADD_TEAM);
+	point = get_random_point(ipc->ptr, player->pos);
+	ft_printf_fd(2, CYAN"Player in team |%u| start at [%u] [%u]\n"RESET, player->team_id, point.y, point.x);
+	set_tile_board_val(ipc->ptr, point, player->team_id);
+	player->pos = point;
+	player->target = point;
+	sem_unlock(ipc->semid);
+}
+
 void player_routine(t_ipc *ipc, t_player *player) 
 {
-	// uint32_t	to_rush;
-
-	t_vec	 	point;
 	t_heuristic hp;
 
 	if (init_signal_handler() == -1) {
 		return ;
 	}
 	/* Set First player position randomly */
-	sem_lock(ipc->semid);
-	team_handling(ipc->ptr, player->team_id, ADD_TEAM);
-
-	point = get_random_point(ipc->ptr, player->pos);
-	ft_printf_fd(2, RED"Player %u start at %u %u\n"RESET, player->team_id, point.y, point.x);
-	set_tile_board_val(ipc->ptr, point, player->team_id);
-	player->pos = point;
-	player->target = point;
-	sem_unlock(ipc->semid);
+	put_player_on_board(ipc, player);
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
@@ -102,16 +106,8 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 		
 		/* Player scan his environement to find nearest enemy */
-		// if (find_enemy_inXrange(ipc, player, (int)BOARD_H)) { /* Enemy found case */
-		// }
-		find_enemy_inXrange(ipc, player, (int)BOARD_H); /* Enemy found case */
+		find_enemy_inXrange(ipc, player, (int)BOARD_H);
 		player_waiting(ipc, player);
-
-
-		// to_rush =  extract_msg(ipc, player);
-		// send_msg(ipc, player, player->target);
-
-
 		hp = find_smarter_possible_move(ipc, player->pos, player->target);
 
 		if (!vector_cmp(hp.pos, player->pos)) {
