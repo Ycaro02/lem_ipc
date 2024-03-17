@@ -61,12 +61,12 @@ t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uin
  * @return 1 and set player->targer if enemy found, otherwise return 0
 */
 
-int8_t is_enemy_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y)
+int8_t is_wanted_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y, int8_t flag)
 {
 	uint32_t	tile_state = TILE_EMPTY;
 	if (x < BOARD_W && y < BOARD_H && get_board_index(create_vector(y, x)) < BOARD_SIZE) { /* uglys*/
 		tile_state = get_tile_board_val(ipc->ptr, create_vector(y, x));
-		if (tile_state != player->team_id && tile_state != TILE_EMPTY) {
+		if ((tile_state != player->team_id) == flag && tile_state != TILE_EMPTY) {
 			player->target = create_vector(y, x);
 			return (1);
 		}
@@ -81,7 +81,7 @@ int8_t is_enemy_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y)
  * @param range_max The range to scan
  * @return 1 and set player->targer if enemy found, otherwise return 0
 */
-int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max)
+int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag)
 {
 	// uint32_t	tile_state = TILE_EMPTY;
 	t_vec		pos = player->pos;
@@ -94,21 +94,21 @@ int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max)
 			sub_y = pos.y - y_change;
 			sub_x = pos.x - x_change;
 			// ft_printf_fd(2, CYAN"Test [%u] [%u]\n"RESET, add_y, add_x);
-			if (is_enemy_tile(ipc, player, pos.x, add_y)) {
+			if (is_wanted_tile(ipc, player, pos.x, add_y, flag)) {
 				return (1);
-			} else if (is_enemy_tile(ipc, player, pos.x, sub_y)) {
+			} else if (is_wanted_tile(ipc, player, pos.x, sub_y, flag)) {
 				return (1);
-			} else if (is_enemy_tile(ipc, player, add_x, pos.y)) {
+			} else if (is_wanted_tile(ipc, player, add_x, pos.y, flag)) {
 				return (1);
-			} else if (is_enemy_tile(ipc, player, sub_x, pos.y)) {
+			} else if (is_wanted_tile(ipc, player, sub_x, pos.y, flag)) {
 				return (1);
-			} else if (is_enemy_tile(ipc, player, add_x, add_y)) {
+			} else if (is_wanted_tile(ipc, player, add_x, add_y, flag)) {
 				return (1);
-			} else if (is_enemy_tile(ipc, player, sub_x, sub_y)) {
+			} else if (is_wanted_tile(ipc, player, sub_x, sub_y, flag)) {
 				return (1);
-			} else if (is_enemy_tile(ipc, player, add_x, sub_y)) {
+			} else if (is_wanted_tile(ipc, player, add_x, sub_y, flag)) {
 				return (1);
-			} else if (is_enemy_tile(ipc, player, sub_x, add_y)) {
+			} else if (is_wanted_tile(ipc, player, sub_x, add_y, flag)) {
 				return (1);
 			}
 		}

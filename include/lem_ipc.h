@@ -147,13 +147,18 @@ enum e_direction {
 };
 
 
+# define ALLY_FLAG 0
+# define ENEMY_FLAG 1
+
 int8_t check_death(uint32_t *board, t_vec point, uint32_t team_id);
 
 void player_tracker_follower(t_ipc *ipc, t_player *player);
 
 void player_waiting(t_ipc *ipc, t_player *player);
 
-int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max);
+
+int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag);
+// int8_t find_enemy_inXrange(t_ipc *ipc, t_player *player, int range_max);
 
 int8_t scan_board_arround(t_ipc *ipc, t_player *player, uint32_t range_max);
 t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id);

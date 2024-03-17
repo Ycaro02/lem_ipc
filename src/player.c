@@ -106,7 +106,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 		
 		/* Player scan his environement to find nearest enemy */
-		find_enemy_inXrange(ipc, player, (int)BOARD_H);
+		find_player_in_range(ipc, player, (int)BOARD_H, ENEMY_FLAG);
 		if (player->state == S_WAITING) {
 			player_waiting(ipc, player);
 		} else {
