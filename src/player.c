@@ -118,7 +118,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 				player_tracker_follower(ipc, player);
 			}
 		} else {
-			ft_printf_fd(1, RED"\nPlayer %u no enemy/ally found clear msg_Q go waiting random point\n"RESET);
+			ft_printf_fd(1, GREEN"\nPlayer %u no enemy/ally found clear msg_Q go waiting random point\n\n"RESET, player->team_id);
 			// find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
 			clear_msg_queue(ipc, player->team_id);
 			player->state = S_WAITING;
@@ -136,8 +136,8 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 		sem_unlock(ipc->semid);
 		// sleep(2);
-		usleep(500000); /* 1/2 sec */
-		// usleep(100000); /* 1/10 sec */
+		// usleep(500000); /* 1/2 sec */
+		usleep(100000); /* 1/10 sec */
 	}
 }
 

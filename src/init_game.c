@@ -79,7 +79,7 @@ int8_t clear_msg_queue(t_ipc *ipc, long team_id)
 	t_msgbuf msg = {};
 
 	errno = 0;
-	ft_printf_fd(1, YELLOW"Clearing message queue from team %u\n"RESET, team_id);
+	// ft_printf_fd(1, YELLOW"Clearing message queue from team %u\n"RESET, team_id);
 	while (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), team_id, IPC_NOWAIT) != -1) {
 		if (errno != ENOMSG) {
 			// syscall_perror("msgrcv");
@@ -105,6 +105,12 @@ int8_t send_msg(t_ipc *ipc, t_player *player, uint32_t data)
 	// ft_printf_fd(1, YELLOW"msg.text [%d|%d|%d|%d]\nAfter cast: [%u] \n"RESET, msg.mtext[0], msg.mtext[1], msg.mtext[2], msg.mtext[3], (*(uint32_t *)msg.mtext));
 	errno = 0;
 	if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), 0) == -1) {
+		 if (errno == EAGAIN) {
+			ft_printf_fd(2, RED"Message queue is full\n"RESET);
+			clear_msg_queue(ipc, 0);
+			return (0);
+		}
+		ft_printf_fd(2, RED"Error msgsend from %d\n", player->team_id, RESET);
 		syscall_perror("msgsnd");
 		return (-1);
 	}
@@ -118,12 +124,12 @@ uint32_t extract_msg(t_ipc *ipc, t_player *player)
 	errno = 0;
 	// ft_printf_fd(1, GREEN"Extracting message from team %d, val flag %d\n"RESET, player->team_id, IPC_NOWAIT);
 	if (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), player->team_id, IPC_NOWAIT) == -1) {
-		if (errno != ENOMSG) {
+		if (errno == ENOMSG) {
 			// ft_printf_fd(2, YELLOW"No msg rcv from %d\n", player->team_id, RESET);
 			return (get_board_index(player->pos));
 		}
-		// ft_printf_fd(2, RED"Error msgrcv from %d\n", player->team_id, RESET);
-		// syscall_perror("msgrcv");
+		ft_printf_fd(2, RED"Error msgrcv from %d\n", player->team_id, RESET);
+		syscall_perror("msgrcv");
 		return (UINT32_MAX);
 	}
 	// ft_printf_fd(1, PURPLE"Received message from team %d value: %u\n"RESET, player->team_id, (*(uint32_t *)msg.mtext));
