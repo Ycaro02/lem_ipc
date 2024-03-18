@@ -86,7 +86,7 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 
 void player_routine(t_ipc *ipc, t_player *player) 
 {
-	t_heuristic hp;
+	// t_ve hp;
 
 	if (init_signal_handler() == -1) {
 		return ;
@@ -100,31 +100,41 @@ void player_routine(t_ipc *ipc, t_player *player)
 		if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] == 1) {
 			// char *color = player->team_id % 2  ? RED : BLUE;
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+			clear_msg_queue(ipc, player->team_id);
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;
 		}
 		
 		/* Player scan his environement to find nearest enemy */
-		find_player_in_range(ipc, player, (int)BOARD_H, ENEMY_FLAG);
-		if (player->state == S_WAITING) {
-			player_waiting(ipc, player);
+		if (find_player_in_range(ipc, player, (int)BOARD_H, ENEMY_FLAG) == 1) {
+			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
+			if (player->state == S_WAITING) {
+				player_waiting(ipc, player);
+			} else {
+				player_tracker_follower(ipc, player);
+			}
 		} else {
-			player_tracker_follower(ipc, player);
+			ft_printf_fd(1, RED"\nPlayer %u no enemy found Check BOARD_W instead and clear msg_Q\n"RESET);
+			find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
+			clear_msg_queue(ipc, player->team_id);
+			player->state = S_WAITING;
+			player_waiting(ipc, player);
 		}
-		hp = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
+		
+		// display_uint16_array(ipc->ptr);
 
-		if (!vector_cmp(hp.pos, player->pos)) {
+		if (!vector_cmp(player->next_pos, player->pos)) {
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
-			player->pos = create_vector(hp.pos.y, hp.pos.x);
+			player->pos = create_vector(player->next_pos.y, player->next_pos.x);
 			// ft_printf_fd(2, CYAN"Player %u move to %u %u\n\n\n"RESET, player->team_id, player->pos.y, player->pos.x);
 			/* Set team id value in new player position */
 			set_tile_board_val(ipc->ptr, player->pos, player->team_id);
 		}
 		sem_unlock(ipc->semid);
 		// sleep(2);
-		usleep(500000); /* 1/10 sec */
+		usleep(500000); /* 1/2 sec */
 		// usleep(100000); /* 1/10 sec */
 	}
 }

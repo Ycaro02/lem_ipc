@@ -3,7 +3,7 @@
 
 t_vec get_board_pos(uint32_t idx)
 {
-	t_vec vec = {idx / BOARD_W, idx % BOARD_W};
+	t_vec vec = create_vector(idx / BOARD_W, idx % BOARD_W);
 	return (vec);
 }
 
@@ -14,7 +14,7 @@ t_vec get_board_pos(uint32_t idx)
 */
 uint32_t get_board_index (t_vec vec)
 {
-	uint32_t idx = (vec.y * BOARD_W) +  vec.x;
+	uint32_t idx = (vec.y * BOARD_W) + vec.x;
 	if (idx >= BOARD_SIZE) {
 		return (OUT_OF_BOARD);
 	}
@@ -51,10 +51,12 @@ void display_uint16_array(uint32_t *array)
 {
 	ft_printf_fd(1, "\n\nDisplay board\n");
 	uint32_t i = 0, j = 0;
+	(void)array;
 
 	for (i = 0; i < BOARD_H; i++) {
 		for (j = 0; j < BOARD_W; j++) {
 			uint32_t idx = i * BOARD_W + j;
+			// ft_printf_fd(2, "For idx = %u, vec = [%u][%u]\n", idx, get_board_pos(idx).y, get_board_pos(idx).x);
 			ft_printf_fd(1, YELLOW"["RESET""CYAN"%u"RESET""YELLOW"] "RESET, array[idx]);
 		}
 		ft_printf_fd(1, "\n");

@@ -28,7 +28,7 @@ uint32_t get_heuristic_cost(t_vec start, t_vec end)
  * @param end The end position
  * @return The best heuristic
 */
-t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id)
+t_vec find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id)
 {
 	t_vec 		possible_move[DIR_MAX] = ARROUND_VEC_ARRAY(current);
 	t_vec 		enemy[DIR_MAX] = ARROUND_VEC_ARRAY(end);
@@ -50,7 +50,7 @@ t_heuristic find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uin
 			}
 		}
 	}
-	return (best_heuristic);
+	return (best_heuristic.pos);
 }
 
 /**
@@ -88,6 +88,7 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 	t_vec		pos = player->pos;
 	uint32_t 	add_y, add_x, sub_y, sub_x;
 
+
 	for (int x_change = 1; x_change <= range_max; ++x_change) {
 		for (int y_change = 1; y_change <= x_change; ++y_change) {
 			add_y = pos.y + y_change;
@@ -123,7 +124,7 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 void player_tracker_follower(t_ipc *ipc, t_player *player)
 {
 	/* Bool enemy found */
-	t_vec		enemy_save = create_vector(player->target.y, player->target.x);
+	// t_vec		enemy_save = create_vector(player->target.y, player->target.x);
 	int8_t		enemy_found = (vector_cmp(player->target, player->pos) == 0);
 
 	if (!enemy_found) {
@@ -134,24 +135,37 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 	} 
 	if (player->state == S_TRACKER) {
 		// find_player_in_range(ipc, player, 1, ALLY_FLAG);
-		ft_printf_fd(2, YELLOW"Tracker %u continue track\n"RESET, player->team_id);
-		player->target = create_vector(enemy_save.y, enemy_save.x);
-		send_msg(ipc, player, get_board_index(player->target));
+		find_player_in_range(ipc, player, (uint32_t)BOARD_H, ENEMY_FLAG); /* get closest enemy of this position */
+		ft_printf_fd(2, CYAN"Tracker %u send his pos to ally [%u][%u] and rush [%u][%u]\n"RESET, player->team_id\
+			, player->next_pos.y, player->next_pos.x, player->target.y, player->target.x);
+		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
+		send_msg(ipc, player, get_board_index(player->next_pos));
+		// ft_printf_fd(2, YELLOW"Tracker %u not alone send closest enemy position\n"RESET, player->team_id);
+		// player->target = create_vector(enemy_save.y, enemy_save.x);
+		// send_msg(ipc, player, get_board_index(player->target));
+		return ;
 	}
+
+	t_vec save_pos = create_vector(player->pos.y, player->pos.x);
+
 	uint32_t	to_rush = extract_msg(ipc, player);
 	t_vec		rush_vec = get_board_pos(to_rush);
 
-	if (find_player_in_range(ipc, player, 1, ALLY_FLAG) == 0) {
-		ft_printf_fd(2, CYAN"Follower is alone %u reach ally\n"RESET, player->team_id);
-		find_player_in_range(ipc, player, (int)BOARD_H, ALLY_FLAG);
-		return ;
-	}
 	if (to_rush != UINT32_MAX) { /* HERE IF I SEND THE POSITION OF THE ALLIED MUST BE FOLLOWED I CAN COMPUTE THE NEAREST ENEMY OF THE FOLLOWED ALLY*/
-		ft_printf_fd(2, PURPLE"Follower %u [%u][%u]not alone and receive [%u][%u] continue track\n"RESET,  player->team_id, player->pos.y, player->pos.x, rush_vec.y, rush_vec.x);
-		player->target = create_vector(rush_vec.y, rush_vec.x);
+		ft_printf_fd(2, PURPLE"Follower |%u| [%u][%u] receive [%u][%u] continue track\n"RESET,  player->team_id, player->pos.y, player->pos.x\
+			, rush_vec.y, rush_vec.x);
+		player->pos = create_vector(rush_vec.y, rush_vec.x); /* silumate ally position */
+		/* get closest enemy of this position */
+		if (find_player_in_range(ipc, player, (uint32_t)BOARD_H, ENEMY_FLAG) == 1) {
+			player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
+			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
+			ft_printf_fd(2, PURPLE"After simulation next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
+		}
+		player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
 		return ;
 	}
-	player->target = create_vector(enemy_save.y, enemy_save.x);
+
+
 }
 
 void player_waiting(t_ipc *ipc, t_player *player)
@@ -160,36 +174,26 @@ void player_waiting(t_ipc *ipc, t_player *player)
 	uint32_t	to_rush = extract_msg(ipc, player);
 	/* Transform this postion to vector pos */
 	t_vec		rush_vec = get_board_pos(to_rush);
-	/* Store this in struct and update heuristic cost if valid message receive*/
-	// t_heuristic	msg_enemy = {UINT32_MAX, create_vector(rush_vec.y, rush_vec.x)};
-	// if (to_rush != UINT32_MAX) {
-	// 	msg_enemy.cost = get_heuristic_cost(player->pos, rush_vec);
-	// }
 	/* Bool enemy found */
 	int8_t		enemy_found = (vector_cmp(player->target, player->pos) == 0);
-	/* This enemy heuristic */
-	// uint32_t	enemy_heuristic = get_heuristic_cost(player->pos, player->target);
-	// if (!enemy_found) {
-	// 	enemy_heuristic = UINT32_MAX;
-	// }
 	
 	 /* If no enemy found and no message receive */
 	if (!enemy_found && to_rush == UINT32_MAX) {
-		ft_printf_fd(2, CYAN"Player %u stay in WAITING state, go to random pos, don't send msg\n"RESET, player->team_id);
-		player->target = get_random_point(ipc->ptr, player->pos);
+		ft_printf_fd(2, RED"Player %u stay in WAITING state, go to random pos, don't send msg\n"RESET, player->team_id);
+		player->target = get_random_point(ipc->ptr, player->next_pos);
+		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 		return ;
-	} else if (to_rush == UINT32_MAX && enemy_found) { /* If no message receive but enemy found || If heuristic of the nearest enemy is better */
-		ft_printf_fd(2, PURPLE"Player in team [%u] enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);
+	} else if (to_rush == UINT32_MAX && enemy_found) { /* If no message receive but enemy found */
+		ft_printf_fd(2, RED"Player in team [%u] enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);
 		player->state = S_TRACKER;
-		// if (to_rush != UINT32_MAX) {
-		// 	send_msg(ipc, player, to_rush);
-		// }
-		send_msg(ipc, player, get_board_index(player->target));
+		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
+		send_msg(ipc, player, get_board_index(player->next_pos));
 		return ;
-	} else { /* If heuristic of the nearest enemy is worst thans msg receive */
-		ft_printf_fd(2, GREEN"Player in team [%u] enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id);
+	} else { /* If message receive go follower mode ?? maybe protect against receive my own message ? */
+		ft_printf_fd(2, RED"Player in team [%u] enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id);
 		player->state = S_FOLLOWER;
 		player->target = create_vector(rush_vec.y, rush_vec.x);
+		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 		return ;
 	} 
 	// else { /* else really ?*/

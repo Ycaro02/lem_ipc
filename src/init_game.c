@@ -74,6 +74,22 @@ void fill_msgbuff(t_msgbuf *msg, uint32_t team_id, uint32_t data)
 	msg->mtext[3] = ptr[3];
 }
 
+int8_t clear_msg_queue(t_ipc *ipc, uint32_t team_id)
+{
+	t_msgbuf msg = {};
+
+	errno = 0;
+	ft_printf_fd(1, YELLOW"Clearing message queue from team %d\n"RESET, team_id);
+	while (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), team_id, IPC_NOWAIT) != -1) {
+		if (errno != ENOMSG) {
+			// syscall_perror("msgrcv");
+			return (-1);
+		}
+	}
+	return (0);
+
+}
+
 /**
  *	@brief Send a message to the message queue
  *	@param ipc The ipc structure
@@ -88,7 +104,7 @@ int8_t send_msg(t_ipc *ipc, t_player *player, uint32_t data)
 	// ft_printf_fd(1, YELLOW"Sending message to team %d value: %u\n"RESET, player->team_id, data);
 	// ft_printf_fd(1, YELLOW"msg.text [%d|%d|%d|%d]\nAfter cast: [%u] \n"RESET, msg.mtext[0], msg.mtext[1], msg.mtext[2], msg.mtext[3], (*(uint32_t *)msg.mtext));
 	errno = 0;
-		if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), 0) == -1) {
+	if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), 0) == -1) {
 		syscall_perror("msgsnd");
 		return (-1);
 	}
@@ -249,7 +265,7 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	send_msg(ipc, &(t_player){.team_id = 1}, 42);
 	send_msg(ipc, &(t_player){.team_id = 2}, 9);
 
-	sleep(10); /* wait for client to connect */
+	sleep(5); /* wait for client to connect */
 
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
 	return (0);
