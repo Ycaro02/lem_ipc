@@ -142,15 +142,20 @@ static uint32_t	get_max_strsize(t_list *list)
 	return (max);
 }
 
+# define PLAYER_REMAIN "PLAYER REMAINING : "
+
 void display_teamlist(t_list *list)
 {
 	t_list *tmp = list;
-	uint32_t y = 20U;
-
+	uint32_t y = 15U;
+	char *player_remain = ft_ultoa(get_attached_processnb(g_game->ipc) - 1U);
 
 	uint32_t str_size_max = get_max_strsize(list);
-	mlx_string_put(g_game->mlx, g_game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, "TEAM INFO : ");
+	mlx_string_put(g_game->mlx, g_game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, PLAYER_REMAIN);
+	mlx_string_put(g_game->mlx, g_game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U) + skip_x(PLAYER_REMAIN), y, RED_INT, player_remain);
 	y += PAD_YTEAM;
+	mlx_string_put(g_game->mlx, g_game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, "TEAM INFO : ");
+
 	while (tmp) {
 		display_team_info(tmp->content, y, str_size_max);
 		tmp = tmp->next;
