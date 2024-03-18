@@ -205,7 +205,7 @@ static int shared_rsc_handler(t_ipc *ipc, int8_t allow)
  *	@param path The file path
  *	@return 1 on success, 0 on error
 */
-int chek_path_exist(char *path)
+static int8_t chek_path_exist(char *path)
 {
 	int fd = -1;
 	if (access(path, F_OK | R_OK | W_OK) == -1) {
@@ -231,9 +231,9 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 {
 	/* Same here active protection when debug start is finish */
 
-	// if (!chek_path_exist(path)) {
-	// 	return (-1);
-	// }
+	if (!chek_path_exist(path)) {
+		return (-1);
+	}
 	ipc->key = file_to_key(path);
 	if (ipc->key == -1) {
 		ft_printf_fd(2, RED"Error can't get key for %s"RESET, path);
@@ -265,7 +265,7 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	send_msg(ipc, &(t_player){.team_id = 1}, 42);
 	send_msg(ipc, &(t_player){.team_id = 2}, 9);
 
-	sleep(2); /* wait for client to connect */
+	sleep(8); /* wait for client to connect */
 
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
 	return (0);
