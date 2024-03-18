@@ -139,9 +139,9 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 		sem_unlock(ipc->semid);
 		// sleep(2);
-		// usleep(500000); /* 1/2 sec */
+		usleep(500000); /* 1/2 sec */
 		// usleep(100000); /* 1/10 sec */
-		usleep(500);
+		// usleep(500);
 	}
 }
 
