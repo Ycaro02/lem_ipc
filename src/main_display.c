@@ -232,7 +232,7 @@ int boardmlx_display()
 	if (g_game->team) {
 		display_teamlist(g_game->team);
 	}
-	usleep(10000); /* 1/10 sec */
+	// usleep(10000); /* 1/10 sec */
 	return (0);
 }
 

@@ -12,12 +12,12 @@ sigint_loop_test() {
 	./rsc/mk/ascii.sh "tester"
 	# rm_pid_log ${PID_LOG}
 
-	for i in {0..25}
+	for i in {0..100}
 	do
-		local team_id=$(((i % 25) + 1))
+		local team_id=$(((i % 100) + 1))
 		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
 		${LEMIPC} ${team_id} &
-		sleep 0.01
+		sleep 0.02
 	done
 
 	display_color_msg ${YELLOW} "Lauch display handler ..."

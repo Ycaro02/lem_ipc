@@ -102,12 +102,16 @@ void player_routine(t_ipc *ipc, t_player *player)
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;
+		} else if (ipc->ptr[TEAM_NB] <= 1) {
+			g_game_run = 0;
+			sem_unlock(ipc->semid);			
+			break;
 		}
 		
 		int8_t player_alone = (find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0);
-		if (player_alone) {
-			ft_printf_fd(2, YELLOW"Player %u is alone\n"RESET, player->team_id);
-		}
+		// if (player_alone) {
+		// 	ft_printf_fd(2, YELLOW"Player %u is alone\n"RESET, player->team_id);
+		// }
 
 		/* Player scan his environement to find nearest enemy */
 		if (!player_alone && find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG) == 1) {
@@ -118,7 +122,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 				player_tracker_follower(ipc, player);
 			}
 		} else {
-			ft_printf_fd(1, GREEN"\nPlayer %u no enemy/ally found clear msg_Q go waiting random point\n\n"RESET, player->team_id);
+			// ft_printf_fd(1, GREEN"\nPlayer %u no enemy/ally found clear msg_Q go waiting random point\n\n"RESET, player->team_id);
 			// find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
 			clear_msg_queue(ipc, player->team_id);
 			player->state = S_WAITING;
@@ -137,7 +141,8 @@ void player_routine(t_ipc *ipc, t_player *player)
 		sem_unlock(ipc->semid);
 		// sleep(2);
 		// usleep(500000); /* 1/2 sec */
-		usleep(100000); /* 1/10 sec */
+		// usleep(100000); /* 1/10 sec */
+		usleep(500); /* 1/10 sec */
 	}
 }
 
