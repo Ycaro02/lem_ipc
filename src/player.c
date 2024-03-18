@@ -86,8 +86,6 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 
 void player_routine(t_ipc *ipc, t_player *player) 
 {
-	// t_ve hp;
-
 	if (init_signal_handler() == -1) {
 		return ;
 	}
@@ -122,8 +120,6 @@ void player_routine(t_ipc *ipc, t_player *player)
 			player_waiting(ipc, player);
 		}
 		
-		// display_uint16_array(ipc->ptr);
-
 		if (!vector_cmp(player->next_pos, player->pos)) {
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
@@ -134,8 +130,8 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 		sem_unlock(ipc->semid);
 		// sleep(2);
-		// usleep(500000); /* 1/2 sec */
-		usleep(100000); /* 1/10 sec */
+		usleep(500000); /* 1/2 sec */
+		// usleep(100000); /* 1/10 sec */
 	}
 }
 
