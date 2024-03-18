@@ -75,20 +75,6 @@ int8_t is_wanted_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y, int8
 	return (0);
 }
 
-
-	// if (flag == ENEMY_FLAG) {
-	// 		if (tile_state != player->team_id && tile_state != TILE_EMPTY) {
-	// 			player->target = create_vector(y, x);
-	// 			return (1);
-	// 		}
-	// 	} else if (flag == ALLY_FLAG) {
-	// 		if (tile_state == player->team_id) {
-	// 			player->closest_ally = create_vector(y, x);
-	// 			return (1);
-	// 		}
-// }
-
-
 /**
  * @brief Find enemy in range
  * @param ipc The ipc structure
@@ -138,7 +124,6 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 void player_tracker_follower(t_ipc *ipc, t_player *player)
 {
 	/* Bool enemy found */
-	// t_vec		enemy_save = create_vector(player->target.y, player->target.x);
 	int8_t		enemy_found = (vector_cmp(player->target, player->pos) == 0);
 
 	if (!enemy_found) {
@@ -148,15 +133,11 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 		return ;
 	} 
 	if (player->state == S_TRACKER) {
-		// find_player_in_range(ipc, player, 1, ALLY_FLAG);
 		find_player_in_range(ipc, player, (uint32_t)BOARD_H, ENEMY_FLAG); /* get closest enemy of this position */
 		ft_printf_fd(2, CYAN"Tracker %u send his pos to ally [%u][%u] and rush [%u][%u]\n"RESET, player->team_id\
 			, player->next_pos.y, player->next_pos.x, player->target.y, player->target.x);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 		send_msg(ipc, player, get_board_index(player->next_pos));
-		// ft_printf_fd(2, YELLOW"Tracker %u not alone send closest enemy position\n"RESET, player->team_id);
-		// player->target = create_vector(enemy_save.y, enemy_save.x);
-		// send_msg(ipc, player, get_board_index(player->target));
 		return ;
 	}
 
@@ -165,7 +146,7 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 	uint32_t	to_rush = extract_msg(ipc, player);
 	t_vec		rush_vec = get_board_pos(to_rush);
 
-	if (to_rush != UINT32_MAX) { /* HERE IF I SEND THE POSITION OF THE ALLIED MUST BE FOLLOWED I CAN COMPUTE THE NEAREST ENEMY OF THE FOLLOWED ALLY*/
+	if (to_rush != UINT32_MAX) {
 		ft_printf_fd(2, PURPLE"Follower |%u| [%u][%u] receive [%u][%u] continue track\n"RESET,  player->team_id, player->pos.y, player->pos.x\
 			, rush_vec.y, rush_vec.x);
 		player->pos = create_vector(rush_vec.y, rush_vec.x); /* silumate ally position */
@@ -196,29 +177,18 @@ void player_waiting(t_ipc *ipc, t_player *player)
 		ft_printf_fd(2, RED"Player %u stay in WAITING state, go to random pos, don't send msg\n"RESET, player->team_id);
 		player->target = get_random_point(ipc->ptr, player->next_pos);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
-		return ;
 	} else if (to_rush == UINT32_MAX && enemy_found) { /* If no message receive but enemy found */
 		ft_printf_fd(2, RED"Player in team [%u] enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);
 		player->state = S_TRACKER;
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 		send_msg(ipc, player, get_board_index(player->next_pos));
-		return ;
 	} else { /* If message receive go follower mode ?? maybe protect against receive my own message ? */
 		ft_printf_fd(2, RED"Player in team [%u] enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id);
 		player->state = S_FOLLOWER;
 		player->target = create_vector(rush_vec.y, rush_vec.x);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
-		return ;
 	} 
-	// else { /* else really ?*/
-	// 	ft_printf_fd(2, RED"Player %u stay in WAITING state, else case mandatory ?????? \n"RESET, player->team_id);
-	// 	player->target = create_vector(rush_vec.y, rush_vec.x);
-	// 	// send_msg(ipc, player, rush_vec);  send message here
-	// 	return ;
-	// }
 }
-// }
-
 
 /*
 WAITING logic

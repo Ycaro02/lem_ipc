@@ -10,7 +10,7 @@ int init_player(t_player *player, int argc, char **argv)
 		return (-1);
 	}
 	id_check = array_to_uint32(argv[1]);
-	if (id_check == OUT_OF_UINT32) {
+	if (id_check >= UINT32_MAX) {
 		ft_printf_fd(2, "Invalid team id\n");
 		return (-1);
 	}
