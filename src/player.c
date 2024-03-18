@@ -95,7 +95,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 	while (g_game_run) {
 		sem_lock(ipc->semid);
 		/* DEATH/END CHECK */
-		if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] == 1) {
+		if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] <= 1) {
 			// char *color = player->team_id % 2  ? RED : BLUE;
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			clear_msg_queue(ipc, player->team_id);
@@ -117,7 +117,8 @@ void player_routine(t_ipc *ipc, t_player *player)
 			find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
 			clear_msg_queue(ipc, player->team_id);
 			player->state = S_WAITING;
-			player_waiting(ipc, player);
+			player->target = get_random_point(ipc->ptr, player->pos);
+			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 		}
 		
 		if (!vector_cmp(player->next_pos, player->pos)) {
