@@ -94,9 +94,8 @@ void player_routine(t_ipc *ipc, t_player *player)
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
-		/* DEATH/END CHECK */
-		if (check_player_death(ipc, player) || ipc->ptr[TEAM_NB] <= 1) {
-			// char *color = player->team_id % 2  ? RED : BLUE;
+
+		if (check_player_death(ipc, player)) {
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			clear_msg_queue(ipc, player->team_id);
 			g_game_run = 0;
@@ -142,12 +141,11 @@ void player_routine(t_ipc *ipc, t_player *player)
 		// sleep(2);
 		// usleep(500000); /* 1/2 sec */
 		// usleep(100000); /* 1/10 sec */
-		usleep(500); /* 1/10 sec */
+		usleep(500);
 	}
 }
 
 // ft_printf_fd(2, YELLOW"\nPlayer %u before at %u %u: --> "RESET, player->team_id, player->pos.y, player->pos.x);
 // ft_printf_fd(2, RED"Enemy found at %u %u\n"RESET, player->target.y, player->target.x);
-
 // ft_printf_fd(2, YELLOW"Player %u after at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);
 // ft_printf_fd(2, YELLOW"Heurisctic %u after at %u %u\n"RESET, player->team_id, hp.pos.y, hp.pos.x);
