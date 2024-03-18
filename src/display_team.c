@@ -46,11 +46,6 @@ int8_t add_team(t_list **team, uint32_t team_id)
     return (1);
 }
 
-/* team compare fun for remove if */
-// static int team_cmp(void *node)
-// {
-//     return (((t_team *)node)->tid == 0);
-// }
 
 void increment_team_size(t_list **team, uint32_t team_id)
 {
