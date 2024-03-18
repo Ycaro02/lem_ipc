@@ -74,12 +74,12 @@ void fill_msgbuff(t_msgbuf *msg, uint32_t team_id, uint32_t data)
 	msg->mtext[3] = ptr[3];
 }
 
-int8_t clear_msg_queue(t_ipc *ipc, uint32_t team_id)
+int8_t clear_msg_queue(t_ipc *ipc, long team_id)
 {
 	t_msgbuf msg = {};
 
 	errno = 0;
-	ft_printf_fd(1, YELLOW"Clearing message queue from team %d\n"RESET, team_id);
+	ft_printf_fd(1, YELLOW"Clearing message queue from team %u\n"RESET, team_id);
 	while (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), team_id, IPC_NOWAIT) != -1) {
 		if (errno != ENOMSG) {
 			// syscall_perror("msgrcv");

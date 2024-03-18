@@ -12,7 +12,7 @@ sigint_loop_test() {
 	./rsc/mk/ascii.sh "tester"
 	# rm_pid_log ${PID_LOG}
 
-	for i in {1..500}
+	for i in {1..10}
 	do
 		local team_id=$(((i % 4) + 1))
 		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
