@@ -104,8 +104,13 @@ void player_routine(t_ipc *ipc, t_player *player)
 			break;
 		}
 		
+		int8_t player_alone = (find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0);
+		if (player_alone) {
+			ft_printf_fd(2, YELLOW"Player %u is alone\n"RESET, player->team_id);
+		}
+
 		/* Player scan his environement to find nearest enemy */
-		if (find_player_in_range(ipc, player, (int)BOARD_H, ENEMY_FLAG) == 1) {
+		if (!player_alone && find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG) == 1) {
 			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 			if (player->state == S_WAITING) {
 				player_waiting(ipc, player);
@@ -113,8 +118,8 @@ void player_routine(t_ipc *ipc, t_player *player)
 				player_tracker_follower(ipc, player);
 			}
 		} else {
-			ft_printf_fd(1, RED"\nPlayer %u no enemy found Check BOARD_W instead and clear msg_Q\n"RESET);
-			find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
+			ft_printf_fd(1, RED"\nPlayer %u no enemy/ally found clear msg_Q go waiting random point\n"RESET);
+			// find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
 			clear_msg_queue(ipc, player->team_id);
 			player->state = S_WAITING;
 			player->target = get_random_point(ipc->ptr, player->pos);

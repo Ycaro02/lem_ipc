@@ -67,13 +67,27 @@ int8_t is_wanted_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y, int8
 	uint32_t	tile_state = TILE_EMPTY;
 	if (x < BOARD_W && y < BOARD_H && get_board_index(create_vector(y, x)) < BOARD_SIZE) { /* uglys*/
 		tile_state = get_tile_board_val(ipc->ptr, create_vector(y, x));
-		if ((tile_state != player->team_id) == flag && tile_state != TILE_EMPTY) {
+		if (((tile_state != player->team_id) == flag) && tile_state != TILE_EMPTY) {
 			player->target = create_vector(y, x);
 			return (1);
 		}
 	}
 	return (0);
 }
+
+
+	// if (flag == ENEMY_FLAG) {
+	// 		if (tile_state != player->team_id && tile_state != TILE_EMPTY) {
+	// 			player->target = create_vector(y, x);
+	// 			return (1);
+	// 		}
+	// 	} else if (flag == ALLY_FLAG) {
+	// 		if (tile_state == player->team_id) {
+	// 			player->closest_ally = create_vector(y, x);
+	// 			return (1);
+	// 		}
+// }
+
 
 /**
  * @brief Find enemy in range
