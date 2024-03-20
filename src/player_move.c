@@ -83,6 +83,37 @@ int8_t is_wanted_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y, int8
 	return (0);
 }
 
+int8_t test_closest_tile(t_ipc *ipc, t_player *player, t_vec change, int8_t flag)
+{
+	uint32_t 	add_y, add_x, sub_y, sub_x;
+	t_vec		pos = player->pos;
+
+
+	add_y = pos.y + change.y;
+	add_x = pos.x + change.x;
+	sub_y = pos.y - change.y;
+	sub_x = pos.x - change.x;
+	// ft_printf_fd(2, CYAN"Test [%u] [%u]\n"RESET, add_y, add_x);
+	if (is_wanted_tile(ipc, player, pos.x, add_y, flag)) {
+		return (1);
+	} else if (is_wanted_tile(ipc, player, pos.x, sub_y, flag)) {
+		return (1);
+	} else if (is_wanted_tile(ipc, player, add_x, pos.y, flag)) {
+		return (1);
+	} else if (is_wanted_tile(ipc, player, sub_x, pos.y, flag)) {
+		return (1);
+	} else if (is_wanted_tile(ipc, player, add_x, add_y, flag)) {
+		return (1);
+	} else if (is_wanted_tile(ipc, player, sub_x, sub_y, flag)) {
+		return (1);
+	} else if (is_wanted_tile(ipc, player, add_x, sub_y, flag)) {
+		return (1);
+	} else if (is_wanted_tile(ipc, player, sub_x, add_y, flag)) {
+		return (1);
+	}
+	return (0);
+}
+
 /**
  * @brief Find enemy in range
  * @param ipc The ipc structure
@@ -93,34 +124,17 @@ int8_t is_wanted_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y, int8
 int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag)
 {
 	// uint32_t	tile_state = TILE_EMPTY;
-	t_vec		pos = player->pos;
-	uint32_t 	add_y, add_x, sub_y, sub_x;
+	// t_vec		pos = player->pos;
 
 
 	for (int x_change = 1; x_change <= range_max; ++x_change) {
 		for (int y_change = 1; y_change <= x_change; ++y_change) {
-			add_y = pos.y + y_change;
-			add_x = pos.x + x_change;
-			sub_y = pos.y - y_change;
-			sub_x = pos.x - x_change;
-			// ft_printf_fd(2, CYAN"Test [%u] [%u]\n"RESET, add_y, add_x);
-			if (is_wanted_tile(ipc, player, pos.x, add_y, flag)) {
-				return (1);
-			} else if (is_wanted_tile(ipc, player, pos.x, sub_y, flag)) {
-				return (1);
-			} else if (is_wanted_tile(ipc, player, add_x, pos.y, flag)) {
-				return (1);
-			} else if (is_wanted_tile(ipc, player, sub_x, pos.y, flag)) {
-				return (1);
-			} else if (is_wanted_tile(ipc, player, add_x, add_y, flag)) {
-				return (1);
-			} else if (is_wanted_tile(ipc, player, sub_x, sub_y, flag)) {
-				return (1);
-			} else if (is_wanted_tile(ipc, player, add_x, sub_y, flag)) {
-				return (1);
-			} else if (is_wanted_tile(ipc, player, sub_x, add_y, flag)) {
-				return (1);
-			}
+				test_closest_tile(ipc, player, create_vector(y_change, x_change), flag);
+				if (y_change > 	1){
+					for (int sub_x = 1; sub_x <= y_change; ++sub_x){
+					test_closest_tile(ipc, player, create_vector(y_change, sub_x), flag);
+					}
+				}
 		}
 	}
 	return (0);
