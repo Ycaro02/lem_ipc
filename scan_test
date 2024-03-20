@@ -1,0 +1,1 @@
+./lemipc 1 &; ./lemipc 2 &; ./lemipc 3 &; ./lemipc 4 &; ./lemipcs 5 &; ./lemipc_display 
