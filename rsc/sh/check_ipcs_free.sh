@@ -48,6 +48,7 @@ free_ipcs() {
 # check_kali
 
 send_sigint_all
+sleep 2
 free_ipcs -m "Shared memory"
 free_ipcs -s "Semaphore"
 free_ipcs -q "Message queue"

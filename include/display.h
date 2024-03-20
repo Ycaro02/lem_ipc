@@ -41,6 +41,14 @@
 /* Screen height */
 # define SCREEN_HEIGHT (TILE_SIZE * BOARD_H)
 
+
+# define PLAYER_REMAIN "PLAYER REMAINING : "
+
+
+# define PAD_YTEAM 25U
+
+# define CHAR_TOPIXEL_SKIP 6
+
 /* Team color struct */
 typedef struct s_teamcolor {
 	char		*strcolor;	/* Team color name */
@@ -64,9 +72,6 @@ typedef struct s_game
 	t_list		*team;		/* team list */
 	uint32_t	player_nb;	/* last team number store */
 }	t_game;
-
-/* global var to handle display with mlx*/
-extern t_game *g_game;
 
 typedef enum e_keyboard_key
 {
