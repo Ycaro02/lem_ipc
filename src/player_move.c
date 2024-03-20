@@ -64,22 +64,22 @@ t_vec find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t 
 
 int8_t is_wanted_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y, int8_t flag)
 {
-	// uint32_t	tile_state = TILE_EMPTY;
-	(void)flag;
-	(void)player;
-	if (x < BOARD_W && y < BOARD_H && get_board_index(create_vector(y, x)) < BOARD_SIZE)
-		set_tile_board_val(ipc->ptr, create_vector(y, x), 0x6U);
-	// if (x < BOARD_W && y < BOARD_H && get_board_index(create_vector(y, x)) < BOARD_SIZE) { /* uglys*/
-	// 	tile_state = get_tile_board_val(ipc->ptr, create_vector(y, x));
-	// 	if (((tile_state != player->team_id) == flag) && tile_state != TILE_EMPTY) {
-	// 		if (flag == ENEMY_FLAG) {
-	// 			player->target = create_vector(y, x);
-	// 			return (1);
-	// 		}
-	// 		player->ally_pos = create_vector(y, x);
-	// 		return (1);
-	// 	}
-	// }
+	uint32_t	tile_state = TILE_EMPTY;
+	// (void)flag;
+	// (void)player;
+	// if (x < BOARD_W && y < BOARD_H && get_board_index(create_vector(y, x)) < BOARD_SIZE)
+		// set_tile_board_val(ipc->ptr, create_vector(y, x), 0x6U);
+	if (x < BOARD_W && y < BOARD_H && get_board_index(create_vector(y, x)) < BOARD_SIZE) { /* uglys*/
+		tile_state = get_tile_board_val(ipc->ptr, create_vector(y, x));
+		if (((tile_state != player->team_id) == flag) && tile_state != TILE_EMPTY) {
+			if (flag == ENEMY_FLAG) {
+				player->target = create_vector(y, x);
+				return (1);
+			}
+			player->ally_pos = create_vector(y, x);
+			return (1);
+		}
+	}
 	return (0);
 }
 
@@ -125,19 +125,24 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 {
 	// uint32_t	tile_state = TILE_EMPTY;
 	// t_vec		pos = player->pos;
+	int8_t ret = 0;
 
 
 	for (int x_change = 1; x_change <= range_max; ++x_change) {
 		for (int y_change = 1; y_change <= x_change; ++y_change) {
-				test_closest_tile(ipc, player, create_vector(y_change, x_change), flag);
-				if (y_change > 	1){
-					for (int sub_x = 1; sub_x <= y_change; ++sub_x){
-					test_closest_tile(ipc, player, create_vector(y_change, sub_x), flag);
-					}
+			ret = test_closest_tile(ipc, player, create_vector(y_change, x_change), flag);
+			if (ret == 1)
+				break ;
+			if (y_change > 	1){
+				for (int sub_x = 1; sub_x <= y_change; ++sub_x){
+					ret = test_closest_tile(ipc, player, create_vector(y_change, sub_x), flag);
+					if (ret == 1)
+						return (ret);
 				}
+			}
 		}
 	}
-	return (0);
+	return (ret);
 }
 
 /* Need to check for message queue full and clear it */
