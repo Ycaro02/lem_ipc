@@ -121,8 +121,9 @@ typedef struct s_ipc {
 /* Player structure */
 typedef struct s_player {
 	t_vec		pos;		/* Player position */
-	t_vec		target;		/* Target position */
 	t_vec		next_pos; 	/* Next position */
+	t_vec		target;		/* Target position */
+	t_vec		ally_pos;	/* Closest Ally position */
 	uint32_t	team_id;	/* Team id */
 	int8_t		state;		/* Player state */
 } t_player;
@@ -157,9 +158,12 @@ void player_tracker_follower(t_ipc *ipc, t_player *player);
 
 void player_waiting(t_ipc *ipc, t_player *player);
 
+uint32_t get_heuristic_cost(t_vec start, t_vec end);
 t_vec find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id);
 
+
 int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag);
+
 
 
 void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);

@@ -108,9 +108,14 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 		
 		int8_t player_alone = (find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0);
-		// if (player_alone) {
-		// 	ft_printf_fd(2, YELLOW"Player %u is alone\n"RESET, player->team_id);
-		// }
+		/* rush ally bool 1 for rush 0 for no */
+		int8_t rush_ally = 0;
+		if (player_alone) {
+			ft_printf_fd(2, RED"Player %u is alone\n"RESET, player->team_id);
+		} else  {
+			ft_printf_fd(2, YELLOW"Player %u [%u][%u] is not alone, ally pos [%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x , player->ally_pos.y, player->ally_pos.x);
+			rush_ally = get_heuristic_cost(player->pos, player->ally_pos) > 2;
+		}
 
 		/* Player scan his environement to find nearest enemy */
 		if (!player_alone && find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG) == 1) {
@@ -127,6 +132,10 @@ void player_routine(t_ipc *ipc, t_player *player)
 			player->state = S_WAITING;
 			player->target = get_random_point(ipc->ptr, player->pos);
 			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
+		}
+
+		if (rush_ally) {
+			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
 		}
 		
 		if (!vector_cmp(player->next_pos, player->pos)) {
