@@ -152,6 +152,15 @@ enum e_direction {
 # define ALLY_FLAG 0
 # define ENEMY_FLAG 1
 
+
+/* bonus send player data to display program */
+void send_pdata_display(t_ipc *ipc, t_player *player);
+/* team handling become useless  if send pdata is implemented, need to remove it */
+void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);
+
+
+
+
 int8_t check_death(uint32_t *board, t_vec point, uint32_t team_id);
 
 void player_tracker_follower(t_ipc *ipc, t_player *player);
@@ -166,11 +175,10 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 
 
 
-void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
 uint32_t 	extract_msg(t_ipc *ipc, t_player *player);
-int8_t		send_msg(t_ipc *ipc, t_player *player, uint32_t data);
+int8_t		send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data);
 int8_t clear_msg_queue(t_ipc *ipc, long team_id);
 /* init semaphore */
 int			init_game(t_ipc *ipc, char *path, int8_t allow);

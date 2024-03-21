@@ -96,12 +96,12 @@ int8_t clear_msg_queue(t_ipc *ipc, long team_id)
  *	@param player The player structure
  *	@return 0 on success, -1 on error
 */
-int8_t send_msg(t_ipc *ipc, t_player *player, uint32_t data)
+int8_t send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data)
 {
 	t_msgbuf msg = {};
 
-	fill_msgbuff(&msg, player->team_id, data);
-	// ft_printf_fd(1, YELLOW"Sending message to team %d value: %u\n"RESET, player->team_id, data);
+	fill_msgbuff(&msg, msg_id, data);
+	// ft_printf_fd(1, YELLOW"Sending message to team %d value: %u\n"RESET, msg_id, data);
 	// ft_printf_fd(1, YELLOW"msg.text [%d|%d|%d|%d]\nAfter cast: [%u] \n"RESET, msg.mtext[0], msg.mtext[1], msg.mtext[2], msg.mtext[3], (*(uint32_t *)msg.mtext));
 	errno = 0;
 	if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), 0) == -1) {
@@ -110,7 +110,7 @@ int8_t send_msg(t_ipc *ipc, t_player *player, uint32_t data)
 			clear_msg_queue(ipc, 0);
 			return (0);
 		}
-		ft_printf_fd(2, RED"Error msgsend from %d\n", player->team_id, RESET);
+		ft_printf_fd(2, RED"Error msgsend from %d\n", msg_id, RESET);
 		syscall_perror("msgsnd");
 		return (-1);
 	}

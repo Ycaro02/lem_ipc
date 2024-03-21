@@ -1,5 +1,22 @@
 # include "../include/lem_ipc.h"
 
+
+void send_pdata_display(t_ipc *ipc, t_player *player)
+{
+	uint32_t p_pos = get_board_index(player->pos);
+	uint32_t p_target = get_board_index(player->target);
+	uint32_t p_ally = get_board_index(player->ally_pos);
+	uint32_t p_tid = player->team_id;
+	uint32_t p_state = (uint32_t)player->state;
+
+	uint32_t data[5] = {p_pos, p_target, p_ally, p_tid, p_state};
+
+	for (int i = 0; i < 5; ++i) {
+		send_msg(ipc, UINT32_MAX, data[i]);
+	}
+
+}
+
 /* @brief Initialize player */
 int init_player(t_player *player, int argc, char **argv)
 {
