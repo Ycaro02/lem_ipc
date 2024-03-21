@@ -141,19 +141,52 @@ typedef struct s_player_data {
 
 enum e_pdata_idx {
 	PDATA_START=0U,
-	PDATA_TID,
 	PDATA_STATE,
+	PDATA_TID,
 	PDATA_POS,
 	PDATA_TARGET,
 	PDATA_ALLY,
-	PDATA_LEN
+	PDATA_LEN,
 };
+
+
+# define INIT_MSG_PACK { \
+	{"player data start", {0}}, \
+	{"player data state", {0}}, \
+	{"player data team id", {0}}, \
+	{"player data pos", {0}}, \
+	{"player data target", {0}}, \
+	{"player data closest ally", {0}} \
+}
+
+
+
+# define GET_MSG_TYPE(x) (x & 0b00111000)
+# define GET_MSG_STATE(x) (x & 0b00000111)
+
 
 /* Player state */
 enum e_player_state {
-	S_WAITING=1,				/* Waiting state*/
-	S_TRACKER,				/* Tracker state */
-	S_FOLLOWER,				/* Follower state */
+	S_WAITING=(1 << 0),				/* Waiting state*/
+	S_TRACKER=(1 << 1),				/* Tracker state */
+	S_FOLLOWER=(1 << 2),			/* Follower state */
+};
+
+/* 
+	Message package for display is build as follow:
+		- send 0 for message start
+		- send e_msg_type | team_id, access with GET_MSG_TYPE/STATE
+		- send player team id
+		- send player position
+		- send player target pos (index uint32)
+		- send player ally pos (index uint32)
+*/
+
+
+enum e_msg_type {
+	P_CREATE=(1 << 3),
+	P_UPDATE=(1 << 4),
+	P_DELETE=(1 << 5),
 };
 
 /* Direction enum */
@@ -175,7 +208,7 @@ enum e_direction {
 
 
 /* bonus send player data to display program */
-void send_pdata_display(t_ipc *ipc, t_player *player);
+// void send_pdata_display(t_ipc *ipc, t_player *player, uint32_t msg_type);
 /* team handling become useless  if send pdata is implemented, need to remove it */
 void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);
 

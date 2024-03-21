@@ -66,7 +66,7 @@ static void display_pdata_lst(t_list *player_lst)
 	t_pdata *pdata = NULL;
 	while (tmp) {
 		pdata = tmp->content;
-		for (int i = 0; i < PDATA_LEN; i++) {
+		for (int i = 1; i < PDATA_LEN; i++) {
 			ft_printf_fd(2, YELLOW"%s: "RESET, pdata[i].name);
 			if (i >= PDATA_POS) {
 				ft_printf_fd(2, CYAN"[%u] [%u]\n"RESET, pdata[i].vdata.y, pdata[i].vdata.x);
@@ -78,19 +78,30 @@ static void display_pdata_lst(t_list *player_lst)
 	}
 }
 
+
+static void *get_player_node(t_list *lst, t_vec target)
+{
+	for (t_list *current = lst; current; current = current->next) {
+		ft_printf_fd(2, RED"data:vec  %u %u", ((t_pdata *)current->content)[PDATA_POS].vdata.y, ((t_pdata *)current->content)[PDATA_POS].vdata.x);
+		if (vector_cmp(((t_pdata *)current->content)[PDATA_POS].vdata, target)) {
+			return (current->content);
+		}
+	}
+	return (NULL);
+}
+
+static int is_same_node(void *node, void *target)
+{
+	return (node == target);
+}
+
 static t_list *receive_player_data(t_ipc *ipc)
 {
-	t_pdata pdata[PDATA_LEN] = {
-		{"player data start", {0}},
-		{"player data team id", {0}},
-		{"player data state", {0}},
-		{"player data pos", {0}},
-		{"player data target", {0}},
-		{"player data closest ally", {0}},
-	};
+	t_pdata		pdata[PDATA_LEN] = INIT_MSG_PACK;
 	uint32_t	ret = UINT32_MAX;
-	uint8_t		count = 0;
+	uint8_t		count = 1; /* count = 1 cause if we call this we already receive the first 0 data start */
 	t_list		*player_lst = NULL;
+	
 
 	do {
 		ret = extract_msg(ipc, UINT32_MAX);
@@ -102,9 +113,32 @@ static t_list *receive_player_data(t_ipc *ipc)
 		}
 		++count;
 		if (count >= PDATA_LEN) {
-			t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
-			ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
-			ft_lstadd_back(&player_lst, ft_lstnew(tmp));
+			uint32_t type_state = pdata[PDATA_STATE].sdata;
+			uint8_t type = GET_MSG_TYPE(type_state);
+			uint8_t state = GET_MSG_STATE(type_state);
+			ft_printf_fd(2, YELLOW"Player state %u, type: %d, state, %d\n"RESET, type_state, type, state);
+			if (type == P_CREATE) {
+				ft_printf_fd(2, CYAN"Player data create\n"RESET);
+				t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
+				ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+				ft_lstadd_back(&player_lst, ft_lstnew(tmp));
+			} else {
+				t_list *target_node = get_player_node(player_lst, pdata[PDATA_POS].vdata);
+				if (!target_node) {
+					ft_printf_fd(2, RED"Error: player node not found in P_DELETE/UPDATE case\n"RESET);
+					return (NULL);
+				}
+				if (type == P_DELETE) {
+					ft_printf_fd(2, RED"Player data delete\n"RESET);
+					ft_lst_remove_if(&player_lst, target_node, free, is_same_node);
+					// TODO delete player
+				} else if (type == P_UPDATE) {
+					ft_printf_fd(2, CYAN"Player data update\n"RESET);
+					ft_memcpy((void *)target_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+					// TODO update player
+				}
+			} 
+
 			count = PDATA_START;
 		}
 	} while (ret != UINT32_MAX);
@@ -120,13 +154,16 @@ int destroy_windows(t_game *game)
 	if (game->team) {
 		ft_lstclear(&game->team, free_team);
 	}
+	if (game->player_data) {
+		ft_lstclear(&game->player_data, free);
+	}
 	if (game->pause){
-		ft_printf_fd(2, CYAN"Display restore sem\n"RESET);
+		ft_printf_fd(2, CYAN"Display was in pause state: restore sem\n"RESET);
+		ft_printf_fd(1, RED"Exit MLX\n"RESET);
 		sem_unlock(game->ipc->semid);
 	}
 	free(game->mlx);
 	free(game);
-	ft_printf_fd(1, "Exit MLX\n");
 	exit(0);
 }
 
@@ -277,8 +314,8 @@ static void draw_board(t_game *game)
 
 int boardmlx_display(void *vgame)
 {
-	t_game *game = vgame;
-
+	t_game		*game = vgame;
+	uint32_t	tmp = 0U;
 
 	/* If game is paused sem already lock */
 	if (!game->pause) {
@@ -300,7 +337,11 @@ int boardmlx_display(void *vgame)
 			}
 			game->player_nb = get_attached_processnb(game->ipc);
 		}
-		game->player_data =  receive_player_data(game->ipc);
+		/* Update player data lst */
+		tmp = extract_msg(game->ipc, UINT32_MAX);
+		if (tmp != UINT32_MAX) {
+			game->player_data =  receive_player_data(game->ipc);
+		}
 	}
 
 	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
@@ -325,15 +366,10 @@ int boardmlx_display(void *vgame)
 	}
 	if (game->player_data) {
 		display_pdata_lst(game->player_data);
-		ft_lstclear(&game->player_data, free);
+		// ft_lstclear(&game->player_data, free);
 	}
 
-	// sem_lock(game->ipc->semid);
-	// ft_printf_fd(2, CYAN"Display board MAKE PAUSE 5 sec ...\n"RESET);
-	// sleep(5);
-	// sem_unlock(game->ipc->semid);
-
-	// usleep(10000); /* 1/10 sec */
+	usleep(10000); /* 1/10 sec */
 	return (0);
 }
 
@@ -383,10 +419,7 @@ int8_t init_mlx(t_game *game)
 	ft_printf_fd(2, "Game ptr before check mouse %p\n", game);
 	mlx_mouse_hook(game->win, check_mouse, game);
 	// mlx_loop_hook(game->mlx, display_board_stdout, game);
-	// mlx_loop_hook(game->mlx, display_team_info, game);
-	
 	mlx_loop_hook(game->mlx, boardmlx_display, game);
-	// mlx_loop_hook(game->mlx, display_board_stdout, game);
 	mlx_loop(game->mlx);
 	return (0);
 
@@ -399,7 +432,6 @@ int main(int argc, char **argv)
 	t_game		*game = ft_calloc(sizeof(t_game), 1);
 
 	game->ipc = &ipc;
-	game->team = NULL;
 	game->player_nb = 0;
 
 	if (init_display(&player, argc, argv) != 0\
@@ -407,12 +439,6 @@ int main(int argc, char **argv)
 		|| init_mlx(game) == ERROR_CASE) {
 		return (1);
 	}
-	
-
-	// sem_lock(ipc.semid);
-	// ft_printf_fd(2, RED"Lem-ipc Display Handler end\n"RESET, player.team_id);	
-	// sem_unlock(ipc.semid);
-
 	return (0);
 }
 

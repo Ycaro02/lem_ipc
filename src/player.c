@@ -2,15 +2,27 @@
 
 
 
-void send_pdata_display(t_ipc *ipc, t_player *player)
+void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 {
 	uint32_t p_pos = get_board_index(player->pos);
 	uint32_t p_target = get_board_index(player->target);
 	uint32_t p_ally = get_board_index(player->ally_pos);
 	uint32_t p_tid = player->team_id;
-	uint32_t p_state = (uint32_t)player->state;
+	uint32_t p_state = ((uint32_t)player->state | msg_type);
 
-	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_tid, p_state, p_pos, p_target, p_ally};
+	if (msg_type == P_UPDATE) {
+		p_pos = get_board_index(player->next_pos);
+	}
+
+	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally};
+
+	ft_printf_fd(2, GREEN"Data start: %u\n"RESET, data[PDATA_START]);
+	ft_printf_fd(2, GREEN"Data state: %u\n"RESET, data[PDATA_STATE]);
+	ft_printf_fd(2, GREEN"Data tid: %u\n"RESET, data[PDATA_TID]);
+	ft_printf_fd(2, GREEN"Data pos: %u\n"RESET, data[PDATA_POS]);
+	ft_printf_fd(2, GREEN"Data target: %u\n"RESET, data[PDATA_TARGET]);
+	ft_printf_fd(2, GREEN"Data ally: %u\n"RESET, data[PDATA_ALLY]);
+
 
 	for (int i = 0; i < PDATA_LEN; ++i) {
 		send_msg(ipc, UINT32_MAX, data[i]);
@@ -95,10 +107,12 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	sem_lock(ipc->semid);
 	team_handling(ipc->ptr, player->team_id, ADD_TEAM);
 	point = get_random_point(ipc->ptr, player->pos);
-	ft_printf_fd(2, CYAN"Player in team |%u| start at [%u] [%u]\n"RESET, player->team_id, point.y, point.x);
+	// ft_printf_fd(2, CYAN"Player in team |%u| start at [%u] [%u]\n"RESET, player->team_id, point.y, point.x);
 	set_tile_board_val(ipc->ptr, point, player->team_id);
 	player->pos = point;
-	player->target = point;
+	player->target = get_board_pos(OUT_OF_BOARD);
+	player->ally_pos = get_board_pos(OUT_OF_BOARD);
+	send_pdata_display(ipc, player, P_CREATE);
 	sem_unlock(ipc->semid);
 }
 
@@ -109,6 +123,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 	}
 	/* Set First player position randomly */
 	put_player_on_board(ipc, player);
+
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
@@ -118,12 +133,14 @@ void player_routine(t_ipc *ipc, t_player *player)
 
 		/* Check if player is dead */
 		if (check_player_death(ipc, player)) {
+			// send_pdata_display(ipc, player, P_DELETE);
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			clear_msg_queue(ipc, player->team_id);
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;
 		} else if (ipc->ptr[TEAM_NB] <= 1) { /* Check win */
+			// send_pdata_display(ipc, player, P_DELETE);
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;
@@ -156,13 +173,14 @@ void player_routine(t_ipc *ipc, t_player *player)
 
 		
 		if (!vector_cmp(player->next_pos, player->pos)) {
+			send_pdata_display(ipc, player, P_UPDATE);
+
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			player->pos = create_vector(player->next_pos.y, player->next_pos.x);
 			/* Set team id value in new player position */
 			set_tile_board_val(ipc->ptr, player->pos, player->team_id);
 		}
-		send_pdata_display(ipc, player);
 		sem_unlock(ipc->semid);
 		usleep(100000);
 	}
