@@ -152,14 +152,14 @@ static void follower_logic(t_ipc *ipc, t_player *player)
 	t_vec		rush_vec = get_board_pos(to_rush);
 
 	if (to_rush != UINT32_MAX) {
-		// ft_printf_fd(2, PURPLE"Follower |%u| [%u][%u] receive [%u][%u] continue track\n"RESET,  player->team_id, player->pos.y, player->pos.x
-			// , rush_vec.y, rush_vec.x);
+		ft_printf_fd(2, PURPLE"Follower |%u| [%u][%u] receive [%u][%u] continue track\n"RESET,  player->team_id, player->pos.y, player->pos.x\
+			, rush_vec.y, rush_vec.x);
 		player->pos = create_vector(rush_vec.y, rush_vec.x); /* silumate ally position */
 		/* get closest enemy of this position */
 		if (find_player_in_range(ipc, player, (int) BOARD_W, ENEMY_FLAG)) {
 			player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
 			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
-			// ft_printf_fd(2, PURPLE"After simulation next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
+			ft_printf_fd(2, PURPLE"After simulation next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
 		}
 		player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
 		return ;
@@ -174,8 +174,8 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 
 	if (player->state == S_TRACKER) {
 		find_player_in_range(ipc, player, (int) BOARD_W, ENEMY_FLAG); /* get closest enemy of this position */
-		// ft_printf_fd(2, GREEN"Tracker %u send his pos to ally [%u][%u] and rush [%u][%u]\n"RESET, player->team_id
-			// , player->next_pos.y, player->next_pos.x, player->target.y, player->target.x);
+		ft_printf_fd(2, GREEN"Tracker %u send his pos to ally [%u][%u] and rush [%u][%u]\n"RESET, player->team_id\
+			, player->next_pos.y, player->next_pos.x, player->target.y, player->target.x);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 		send_msg(ipc, player, get_board_index(player->next_pos));
 	} else {
@@ -190,12 +190,9 @@ void player_waiting(t_ipc *ipc, t_player *player)
 	/* Transform this postion to vector pos */
 	t_vec		rush_vec = get_board_pos(to_rush);
 	/* Bool check msg, check if message is'nt my own position  */
-	int8_t		correct_msg = 0;
-	if (to_rush != UINT32_MAX) {
-		correct_msg = (vector_cmp(rush_vec, player->pos) == 0);
-	}
-
-	int8_t		is_closest_ally = (vector_cmp(player->ally_pos, rush_vec) == 0);	
+	int8_t		correct_msg = to_rush == UINT32_MAX ? 0 : (vector_cmp(rush_vec, player->pos) == 0);
+	/* Bool is closest ally to be follower or not */
+	int8_t		is_closest_ally = (vector_cmp(player->ally_pos, rush_vec) == 1);	
 
  	/* If no message receive but enemy found */
 	if (!correct_msg) {
@@ -203,17 +200,20 @@ void player_waiting(t_ipc *ipc, t_player *player)
 		ft_printf_fd(2, GREEN"To rush [%u]\n"RESET, to_rush);
 		player->state = S_TRACKER;
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
+		ft_printf_fd(2, GREEN"Current pos [%u][%u]\n"RESET, player->pos.y, player->pos.x);
+		ft_printf_fd(2, GREEN"Next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
 		send_msg(ipc, player, get_board_index(player->next_pos));
 	} else if (is_closest_ally) { /* If message receive and msg from the closest ally */
-		ft_printf_fd(2, PURPLE"Player in team [%u] enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id);
-		ft_printf_fd(2, PURPLE"To rush [%u], rush_vec [%u][%u]\n"RESET, to_rush, rush_vec.y, rush_vec.x);
+		ft_printf_fd(2, PURPLE"Player in team [%u] [%u][%u] enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id, player->pos.y, player->pos.x);
+		ft_printf_fd(2, PURPLE"To rush [%u], rush_vec [%u][%u], closest ally [%u][%u]\n"RESET, to_rush, rush_vec.y, rush_vec.x, player->ally_pos.y, player->ally_pos.x);
 		player->state = S_FOLLOWER;
 		player->target = create_vector(rush_vec.y, rush_vec.x);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
-	} else { /* Is not the closest ally, */
-		ft_printf_fd(2, YELLOW"Player in team [%u] stay in Waiting state, don't move resend msg\n"RESET, player->team_id);
-		send_msg(ipc, player, to_rush); /* resend msg */
-	}
+	} 
+	// else { /* Is not the closest ally, just resend msg, stay in WAITING and let player routine algo find closest ally */
+	// 	ft_printf_fd(2, CYAN"Player in team [%u] stay in Waiting state, don't move resend msg\n"RESET, player->team_id);
+	// 	send_msg(ipc, player, to_rush); /* resend msg */
+	// }
 }
 
 /*
