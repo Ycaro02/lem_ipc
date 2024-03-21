@@ -59,31 +59,58 @@ int init_display(t_player *player, int argc, char **argv)
 }
 
 
-static void receive_player_data(t_ipc *ipc)
-{
-	uint32_t ret = UINT32_MAX;
 
-	t_vec 	tmp ; {}
-	uint8_t count = 0;
+static void display_pdata_lst(t_list *player_lst)
+{
+	t_list *tmp = player_lst;
+	t_pdata *pdata = NULL;
+	while (tmp) {
+		pdata = tmp->content;
+		for (int i = 0; i < PDATA_LEN; i++) {
+			ft_printf_fd(2, YELLOW"%s: "RESET, pdata[i].name);
+			if (i >= PDATA_POS) {
+				ft_printf_fd(2, CYAN"[%u] [%u]\n"RESET, pdata[i].vdata.y, pdata[i].vdata.x);
+			} else {
+				ft_printf_fd(2, PURPLE"%u\n"RESET, pdata[i].sdata);
+			}
+		}
+		tmp = tmp->next;
+	}
+}
+
+static t_list *receive_player_data(t_ipc *ipc)
+{
+	t_pdata pdata[PDATA_LEN] = {
+		{"player data start", {0}},
+		{"player data team id", {0}},
+		{"player data state", {0}},
+		{"player data pos", {0}},
+		{"player data target", {0}},
+		{"player data closest ally", {0}},
+	};
+	uint32_t	ret = UINT32_MAX;
+	uint8_t		count = 0;
+	t_list		*player_lst = NULL;
 
 	do {
 		ret = extract_msg(ipc, UINT32_MAX);
-		if (count != 0) {
-			ft_printf_fd(2, CYAN"Receive player brut data %u\n"RESET, ret);
+		pdata[count].sdata = ret;
+		if (count != PDATA_START) {
 			if (count >= PDATA_POS) {
-				tmp = get_board_pos(ret);
-				ft_printf_fd(2, PURPLE"Receive player data y %u x %u\n"RESET, tmp.y, tmp.x);
-			}
-		} else {
-			ft_printf_fd(2, "\n------------------------------------------------\n");
+				pdata[count].vdata = get_board_pos(pdata[count].sdata);
+			} 
 		}
 		++count;
 		if (count >= PDATA_LEN) {
-			count = 0;
+			t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
+			ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+			ft_lstadd_back(&player_lst, ft_lstnew(tmp));
+			count = PDATA_START;
 		}
 	} while (ret != UINT32_MAX);
-
+	return (player_lst);
 }
+
 
 int destroy_windows(t_game *game)
 {
@@ -102,6 +129,7 @@ int destroy_windows(t_game *game)
 	ft_printf_fd(1, "Exit MLX\n");
 	exit(0);
 }
+
 
 int display_board_stdout(t_game *game) {
 	sem_lock(game->ipc->semid);
@@ -168,20 +196,14 @@ static uint32_t	get_max_strsize(t_list *list)
 	return (max);
 }
 
-void display_menu(t_game *game)
+void display_button(t_game *game)
 {
 	uint32_t width = RIGHTBAND_WIDTH;
 	uint32_t height = TILE_SIZE * 2;
-	
 	uint32_t start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH;
 
 	for (uint32_t y = 0; y < height; ++y) {
 		for (uint32_t x = start_x; x < start_x + width; ++x) {
-			// uint32_t x_compute =  ((x / TILE_SIZE) % BOARD_W);
-			// uint32_t y_compute = ((y / TILE_SIZE) * BOARD_W);   
-			// uint32_t idx = x_compute + y_compute;
-			// uint32_t tile_state = game->ipc->ptr[idx];
-			// color = tile_state == TILE_EMPTY ? 0xFFFFFF : get_team_color(game->team, tile_state);
 			((uint32_t *)game->img.data)[x + (y * SCREEN_WIDTH)] = BLUE_INT;
 		}
 	}
@@ -189,7 +211,7 @@ void display_menu(t_game *game)
 
 void display_teamlist(t_game *game, t_list *list)
 {
-	display_menu(game);
+	display_button(game);
 	t_list *tmp = list;
 	uint32_t y = (TILE_SIZE * 2) + 15U;
 
@@ -258,32 +280,28 @@ int boardmlx_display(void *vgame)
 	t_game *game = vgame;
 
 
-
+	/* If game is paused sem already lock */
 	if (!game->pause) {
 		sem_lock(game->ipc->semid);
 	}
-
+	/* Check for game pause click */
 	if (game->mouse_pos.y == 0 && game->mouse_pos.x == UINT32_MAX) {
 		game->pause = !(game->pause);
 		game->mouse_pos.y = UINT32_MAX;
 		ft_printf_fd(2, CYAN"Game pause %d\n"RESET, game->pause);
 	}	
 
-	/* Update team info lst */
-	if ((uint32_t) get_attached_processnb(game->ipc) != game->player_nb) {
-		ft_lstclear(&game->team, free_team);
-		if (!build_list_number_team(&game->team, game->ipc->ptr)) {
-			ft_printf_fd(2, RED"Error: build_list_number_team\n"RESET);
+	if (!game->pause) {
+		/* Update team info lst */
+		if ((uint32_t) get_attached_processnb(game->ipc) != game->player_nb) {
+			ft_lstclear(&game->team, free_team);
+			if (!build_list_number_team(&game->team, game->ipc->ptr)) {
+				ft_printf_fd(2, RED"Error: build_list_number_team\n"RESET);
+			}
+			game->player_nb = get_attached_processnb(game->ipc);
 		}
-		game->player_nb = get_attached_processnb(game->ipc);
+		game->player_data =  receive_player_data(game->ipc);
 	}
-
-	receive_player_data(game->ipc);
-
-	/* CLear pixel buff */
-	// size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
-	// ft_printf_fd(2, RED"len : %u, sizeof %u\n"RESET, len, sizeof(game->img.data));
-	// ft_bzero(game->img.data, len);
 
 	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
 	if (game->ipc->ptr[TEAM_NB] <= 1 || get_attached_processnb(game->ipc) <= 3) {
@@ -304,6 +322,10 @@ int boardmlx_display(void *vgame)
 	mlx_put_image_to_window(game->mlx, game->win, game->img.image, 0, 0);
 	if (game->team) {
 		display_teamlist(game, game->team);
+	}
+	if (game->player_data) {
+		display_pdata_lst(game->player_data);
+		ft_lstclear(&game->player_data, free);
 	}
 
 	// sem_lock(game->ipc->semid);
@@ -393,3 +415,9 @@ int main(int argc, char **argv)
 
 	return (0);
 }
+
+
+/* CLear pixel buff */
+// size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
+// ft_printf_fd(2, RED"len : %u, sizeof %u\n"RESET, len, sizeof(game->img.data));
+// ft_bzero(game->img.data, len);

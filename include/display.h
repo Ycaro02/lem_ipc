@@ -69,24 +69,17 @@ typedef struct s_game
 	void		*win;		/* mlx window */
 	t_img		img;		/* mlx image */
 	t_ipc		*ipc;		/* ipc handler */
-	t_list		*team;		/* team list */
+	t_list		*team;		/* team list TODO REMOVE adapt team display*/
+	t_list		*player_data;		/* player data list */
 	uint32_t	player_nb;	/* last team number store */
-	t_vec		mouse_pos;	/* Mouse position */
-	int8_t		pause;		/* Game pause bool */
+	t_vec		mouse_pos;	/* mouse position, TODO can remove*/
+	int8_t		pause;		/* game pause bool */
 }	t_game;
 
 typedef enum e_keyboard_key
 {
 	LEFT_CLICK = 1,
 	ESC = 65307,
-	UP = 119,
-	LEFT = 97,
-	DOWN = 115,
-	RIGHT = 100,
-	ARROW_UP = 65362,
-	ARROW_LEFT = 65361,
-	ARROW_RIGHT = 65363,
-	ARROW_DOWN = 65364,
 }	t_keyboard_key;
 
 void		free_team(void *team);

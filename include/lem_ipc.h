@@ -129,6 +129,16 @@ typedef struct s_player {
 } t_player;
 
 
+
+
+typedef struct s_player_data {
+	char			*name;
+	union {
+		uint32_t	sdata;
+		t_vec		vdata;
+	}; 
+} t_pdata;
+
 enum e_pdata_idx {
 	PDATA_START=0U,
 	PDATA_TID,

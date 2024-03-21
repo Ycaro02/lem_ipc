@@ -113,33 +113,29 @@ void player_routine(t_ipc *ipc, t_player *player)
 	while (g_game_run) {
 		sem_lock(ipc->semid);
 
+		player->target = get_board_pos(OUT_OF_BOARD);
+		player->ally_pos = get_board_pos(OUT_OF_BOARD);
+
+		/* Check if player is dead */
 		if (check_player_death(ipc, player)) {
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			clear_msg_queue(ipc, player->team_id);
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;
-		} else if (ipc->ptr[TEAM_NB] <= 1) {
+		} else if (ipc->ptr[TEAM_NB] <= 1) { /* Check win */
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;
 		}
 
-		/* Player scan his environement to find nearest ally */
+		/* Player scan his environement to find nearest ally (update player->ally_pos if found) */
 		int8_t player_alone = (find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0);
-
-		/* Player scan his environement to find nearest enemy */
+		/* Player scan his environement to find nearest enemy (update player->target if found) */
 		int8_t enemy_found = find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
-
 		/* Rush ally bool 1 for rush 0 for no */
 		int8_t rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
 
-		// if (player_alone) {
-		// 	ft_printf_fd(2, RED"Player %u is alone\n"RESET, player->team_id);
-		// } else  {
-		// 	ft_printf_fd(2, YELLOW"Player %u [%u][%u] is not alone, ally pos [%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x , player->ally_pos.y, player->ally_pos.x);
-		// 	rush_ally = get_heuristic_cost(player->pos, player->ally_pos) > 2;
-		// }
 
 		
 		if (rush_ally) {
@@ -172,6 +168,12 @@ void player_routine(t_ipc *ipc, t_player *player)
 	}
 }
 
+// if (player_alone) {
+// 	ft_printf_fd(2, RED"Player %u is alone\n"RESET, player->team_id);
+// } else  {
+// 	ft_printf_fd(2, YELLOW"Player %u [%u][%u] is not alone, ally pos [%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x , player->ally_pos.y, player->ally_pos.x);
+// 	rush_ally = get_heuristic_cost(player->pos, player->ally_pos) > 2;
+// }
 // ft_printf_fd(2, YELLOW"\nPlayer %u before at %u %u: --> "RESET, player->team_id, player->pos.y, player->pos.x);
 // ft_printf_fd(2, RED"Enemy found at %u %u\n"RESET, player->target.y, player->target.x);
 // ft_printf_fd(2, YELLOW"Player %u after at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);
