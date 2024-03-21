@@ -63,9 +63,24 @@ static void receive_player_data(t_ipc *ipc)
 {
 	uint32_t ret = UINT32_MAX;
 
+	t_vec 	tmp ; {}
+	uint8_t count = 0;
+
 	do {
 		ret = extract_msg(ipc, UINT32_MAX);
-		ft_printf_fd(2, CYAN"Receive player data %u\n"RESET, ret);
+		if (count != 0) {
+			ft_printf_fd(2, CYAN"Receive player brut data %u\n"RESET, ret);
+			if (count >= PDATA_POS) {
+				tmp = get_board_pos(ret);
+				ft_printf_fd(2, PURPLE"Receive player data y %u x %u\n"RESET, tmp.y, tmp.x);
+			}
+		} else {
+			ft_printf_fd(2, "\n------------------------------------------------\n");
+		}
+		++count;
+		if (count >= PDATA_LEN) {
+			count = 0;
+		}
 	} while (ret != UINT32_MAX);
 
 }

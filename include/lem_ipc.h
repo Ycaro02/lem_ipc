@@ -128,9 +128,20 @@ typedef struct s_player {
 	int8_t		state;		/* Player state */
 } t_player;
 
+
+enum e_pdata_idx {
+	PDATA_START=0U,
+	PDATA_TID,
+	PDATA_STATE,
+	PDATA_POS,
+	PDATA_TARGET,
+	PDATA_ALLY,
+	PDATA_LEN
+};
+
 /* Player state */
 enum e_player_state {
-	S_WAITING,				/* Waiting state*/
+	S_WAITING=1,				/* Waiting state*/
 	S_TRACKER,				/* Tracker state */
 	S_FOLLOWER,				/* Follower state */
 };
