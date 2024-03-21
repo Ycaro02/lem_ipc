@@ -138,13 +138,37 @@ static uint32_t	get_max_strsize(t_list *list)
 	return (max);
 }
 
+void display_menu(t_game *game)
+{
+	uint32_t width = RIGHTBAND_WIDTH;
+	uint32_t height = TILE_SIZE * 2;
+	
+	uint32_t start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH;
+
+	for (uint32_t y = 0; y < height; ++y) {
+		for (uint32_t x = start_x; x < start_x + width; ++x) {
+			// uint32_t x_compute =  ((x / TILE_SIZE) % BOARD_W);
+			// uint32_t y_compute = ((y / TILE_SIZE) * BOARD_W);   
+			// uint32_t idx = x_compute + y_compute;
+			// uint32_t tile_state = game->ipc->ptr[idx];
+			// color = tile_state == TILE_EMPTY ? 0xFFFFFF : get_team_color(game->team, tile_state);
+			((uint32_t *)game->img.data)[x + (y * SCREEN_WIDTH)] = BLUE_INT;
+		}
+	}
+}
+
 void display_teamlist(t_game *game, t_list *list)
 {
+	display_menu(game);
 	t_list *tmp = list;
-	uint32_t y = 15U;
+	uint32_t y = (TILE_SIZE * 2) + 15U;
+
+
 	char *player_remain = ft_ultoa(get_attached_processnb(game->ipc) - 1U);
 	if (player_remain) {
 		uint32_t str_size_max = get_max_strsize(list);
+		mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + (TILE_SIZE * 2)), TILE_SIZE, BLACK_INT, "PAUSE");
+		// y += PAD_YTEAM;
 		mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, PLAYER_REMAIN);
 		mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U) + skip_x(PLAYER_REMAIN), y, RED_INT, player_remain);
 		y += PAD_YTEAM;
@@ -218,7 +242,11 @@ int boardmlx_display(void *vgame)
 	}
 
 	// ft_printf_fd(2, YELLOW"Last tile click y: %d x: %d\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
+	// if (game->mouse_pos.x == UINT32_MAX) {
+	// 	ft_printf_fd(2, RED"Mouse click on btn number %u\n"RESET, game->mouse_pos.y);
+	// }
 
+	
 	// game->mouse_pos = get_mouse_pos(game);
 	/* CLear pixel buff */
 	// size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
