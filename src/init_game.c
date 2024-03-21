@@ -126,7 +126,7 @@ uint32_t extract_msg(t_ipc *ipc, t_player *player)
 	if (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), player->team_id, IPC_NOWAIT) == -1) {
 		if (errno == ENOMSG) {
 			// ft_printf_fd(2, YELLOW"No msg rcv from %d\n", player->team_id, RESET);
-			return (get_board_index(player->pos));
+			return (UINT32_MAX);
 		}
 		ft_printf_fd(2, RED"Error msgrcv from %d\n", player->team_id, RESET);
 		syscall_perror("msgrcv");
@@ -267,11 +267,10 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	// ft_printf_fd(1, YELLOW"Uint32 max: "RESET""CYAN"%u\n"RESET, UINT32_MAX);
 	// set_msg_len(ipc, sizeof(uint32_t));
 	// ft_printf_fd(1, YELLOW"Semaphore value Before first send: "RESET""CYAN"%d\n"RESET, semctl(ipc->semid, 0, GETVAL));
+	// send_msg(ipc, &(t_player){.team_id = 1}, 42);
+	// send_msg(ipc, &(t_player){.team_id = 2}, 9);
 
-	send_msg(ipc, &(t_player){.team_id = 1}, 42);
-	send_msg(ipc, &(t_player){.team_id = 2}, 9);
-
-	sleep(4); /* wait for client to connect */
+	sleep(8); /* wait for client to connect */
 
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
 	return (0);
