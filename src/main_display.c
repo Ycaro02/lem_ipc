@@ -95,16 +95,14 @@ static int is_same_node(void *node, void *target)
 	return (node == target);
 }
 
-static t_list *receive_player_data(t_ipc *ipc)
+static void receive_player_data(t_game *game)
 {
 	t_pdata		pdata[PDATA_LEN] = INIT_MSG_PACK;
 	uint32_t	ret = UINT32_MAX;
 	uint8_t		count = 1; /* count = 1 cause if we call this we already receive the first 0 data start */
-	t_list		*player_lst = NULL;
-	
 
 	do {
-		ret = extract_msg(ipc, UINT32_MAX);
+		ret = extract_msg(game->ipc, UINT32_MAX);
 		pdata[count].sdata = ret;
 		if (count != PDATA_START) {
 			if (count >= PDATA_POS) {
@@ -121,28 +119,27 @@ static t_list *receive_player_data(t_ipc *ipc)
 				ft_printf_fd(2, CYAN"Player data create\n"RESET);
 				t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
 				ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
-				ft_lstadd_back(&player_lst, ft_lstnew(tmp));
+				ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
 			} else {
-				t_list *target_node = get_player_node(player_lst, pdata[PDATA_POS].vdata);
+				t_pdata *target_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
 				if (!target_node) {
 					ft_printf_fd(2, RED"Error: player node not found in P_DELETE/UPDATE case\n"RESET);
-					return (NULL);
+					return ;
 				}
 				if (type == P_DELETE) {
 					ft_printf_fd(2, RED"Player data delete\n"RESET);
-					ft_lst_remove_if(&player_lst, target_node, free, is_same_node);
-					// TODO delete player
+					ft_lst_remove_if(&game->player_data, target_node, free, is_same_node);
 				} else if (type == P_UPDATE) {
+					pdata[PDATA_POS] = pdata[PDATA_TID];		/* update PPOS */
+					pdata[PDATA_TID] = target_node[PDATA_TID]; /* restore player TID*/
 					ft_printf_fd(2, CYAN"Player data update\n"RESET);
 					ft_memcpy((void *)target_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
-					// TODO update player
 				}
 			} 
 
 			count = PDATA_START;
 		}
 	} while (ret != UINT32_MAX);
-	return (player_lst);
 }
 
 
@@ -340,7 +337,7 @@ int boardmlx_display(void *vgame)
 		/* Update player data lst */
 		tmp = extract_msg(game->ipc, UINT32_MAX);
 		if (tmp != UINT32_MAX) {
-			game->player_data =  receive_player_data(game->ipc);
+			receive_player_data(game);
 		}
 	}
 

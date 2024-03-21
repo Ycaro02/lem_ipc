@@ -11,7 +11,7 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 	uint32_t p_state = ((uint32_t)player->state | msg_type);
 
 	if (msg_type == P_UPDATE) {
-		p_pos = get_board_index(player->next_pos);
+		p_tid = get_board_index(player->next_pos);
 	}
 
 	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally};
