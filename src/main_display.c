@@ -90,14 +90,14 @@ int display_board_stdout(t_game *game) {
 
 /* to put in header file */
 
-void		mystring_put(t_xvar *xvar,t_win_list *win,int x,int y,int color,char *string)
-{
-   XGCValues	xgcv;
+// void		mystring_put(t_xvar *xvar,t_win_list *win,int x,int y,int color,char *string)
+// {
+//    XGCValues	xgcv;
    
-   xgcv.foreground = mlx_int_get_good_color(xvar,color);
-   XChangeGC(xvar->display,win->gc,GCForeground,&xgcv);
-   XDrawString(xvar->display,win->window,win->gc,x,y,string,strlen(string));
-}
+//    xgcv.foreground = mlx_int_get_good_color(xvar,color);
+//    XChangeGC(xvar->display,win->gc,GCForeground,&xgcv);
+//    XDrawString(xvar->display,win->window,win->gc,x,y,string,strlen(string));
+// }
 
 
 int skip_x(char *str) {
@@ -187,9 +187,6 @@ int	key_hooks_press(int keycode, t_game *game)
 {
 	if (keycode == ESC)
 		destroy_windows(game); /* maybe need to check sem value and lock it to detash mem */
-	else if (keycode == 1){
-		ft_printf_fd(2, RED"Mouse click in key hook\n"RESET);
-	}
 	return (0);
 }
 
@@ -230,7 +227,17 @@ int boardmlx_display(void *vgame)
 {
 	t_game *game = vgame;
 
-	sem_lock(game->ipc->semid);
+
+
+	if (!game->pause) {
+		sem_lock(game->ipc->semid);
+	}
+
+	if (game->mouse_pos.y == 0 && game->mouse_pos.x == UINT32_MAX) {
+		game->pause = !(game->pause);
+		game->mouse_pos.y = UINT32_MAX;
+		ft_printf_fd(2, CYAN"Game pause %d\n"RESET, game->pause);
+	}	
 
 	/* Update team info lst */
 	if ((uint32_t) get_attached_processnb(game->ipc) != game->player_nb) {
@@ -264,7 +271,10 @@ int boardmlx_display(void *vgame)
 
 	/* Draw board */
 	draw_board(game);
-	sem_unlock(game->ipc->semid);
+
+	if (!game->pause) {
+		sem_unlock(game->ipc->semid);
+	}
 
 	mlx_put_image_to_window(game->mlx, game->win, game->img.image, 0, 0);
 	if (game->team) {
@@ -286,7 +296,11 @@ static int check_mouse(int keycode, int x, int y, t_game *game)
 	if (keycode == LEFT_CLICK) {
 		// ft_printf_fd(2, CYAN"Mouse click %d pos [%d][%d] game %p\n"RESET, keycode, y, x, game);
 		t_vec mouse = create_vector(y, x);
-		game->mouse_pos = get_click_tile(mouse);
+		t_vec mouse_pos = get_click_tile(mouse);
+		if (mouse_pos.x == UINT32_MAX) {
+			ft_printf_fd(2, RED"Mouse click on btn number %u\n"RESET, mouse_pos.y);
+			game->mouse_pos = create_vector(mouse_pos.y, mouse_pos.x);
+		}
 		// ft_printf_fd(2, "Mouse UINT32 click y: %d x: %d\n", mouse.y, mouse.x);
 		// ft_printf_fd(2, YELLOW"Tile click y: %d x: %d\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
 		return (1);
@@ -335,7 +349,7 @@ int main(int argc, char **argv)
 {
 	t_ipc		ipc = {};
 	t_player	player = {};
-	t_game		*game = malloc(sizeof(t_game));
+	t_game		*game = ft_calloc(sizeof(t_game), 1);
 
 	game->ipc = &ipc;
 	game->team = NULL;

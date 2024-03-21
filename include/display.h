@@ -71,7 +71,8 @@ typedef struct s_game
 	t_ipc		*ipc;		/* ipc handler */
 	t_list		*team;		/* team list */
 	uint32_t	player_nb;	/* last team number store */
-	t_vec		mouse_pos;
+	t_vec		mouse_pos;	/* Mouse position */
+	int8_t		pause;		/* Game pause bool */
 }	t_game;
 
 typedef enum e_keyboard_key
