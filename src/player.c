@@ -116,12 +116,12 @@ void player_routine(t_ipc *ipc, t_player *player)
 		/* Rush ally bool 1 for rush 0 for no */
 		int8_t rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
 
-		if (player_alone) {
-			ft_printf_fd(2, RED"Player %u is alone\n"RESET, player->team_id);
-		} else  {
-			ft_printf_fd(2, YELLOW"Player %u [%u][%u] is not alone, ally pos [%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x , player->ally_pos.y, player->ally_pos.x);
-			rush_ally = get_heuristic_cost(player->pos, player->ally_pos) > 2;
-		}
+		// if (player_alone) {
+		// 	ft_printf_fd(2, RED"Player %u is alone\n"RESET, player->team_id);
+		// } else  {
+		// 	ft_printf_fd(2, YELLOW"Player %u [%u][%u] is not alone, ally pos [%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x , player->ally_pos.y, player->ally_pos.x);
+		// 	rush_ally = get_heuristic_cost(player->pos, player->ally_pos) > 2;
+		// }
 
 		
 		if (rush_ally) {
@@ -134,8 +134,6 @@ void player_routine(t_ipc *ipc, t_player *player)
 			else
 				player_tracker_follower(ipc, player);
 		} else { /* if player is alone or no enemy found*/
-			// ft_printf_fd(1, GREEN"\nPlayer %u no enemy/ally found clear msg_Q go waiting random point\n\n"RESET, player->team_id);
-			// find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
 			clear_msg_queue(ipc, player->team_id);
 			player->state = S_WAITING;
 			player->target = get_random_point(ipc->ptr, player->pos);
@@ -147,13 +145,12 @@ void player_routine(t_ipc *ipc, t_player *player)
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			player->pos = create_vector(player->next_pos.y, player->next_pos.x);
-			// ft_printf_fd(2, CYAN"Player %u move to %u %u\n\n\n"RESET, player->team_id, player->pos.y, player->pos.x);
 			/* Set team id value in new player position */
 			set_tile_board_val(ipc->ptr, player->pos, player->team_id);
 		}
 		
 		sem_unlock(ipc->semid);
-		usleep(500000);
+		usleep(100000);
 	}
 }
 

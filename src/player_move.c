@@ -83,6 +83,14 @@ int8_t is_wanted_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y, int8
 	return (0);
 }
 
+/**
+ *	@brief Test the closest tile
+ *	@param ipc The ipc structure
+ *	@param player The player structure
+ *	@param change The change vector
+ *	@param flag The flag to check
+ *	@return 1 if the tile is correct, otherwise 0
+*/
 int8_t test_closest_tile(t_ipc *ipc, t_player *player, t_vec change, int8_t flag)
 {
 	uint32_t 	add_y, add_x, sub_y, sub_x;
@@ -119,7 +127,8 @@ int8_t test_closest_tile(t_ipc *ipc, t_player *player, t_vec change, int8_t flag
  * @param ipc The ipc structure
  * @param player The player structure
  * @param range_max The range to scan
- * @return 1 and set player->targer if enemy found, otherwise return 0
+ * @param flag The flag to check ally or enemy
+ * @return 1 and set player->targer/closest ally if target/ally found, otherwise return 0
 */
 int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag)
 {
@@ -152,14 +161,13 @@ static void follower_logic(t_ipc *ipc, t_player *player)
 	t_vec		rush_vec = get_board_pos(to_rush);
 
 	if (to_rush != UINT32_MAX) {
-		ft_printf_fd(2, PURPLE"Follower |%u| [%u][%u] receive [%u][%u] continue track\n"RESET,  player->team_id, player->pos.y, player->pos.x\
-			, rush_vec.y, rush_vec.x);
+		// ft_printf_fd(2, PURPLE"Follower |%u| [%u][%u] receive [%u][%u] continue track\n"RESET,  player->team_id, player->pos.y, player->pos.x, rush_vec.y, rush_vec.x);
 		player->pos = create_vector(rush_vec.y, rush_vec.x); /* silumate ally position */
 		/* get closest enemy of this position */
 		if (find_player_in_range(ipc, player, (int) BOARD_W, ENEMY_FLAG)) {
 			player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
 			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
-			ft_printf_fd(2, PURPLE"After simulation next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
+			// ft_printf_fd(2, PURPLE"After simulation next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
 		}
 		player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
 		return ;
@@ -174,8 +182,7 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 
 	if (player->state == S_TRACKER) {
 		find_player_in_range(ipc, player, (int) BOARD_W, ENEMY_FLAG); /* get closest enemy of this position */
-		ft_printf_fd(2, GREEN"Tracker %u send his pos to ally [%u][%u] and rush [%u][%u]\n"RESET, player->team_id\
-			, player->next_pos.y, player->next_pos.x, player->target.y, player->target.x);
+		// ft_printf_fd(2, GREEN"Tracker %u send his pos to ally [%u][%u] and rush [%u][%u]\n"RESET, player->team_id, player->next_pos.y, player->next_pos.x, player->target.y, player->target.x);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 		send_msg(ipc, player, get_board_index(player->next_pos));
 	} else {
@@ -196,26 +203,23 @@ void player_waiting(t_ipc *ipc, t_player *player)
 
  	/* If no message receive but enemy found */
 	if (!correct_msg) {
-		ft_printf_fd(2, GREEN"Player in team [%u] enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);
-		ft_printf_fd(2, GREEN"To rush [%u]\n"RESET, to_rush);
 		player->state = S_TRACKER;
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
-		ft_printf_fd(2, GREEN"Current pos [%u][%u]\n"RESET, player->pos.y, player->pos.x);
-		ft_printf_fd(2, GREEN"Next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
+		
 		send_msg(ipc, player, get_board_index(player->next_pos));
 	} else if (is_closest_ally) { /* If message receive and msg from the closest ally */
-		ft_printf_fd(2, PURPLE"Player in team [%u] [%u][%u] enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id, player->pos.y, player->pos.x);
-		ft_printf_fd(2, PURPLE"To rush [%u], rush_vec [%u][%u], closest ally [%u][%u]\n"RESET, to_rush, rush_vec.y, rush_vec.x, player->ally_pos.y, player->ally_pos.x);
 		player->state = S_FOLLOWER;
 		player->target = create_vector(rush_vec.y, rush_vec.x);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 	} 
-	// else { /* Is not the closest ally, just resend msg, stay in WAITING and let player routine algo find closest ally */
-	// 	ft_printf_fd(2, CYAN"Player in team [%u] stay in Waiting state, don't move resend msg\n"RESET, player->team_id);
-	// 	send_msg(ipc, player, to_rush); /* resend msg */
-	// }
 }
 
+// ft_printf_fd(2, GREEN"Player in team [%u] enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);
+// ft_printf_fd(2, GREEN"To rush [%u]\n"RESET, to_rush);
+// ft_printf_fd(2, GREEN"Current pos [%u][%u]\n"RESET, player->pos.y, player->pos.x);
+// ft_printf_fd(2, GREEN"Next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
+// ft_printf_fd(2, PURPLE"Player in team [%u] [%u][%u] enter in FOLLOWER state, go to msg enemy, don't send msg\n"RESET, player->team_id, player->pos.y, player->pos.x);
+// ft_printf_fd(2, PURPLE"To rush [%u], rush_vec [%u][%u], closest ally [%u][%u]\n"RESET, to_rush, rush_vec.y, rush_vec.x, player->ally_pos.y, player->ally_pos.x);
 /*
 WAITING logic
 {

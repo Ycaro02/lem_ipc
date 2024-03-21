@@ -14,7 +14,7 @@ sigint_loop_test() {
 
 	for i in {0..200}
 	do
-		local team_id=$(((i % 10) + 1))
+		local team_id=$(((i % 200) + 1))
 		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
 		${LEMIPC} ${team_id} &
 		sleep 0.02
