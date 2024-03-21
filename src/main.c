@@ -32,9 +32,9 @@ int main(int argc, char **argv)
 	team_handling(ipc.ptr, player.team_id, RM_TEAM);
 
 	if (ipc.ptr[TEAM_NB] == 0) {
-		ft_printf_fd(1, PURPLE"Lem-ipc Server Want Down Wait Display Server ...\n"RESET, player.team_id);
+		ft_printf_fd(1, PURPLE"Lem-ipc Server Want Down Wait Display Server ...\n"RESET);
 		sem_unlock(ipc.semid);
-		sleep(1); /* just wait display server */
+		sleep(1); /* just unlock waiting display client down */
 		sem_lock(ipc.semid);
 	}
 
@@ -47,11 +47,3 @@ int main(int argc, char **argv)
 	}
 	return (ret);
 }
-
-// ft_printf_fd(1, "ptr before %p\n", ipc.ptr);
-// uint32_t val = player.team_id;
-// sem_lock(ipc.semid);
-// t_vec point = get_random_point(ipc.ptr);
-// ft_printf_fd(2, YELLOW"Lem-ipc Client team number %u start pos [%u][%u]\n"RESET, player.team_id, point.x, point.y);
-// set_tile_board_val(ipc.ptr, point, val);
-// sem_unlock(ipc.semid);

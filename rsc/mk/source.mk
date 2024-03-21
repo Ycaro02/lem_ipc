@@ -20,6 +20,8 @@ SHARED_SRCS		=	init_shared_mem.c\
 DISPLAY_SRCS	= 	${SHARED_SRCS}\
 					${MAIN_DISPLAY}\
 					display_team.c\
+					click_event.c\
+					
 
 SRCS			=	${SHARED_SRCS}
 

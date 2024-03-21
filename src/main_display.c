@@ -143,17 +143,19 @@ void display_teamlist(t_game *game, t_list *list)
 	t_list *tmp = list;
 	uint32_t y = 15U;
 	char *player_remain = ft_ultoa(get_attached_processnb(game->ipc) - 1U);
-
-	uint32_t str_size_max = get_max_strsize(list);
-	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, PLAYER_REMAIN);
-	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U) + skip_x(PLAYER_REMAIN), y, RED_INT, player_remain);
-	y += PAD_YTEAM;
-	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, "TEAM INFO : ");
-
-	while (tmp) {
-		display_team_info(game, tmp->content, y, str_size_max);
-		tmp = tmp->next;
+	if (player_remain) {
+		uint32_t str_size_max = get_max_strsize(list);
+		mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, PLAYER_REMAIN);
+		mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U) + skip_x(PLAYER_REMAIN), y, RED_INT, player_remain);
 		y += PAD_YTEAM;
+		mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, "TEAM INFO : ");
+		free(player_remain);
+
+		while (tmp) {
+			display_team_info(game, tmp->content, y, str_size_max);
+			tmp = tmp->next;
+			y += PAD_YTEAM;
+		}
 	}
 }
 
@@ -161,6 +163,9 @@ int	key_hooks_press(int keycode, t_game *game)
 {
 	if (keycode == ESC)
 		destroy_windows(game); /* maybe need to check sem value and lock it to detash mem */
+	else if (keycode == 1){
+		ft_printf_fd(2, RED"Mouse click in key hook\n"RESET);
+	}
 	return (0);
 }
 
@@ -212,6 +217,9 @@ int boardmlx_display(void *vgame)
 		game->player_nb = get_attached_processnb(game->ipc);
 	}
 
+	// ft_printf_fd(2, YELLOW"Last tile click y: %d x: %d\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
+
+	// game->mouse_pos = get_mouse_pos(game);
 	/* CLear pixel buff */
 	// size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
 	// ft_printf_fd(2, RED"len : %u, sizeof %u\n"RESET, len, sizeof(game->img.data));
@@ -234,9 +242,30 @@ int boardmlx_display(void *vgame)
 	if (game->team) {
 		display_teamlist(game, game->team);
 	}
+
+	// sem_lock(game->ipc->semid);
+	// ft_printf_fd(2, CYAN"Display board MAKE PAUSE 5 sec ...\n"RESET);
+	// sleep(5);
+	// sem_unlock(game->ipc->semid);
+
 	// usleep(10000); /* 1/10 sec */
 	return (0);
 }
+
+static int check_mouse(int keycode, int x, int y, t_game *game)
+{
+	// int y = -1, x = -1;
+	if (keycode == LEFT_CLICK) {
+		// ft_printf_fd(2, CYAN"Mouse click %d pos [%d][%d] game %p\n"RESET, keycode, y, x, game);
+		t_vec mouse = create_vector(y, x);
+		game->mouse_pos = get_click_tile(mouse);
+		// ft_printf_fd(2, "Mouse UINT32 click y: %d x: %d\n", mouse.y, mouse.x);
+		// ft_printf_fd(2, YELLOW"Tile click y: %d x: %d\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
+		return (1);
+	}
+	return (0);
+}
+
 
 int8_t init_mlx(t_game *game) 
 {
@@ -262,8 +291,11 @@ int8_t init_mlx(t_game *game)
 
 	mlx_hook(game->win, 2, 1L, key_hooks_press, game);
 	mlx_hook(game->win, DestroyNotify, StructureNotifyMask, destroy_windows, game);
+	ft_printf_fd(2, "Game ptr before check mouse %p\n", game);
+	mlx_mouse_hook(game->win, check_mouse, game);
 	// mlx_loop_hook(game->mlx, display_board_stdout, game);
 	// mlx_loop_hook(game->mlx, display_team_info, game);
+	
 	mlx_loop_hook(game->mlx, boardmlx_display, game);
 	// mlx_loop_hook(game->mlx, display_board_stdout, game);
 	mlx_loop(game->mlx);

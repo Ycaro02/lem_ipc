@@ -71,10 +71,12 @@ typedef struct s_game
 	t_ipc		*ipc;		/* ipc handler */
 	t_list		*team;		/* team list */
 	uint32_t	player_nb;	/* last team number store */
+	t_vec		mouse_pos;
 }	t_game;
 
 typedef enum e_keyboard_key
 {
+	LEFT_CLICK = 1,
 	ESC = 65307,
 	UP = 119,
 	LEFT = 97,
@@ -89,5 +91,8 @@ typedef enum e_keyboard_key
 void		free_team(void *team);
 t_teamcolor	get_new_color(uint32_t current_team_nb, uint32_t team_id);
 int8_t 		build_list_number_team(t_list **lst, uint32_t *array);
+
+
+t_vec get_click_tile(t_vec mouse);
 
 #endif /* DISPLAY_LEMIPC_H */ 
