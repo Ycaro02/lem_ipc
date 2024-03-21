@@ -67,6 +67,10 @@ int destroy_windows(t_game *game)
 	if (game->team) {
 		ft_lstclear(&game->team, free_team);
 	}
+	if (game->pause){
+		ft_printf_fd(2, CYAN"Display restore sem\n"RESET);
+		sem_unlock(game->ipc->semid);
+	}
 	free(game->mlx);
 	free(game);
 	ft_printf_fd(1, "Exit MLX\n");
@@ -248,12 +252,6 @@ int boardmlx_display(void *vgame)
 		game->player_nb = get_attached_processnb(game->ipc);
 	}
 
-	// ft_printf_fd(2, YELLOW"Last tile click y: %d x: %d\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
-	// if (game->mouse_pos.x == UINT32_MAX) {
-	// 	ft_printf_fd(2, RED"Mouse click on btn number %u\n"RESET, game->mouse_pos.y);
-	// }
-
-	
 	// game->mouse_pos = get_mouse_pos(game);
 	/* CLear pixel buff */
 	// size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
