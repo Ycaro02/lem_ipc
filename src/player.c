@@ -165,7 +165,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 			/* Set team id value in new player position */
 			set_tile_board_val(ipc->ptr, player->pos, player->team_id);
 		}
-		
+		send_pdata_display(ipc, player);
 		sem_unlock(ipc->semid);
 		usleep(100000);
 	}

@@ -59,6 +59,17 @@ int init_display(t_player *player, int argc, char **argv)
 }
 
 
+static void receive_player_data(t_ipc *ipc)
+{
+	uint32_t ret = UINT32_MAX;
+
+	do {
+		ret = extract_msg(ipc, UINT32_MAX);
+		ft_printf_fd(2, CYAN"Receive player data %u\n"RESET, ret);
+	} while (ret != UINT32_MAX);
+
+}
+
 int destroy_windows(t_game *game)
 {
 	mlx_destroy_image(game->mlx, game->img.image);
@@ -252,7 +263,8 @@ int boardmlx_display(void *vgame)
 		game->player_nb = get_attached_processnb(game->ipc);
 	}
 
-	// game->mouse_pos = get_mouse_pos(game);
+	receive_player_data(game->ipc);
+
 	/* CLear pixel buff */
 	// size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
 	// ft_printf_fd(2, RED"len : %u, sizeof %u\n"RESET, len, sizeof(game->img.data));

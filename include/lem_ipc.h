@@ -177,7 +177,7 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
-uint32_t 	extract_msg(t_ipc *ipc, t_player *player);
+uint32_t 	extract_msg(t_ipc *ipc, uint32_t msg_id);
 int8_t		send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data);
 int8_t clear_msg_queue(t_ipc *ipc, long team_id);
 /* init semaphore */

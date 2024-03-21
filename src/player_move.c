@@ -157,7 +157,7 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 static void follower_logic(t_ipc *ipc, t_player *player)
 {
 	t_vec		save_pos = create_vector(player->pos.y, player->pos.x);
-	uint32_t	to_rush = extract_msg(ipc, player);
+	uint32_t	to_rush = extract_msg(ipc, player->team_id);
 	t_vec		rush_vec = get_board_pos(to_rush);
 
 	if (to_rush != UINT32_MAX) {
@@ -193,7 +193,7 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 void player_waiting(t_ipc *ipc, t_player *player)
 {
 	/* Try to get team message store postiotion in uint32 */
-	uint32_t	to_rush = extract_msg(ipc, player);
+	uint32_t	to_rush = extract_msg(ipc, player->team_id);
 	/* Transform this postion to vector pos */
 	t_vec		rush_vec = get_board_pos(to_rush);
 	/* Bool check msg, check if message is'nt my own position  */
