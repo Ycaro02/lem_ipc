@@ -39,11 +39,11 @@
 
 /* Map height */
 // # define BOARD_H 30U
-# define BOARD_H 20U
+# define BOARD_H 30U
 
 /* Map width */
 // # define BOARD_W 65U
-# define BOARD_W 40U
+# define BOARD_W 50U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
@@ -51,7 +51,8 @@
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
-# define TEAM_NB BOARD_SIZE /* offset team number */
+/* Display up magic number */
+# define DISPLAY_UP (OUT_OF_BOARD + 1)
 
 /* Shared memory data size needed */
 # define SHM_DATA_SIZE ((sizeof(uint32_t) * BOARD_SIZE) + sizeof(uint32_t)) /* (4 * (30 * 60)) + 4, last for team number */

@@ -194,7 +194,7 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 
 void player_waiting(t_ipc *ipc, t_player *player)
 {
-	/* Try to get team message store postiotion in uint32 */
+	/* Try to get team message store position in uint32 */
 	uint32_t	to_rush = extract_msg(ipc, player->team_id);
 	/* Transform this postion to vector pos */
 	t_vec		rush_vec = get_board_pos(to_rush);

@@ -13,19 +13,13 @@ int main(int argc, char **argv)
 	ft_bzero(&ipc, sizeof(t_ipc));
 	ft_bzero(&player, sizeof(t_player));
 	g_game_run = 1;
-	// ft_printf_fd(1, "Lem-ipc start %d\n", g_game_run);
 
-	if (init_player(&player, argc, argv) != 0) {
-		return (1);
-	}
-
-	if (init_game(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
+	if (init_player(&player, argc, argv) != 0\
+		|| init_game(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
 		return (1);
 	}
 
 	player_routine(&ipc, &player);
-
-	sem_lock(ipc.semid);
 	ft_printf_fd(2, YELLOW"Lem-Ipc Client team nb [%d] die on [%d][%d]\nTeam nb bool = |%d| nb att = |%d|\n"RESET\
 		, player.team_id, player.pos.y, player.pos.x, find_player_in_range(&ipc, &player, (int)BOARD_W, ALLY_FLAG), get_attached_processnb(&ipc));
 	set_tile_board_val(ipc.ptr, player.pos, TILE_EMPTY);
