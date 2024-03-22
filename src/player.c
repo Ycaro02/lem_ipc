@@ -14,6 +14,40 @@ void display_packet(uint32_t *data)
 
 }
 
+void send_display_controle_packet(t_ipc *ipc)
+{
+	uint32_t data[PDATA_LEN] = {(uint32_t) 0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0};
+
+	for (int i = 0; i < PDATA_LEN; ++i) {
+		send_msg(ipc, UINT32_MAX, data[i]);
+	}
+}
+
+int8_t check_display_state(t_ipc *ipc)
+{
+	uint32_t	data[PDATA_LEN] = {0, 0, 0, 0, 0, 0, 0};
+	int			i;
+
+	for (i = 0; i < PDATA_LEN; ++i) {
+		data[i] = extract_msg(ipc, UINT32_MAX);
+		if (data[i] != (uint32_t)0) {
+			break;
+		}
+	}
+	if (i == 1 && data[i] == UINT32_MAX) {
+		ft_printf_fd(2, "Display handler packet not found, display here can start game\n");
+		return(1);
+	}
+	if (i != PDATA_LEN) {
+		ft_printf_fd(2, "Error: Display packet error\n");
+		return (0);
+	}
+	send_display_controle_packet(ipc);
+	check_display_state(ipc);
+	return (1);
+}
+
+
 void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 {
 	uint32_t p_pos = get_board_index(player->pos);
@@ -128,8 +162,8 @@ static int8_t check_break_loop(t_ipc *ipc, t_player *player, int8_t enemy_found)
 {
 	/* Check if player is dead */
 	if (check_player_death(ipc, player) != ALIVE) {
+		/* Send data to display */
 		send_pdata_display(ipc, player, P_DELETE);
-		// set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 		clear_msg_queue(ipc, player->team_id);
 		g_game_run = 0;
 		return (1);
