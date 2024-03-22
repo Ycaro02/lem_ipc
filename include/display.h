@@ -79,17 +79,29 @@ typedef struct s_game
 	int8_t		pause;			/* game pause bool */
 }	t_game;
 
+/* Key */
 typedef enum e_keyboard_key
 {
 	LEFT_CLICK = 1,
 	ESC = 65307,
 }	t_keyboard_key;
 
-void		free_team(void *team);
+
+/* main */
 t_teamcolor	get_new_color(uint32_t current_team_nb, uint32_t team_id);
+t_vec get_click_tile(t_vec mouse);
+
+/* parse pdata */
+void receive_player_data(t_game *game);
+void *get_player_node(t_list *lst, t_vec target);
+
+/* display pdata */
+void display_pdata_lst(t_list *player_lst);
+void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y);
+
+/* display team */
+void		free_team(void *team);
 int8_t 		build_list_number_team(t_list **lst, uint32_t *array);
 
-
-t_vec get_click_tile(t_vec mouse);
 
 #endif /* DISPLAY_LEMIPC_H */ 

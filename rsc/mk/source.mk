@@ -21,6 +21,8 @@ DISPLAY_SRCS	= 	${SHARED_SRCS}\
 					${MAIN_DISPLAY}\
 					display_team.c\
 					click_event.c\
+					parse_pdata.c\
+					display_pdata.c\
 					
 
 SRCS			=	${SHARED_SRCS}

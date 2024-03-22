@@ -1,17 +1,15 @@
 # include "../include/lem_ipc.h"
 
-
-
-void display_pack(uint32_t *data)
+void display_packet(uint32_t *data)
 {
-	ft_printf_fd(2, CYAN"\n-------------------------Send package--------------------------------------\n"RESET);
+	ft_printf_fd(2, CYAN"\n-------------------------Send packet --------------------------------------\n"RESET);
 	ft_printf_fd(2, GREEN"start: |%u| "RESET, data[PDATA_START]);
 	ft_printf_fd(2, GREEN"state: |%u| "RESET, data[PDATA_STATE]);
 	ft_printf_fd(2, GREEN"tid: |%u| "RESET, data[PDATA_TID]);
 	ft_printf_fd(2, GREEN"pos: |%u| "RESET, data[PDATA_POS]);
 	ft_printf_fd(2, GREEN"target: |%u| "RESET, data[PDATA_TARGET]);
 	ft_printf_fd(2, GREEN"ally: |%u|"RESET, data[PDATA_ALLY]);
-	ft_printf_fd(2, CYAN"\n-------------------------Package end---------------------------------------\n"RESET);
+	ft_printf_fd(2, CYAN"\n-------------------------Packet end---------------------------------------\n"RESET);
 
 }
 
@@ -21,7 +19,7 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 	uint32_t p_target = get_board_index(player->target);
 	uint32_t p_ally = get_board_index(player->ally_pos);
 	uint32_t p_tid = player->team_id;
-	uint32_t p_state = ((uint32_t)player->state | msg_type);
+	uint32_t p_state = (uint32_t)(player->state | msg_type);
 
 	if (msg_type == P_UPDATE) {
 		p_tid = get_board_index(player->next_pos);
@@ -29,9 +27,7 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 
 	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally};
 
-	// display_pack(data);
-
-
+	// display_packet(data);
 	for (int i = 0; i < PDATA_LEN; ++i) {
 		send_msg(ipc, UINT32_MAX, data[i]);
 	}

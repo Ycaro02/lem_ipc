@@ -130,6 +130,30 @@ typedef struct s_player {
 
 
 
+# define INIT_MSG_PACK { \
+	{"player data start", {0}}, \
+	{"player data state", {0}}, \
+	{"player data team id", {0}}, \
+	{"player data pos", {0}}, \
+	{"player data target", {0}}, \
+	{"player data closest ally", {0}} \
+}
+
+/* Message type extract */
+# define GET_MSG_TYPE(state) (state & 0b00111000)
+
+/* Message player state extract */
+# define GET_MSG_STATE(state) (state & 0b00000111)
+
+/* 
+	Message packets for display is build as follow:
+		- send 0 for message start
+		- send state : (e_msg_type | s_player_state), access with GET_MSG_TYPE/STATE
+		- send player team id
+		- send player position		(index uint32)
+		- send player target pos	(index uint32)
+		- send player ally pos		(index uint32)
+*/
 
 typedef struct s_player_data {
 	char			*name;
@@ -150,58 +174,22 @@ enum e_pdata_idx {
 };
 
 
-# define INIT_MSG_PACK { \
-	{"player data start", {0}}, \
-	{"player data state", {0}}, \
-	{"player data team id", {0}}, \
-	{"player data pos", {0}}, \
-	{"player data target", {0}}, \
-	{"player data closest ally", {0}} \
-}
-
-
-
-# define GET_MSG_TYPE(x) (x & 0b00111000)
-# define GET_MSG_STATE(x) (x & 0b00000111)
-
-
 /* Player state */
 enum e_player_state {
-	S_WAITING=(1 << 0),				/* Waiting state*/
-	S_TRACKER=(1 << 1),				/* Tracker state */
-	S_FOLLOWER=(1 << 2),			/* Follower state */
+	S_WAITING=(1U << 0),				/* Waiting state*/
+	S_TRACKER=(1U << 1),				/* Tracker state */
+	S_FOLLOWER=(1U << 2),			/* Follower state */
 };
 
-/* 
-	Message package for display is build as follow:
-		- send 0 for message start
-		- send e_msg_type | team_id, access with GET_MSG_TYPE/STATE
-		- send player team id
-		- send player position
-		- send player target pos (index uint32)
-		- send player ally pos (index uint32)
-*/
-
-
+/* Message type */
 enum e_msg_type {
-	P_CREATE=(1 << 3),
-	P_UPDATE=(1 << 4),
-	P_DELETE=(1 << 5),
+	P_CREATE=(1U << 3),
+	P_UPDATE=(1U << 4),
+	P_DELETE=(1U << 5),
 };
 
-/* Direction enum */
-enum e_direction {
-	NORTH,
-	SOUTH,
-	EAST,
-	WEST,
-	NORTH_EAST,
-	NORTH_WEST,
-	SOUTH_EAST,
-	SOUTH_WEST,
-	DIR_MAX
-};
 
+# define DIR_MAX 8
 
 # define ALLY_FLAG 0
 # define ENEMY_FLAG 1
