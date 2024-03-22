@@ -22,7 +22,7 @@ sigint_loop_test() {
 
 	display_color_msg ${YELLOW} "Lauch display handler ..."
 	sleep 0.05
-	./lemipc_display &
+	valgrind ./lemipc_display
 
 	# display_color_msg ${RED} "Killing all processes ..."
 	# ./rsc/sh/check_ipcs_free.sh

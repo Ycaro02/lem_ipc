@@ -241,13 +241,31 @@ int skip_x(char *str) {
 	return (ft_strlen(str) * CHAR_TOPIXEL);
 }
 
+/* Convert vector to formated allocated str */
 static char *get_vector_string(t_vec vec)
 {
-	char *str = ft_calloc(1, 100);
-	sprintf(str, "[%u][%u]", vec.y, vec.x);
+	char *brack_start = "[";
+	char *brack_end = "]";
+
+	char *str = ft_strjoin_free(brack_start, ft_ultoa(vec.y), 's');
+	str = ft_strjoin_free(str, brack_end, 'f');
+
+	str = ft_strjoin_free(str, brack_start, 'f');
+	str = ft_strjoin_free(str, ft_ultoa(vec.x), 'a');
+	str = ft_strjoin_free(str, brack_end, 'f');
+
+	// sprintf(str, "[%u][%u]", vec.y, vec.x);
 	return (str);
 }
 
+/**
+ * @brief put vector to str in rightband
+ * @param game: game struct
+ * @param str: first string to display
+ * @param vdata: vector data to display
+ * @param y: current y position to display
+ * @return uint32_t: new y position
+*/
 static uint32_t put_vectostr(t_game *game, char *str, t_vec vdata, uint32_t y)
 {
 	char *vec_str = get_vector_string(vdata);
@@ -259,6 +277,15 @@ static uint32_t put_vectostr(t_game *game, char *str, t_vec vdata, uint32_t y)
 	return (PAD_YTEAM);
 }
 
+/**
+ * @brief put uint to str in rightband
+ * @param game: game struct
+ * @param str: first string to display
+ * @param state: state string to display (if NULL display data, else display state string)
+ * @param data: data to display (uint value and can be convert to string with ultoa call)
+ * @param y: current y position to display
+ * @return uint32_t: new y position
+*/
 static uint32_t put_uint_tostr(t_game *game, char *str, char *state, uint32_t data, uint32_t y)
 {
 	char *tmp_str = NULL;
@@ -274,13 +301,6 @@ static uint32_t put_uint_tostr(t_game *game, char *str, char *state, uint32_t da
 
 static void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y)
 {
-	// char *vec_str = get_vector_string(pdata[PDATA_POS].vdata);
-
-	// char *tmp_str = ft_strjoin_free("Tile: ", vec_str, 's');
-
-	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
-	// y += PAD_YTEAM;
-	// free(tmp_str);
 	char *str_state = get_player_strstate(GET_MSG_STATE(pdata[PDATA_STATE].sdata));
 
 	y += put_vectostr(game, "Tile: ", pdata[PDATA_POS].vdata, y);
@@ -290,38 +310,27 @@ static void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y)
 	y += put_vectostr(game, "Target: ", pdata[PDATA_TARGET].vdata, y);
 	y += put_vectostr(game, "Ally: ", pdata[PDATA_ALLY].vdata, y);
 
-
+	// char *vec_str = get_vector_string(pdata[PDATA_POS].vdata);
+	// char *tmp_str = ft_strjoin_free("Tile: ", vec_str, 's');
+	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
+	// y += PAD_YTEAM;
+	// free(tmp_str);
 	// tmp_str = ft_strjoin_free("Team ID: ", ft_ultoa(pdata[PDATA_TID].sdata), 's');
 	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
 	// y += PAD_YTEAM;
 	// free(tmp_str);
-
 	// tmp_str = ft_strjoin("State: ", get_player_strstate(GET_MSG_STATE(pdata[PDATA_STATE].sdata)));
 	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
 	// y += PAD_YTEAM;
 	// free(tmp_str);
-
-
 	// tmp_str = ft_strjoin_free("Position: ", get_vector_string(pdata[PDATA_POS].vdata), 's');
 	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
 	// y += PAD_YTEAM;
 	// free(tmp_str);
-
 	// tmp_str = ft_strjoin_free("Target: ", get_vector_string(pdata[PDATA_TARGET].vdata), 's');
 	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
 	// y += PAD_YTEAM;
 	// free(tmp_str);
-
-	// tmp_str = ft_strjoin_free("Ally: ", get_vector_string(pdata[PDATA_ALLY].vdata), 's');
-	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
-	// y += PAD_YTEAM;
-	// free(tmp_str);
-	// ft_printf_fd(2, CYAN"Player data found on [%u][%u]\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
-	// ft_printf_fd(2, CYAN"Team ID: %u\n"RESET, pdata[PDATA_TID].sdata);
-	// ft_printf_fd(2, CYAN"State: %s\n"RESET, get_player_strstate(GET_MSG_STATE(pdata[PDATA_STATE].sdata)));
-	// ft_printf_fd(2, CYAN"Position: [%u][%u]\n"RESET, pdata[PDATA_POS].vdata.y, pdata[PDATA_POS].vdata.x);
-	// ft_printf_fd(2, CYAN"Target: [%u][%u]\n"RESET, pdata[PDATA_TARGET].vdata.y, pdata[PDATA_TARGET].vdata.x);
-	// ft_printf_fd(2, CYAN"Ally: [%u][%u]\n"RESET, pdata[PDATA_ALLY].vdata.y, pdata[PDATA_ALLY].vdata.x);
 }
 
 /* @brief Display team info lst */
@@ -343,6 +352,7 @@ static int	display_team_info(t_game *game, t_team *team, uint32_t pad_y, uint32_
 	return (0);
 }
 
+/* @brief Get maximum size in team lst, maybe to remove */
 static uint32_t	get_max_strsize(t_list *list)
 {
 	t_list		*tmp = list;
@@ -359,7 +369,7 @@ static uint32_t	get_max_strsize(t_list *list)
 	return (max);
 }
 
-/* @brief Basic display btn */
+/* @brief Basic display btn  */
 void display_button(t_game *game)
 {
 	uint32_t width = RIGHTBAND_WIDTH;
@@ -373,6 +383,8 @@ void display_button(t_game *game)
 	}
 }
 
+
+/* TO_REWORK read new dataset */
 void display_teamlist(t_game *game, t_list *list, t_pdata *pdata)
 {
 	display_button(game);
@@ -447,7 +459,7 @@ static void draw_board(t_game *game)
 }
 
 /* Main display function called in mlx loop hook */
-int boardmlx_display(void *vgame)
+int main_display(void *vgame)
 {
 	t_game		*game = vgame;
 	uint32_t	tmp = 0U;
@@ -509,7 +521,8 @@ int boardmlx_display(void *vgame)
 	return (0);
 }
 
-static int check_mouse(int keycode, int x, int y, t_game *game)
+/* @brief check left mouse click, update game->mouse_pos in consequences */
+int check_mouse(int keycode, int x, int y, t_game *game)
 {
 	if (keycode == LEFT_CLICK) {
 		// ft_printf_fd(2, CYAN"Mouse click %d pos [%d][%d] game %p\n"RESET, keycode, y, x, game);
@@ -521,7 +534,7 @@ static int check_mouse(int keycode, int x, int y, t_game *game)
 	return (0);
 }
 
-
+/* @brief Init display */
 int8_t init_mlx(t_game *game) 
 {
 	int endian = 0;
@@ -549,7 +562,7 @@ int8_t init_mlx(t_game *game)
 	ft_printf_fd(2, "Game ptr before check mouse %p\n", game);
 	mlx_mouse_hook(game->win, check_mouse, game);
 	// mlx_loop_hook(game->mlx, display_board_stdout, game);
-	mlx_loop_hook(game->mlx, boardmlx_display, game);
+	mlx_loop_hook(game->mlx, main_display, game);
 	mlx_loop(game->mlx);
 	return (0);
 

@@ -67,16 +67,16 @@ typedef struct s_team {
 
 typedef struct s_game
 {
-	t_xvar		*mlx;		/* mlx handler */
-	void		*win;		/* mlx window */
-	t_img		img;		/* mlx image */
-	t_ipc		*ipc;		/* ipc handler */
-	t_list		*team;		/* team list TODO REMOVE adapt team display*/
-	t_list		*player_data;		/* player data list */
-	t_pdata		*selected;	/* player data */
-	uint32_t	player_nb;	/* last team number store */
-	t_vec		mouse_pos;	/* mouse position, TODO can remove*/
-	int8_t		pause;		/* game pause bool */
+	t_xvar		*mlx;			/* mlx handler */
+	void		*win;			/* mlx window */
+	t_img		img;			/* mlx image */
+	t_ipc		*ipc;			/* ipc handler */
+	t_list		*team;			/* team list TODO REMOVE adapt team display*/
+	t_list		*player_data;	/* player data list */
+	t_pdata		*selected;		/* player data */
+	uint32_t	player_nb;		/* last team number store */
+	t_vec		mouse_pos;		/* mouse position, TODO can remove*/
+	int8_t		pause;			/* game pause bool */
 }	t_game;
 
 typedef enum e_keyboard_key
