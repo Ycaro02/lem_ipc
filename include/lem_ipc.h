@@ -39,11 +39,11 @@
 
 /* Map height */
 // # define BOARD_H 30U
-# define BOARD_H 30U
+# define BOARD_H 25U
 
 /* Map width */
 // # define BOARD_W 65U
-# define BOARD_W 50U
+# define BOARD_W 40U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)

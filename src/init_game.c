@@ -270,7 +270,7 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	// send_msg(ipc, &(t_player){.team_id = 1}, 42);
 	// send_msg(ipc, &(t_player){.team_id = 2}, 9);
 
-	sleep(1); /* wait for client to connect */
+	sleep(8); /* wait for client to connect */
 
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
 	return (0);
