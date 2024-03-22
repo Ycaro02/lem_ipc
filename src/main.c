@@ -6,13 +6,12 @@ int g_game_run;
 static int display_player_end(t_ipc ipc, t_player player)
 {
 	int		nb_process = get_attached_processnb(&ipc);
-	int8_t	last_team = find_player_in_range(&ipc, &player, (int)BOARD_W, ENEMY_FLAG);
-	char	*team = last_team == 0 ? FILL_GREEN"Last Team"RESET : FILL_RED"Not Last Team"RESET;
-	char	*str_status = last_team == 0 ? "Won" : "Lost";
-	char	*color = last_team == 0 ? FILL_GREEN : FILL_YELLOW;
+	// int8_t	last_team = find_player_in_range(&ipc, &player, (int)BOARD_W, ENEMY_FLAG);
+	// char	*team = last_team == 0 ? FILL_GREEN"Last Team"RESET : FILL_RED"Not Last Team"RESET;
+	// char	*str_status = last_team == 0 ? "Won" : "Lost";
+	// char	*color = last_team == 0 ? FILL_GREEN : FILL_YELLOW;
 
-	ft_printf_fd(2, "%sLem-Ipc Client team nb [%d] %s on [%d][%d]\n"RESET"%s\n"FILL_YELLOW"Attached = |%d|\n"RESET\
-		, color, player.team_id, str_status, player.pos.y, player.pos.x, team, nb_process);
+	// ft_printf_fd(2, "%sLem-Ipc Client team nb [%d] %s on [%d][%d]\n"RESET"%s\n"FILL_YELLOW"Attached = |%d|\n"RESET, color, player.team_id, str_status, player.pos.y, player.pos.x, team, nb_process);
 	set_tile_board_val(ipc.ptr, player.pos, TILE_EMPTY);
 	return (nb_process);
 }

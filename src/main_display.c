@@ -200,9 +200,9 @@ int main_display(void *vgame)
 	if (game->mouse_pos.y == 0 && game->mouse_pos.x == UINT32_MAX) {
 		game->pause = !(game->pause);
 		game->mouse_pos.y = UINT32_MAX;
-		ft_printf_fd(2, CYAN"Game pause %d\n"RESET, game->pause);
+		// ft_printf_fd(2, CYAN"Game pause %d\n"RESET, game->pause);
 	} else if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
-		ft_printf_fd(2, YELLOW"Click on [%u][%u]\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
+		// ft_printf_fd(2, YELLOW"Click on [%u][%u]\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
 		game->selected = get_player_node(game->player_data, game->mouse_pos);
 		game->mouse_pos = create_vector(UINT32_MAX, UINT32_MAX);
 	}
