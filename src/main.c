@@ -26,17 +26,9 @@ int main(int argc, char **argv)
 	player_routine(&ipc, &player);
 
 	sem_lock(ipc.semid);
-	ft_printf_fd(2, YELLOW"Lem-Ipc Client team nb [%d] die on [%d][%d]\nTeam nb = |%u| nb att = |%d|\n"RESET\
-		, player.team_id, player.pos.y, player.pos.x, ipc.ptr[TEAM_NB], get_attached_processnb(&ipc));
+	ft_printf_fd(2, YELLOW"Lem-Ipc Client team nb [%d] die on [%d][%d]\nTeam nb bool = |%d| nb att = |%d|\n"RESET\
+		, player.team_id, player.pos.y, player.pos.x, find_player_in_range(&ipc, &player, (int)BOARD_W, ALLY_FLAG), get_attached_processnb(&ipc));
 	set_tile_board_val(ipc.ptr, player.pos, TILE_EMPTY);
-	team_handling(ipc.ptr, player.team_id, RM_TEAM);
-
-	if (ipc.ptr[TEAM_NB] == 0) {
-		ft_printf_fd(1, PURPLE"Lem-ipc Server Want Down Wait Display Server ...\n"RESET);
-		sem_unlock(ipc.semid);
-		sleep(1); /* just unlock waiting display client down */
-		sem_lock(ipc.semid);
-	}
 
 	if (get_attached_processnb(&ipc) == 1) {
 		clean_shared_rsc(&ipc);

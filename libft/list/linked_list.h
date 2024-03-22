@@ -38,5 +38,9 @@ void 			*get_lst_index_content(t_list *lst, int index);
 void			lst_clear(t_list **lst, void (*del)(void*));
 void 			reverse_lst(t_list **lst);
 
+void			list_sort(t_list **lst, int (*cmp)());
+
+
+
 
  # endif /* DEFINE_LINKED_LIST_H */

@@ -71,7 +71,6 @@ typedef struct s_game
 	void		*win;			/* mlx window */
 	t_img		img;			/* mlx image */
 	t_ipc		*ipc;			/* ipc handler */
-	t_list		*team;			/* team list TODO REMOVE adapt team display*/
 	t_list		*player_data;	/* player data list */
 	t_pdata		*selected;		/* player data */
 	uint32_t	player_nb;		/* last team number store */
@@ -82,13 +81,12 @@ typedef struct s_game
 /* Key */
 typedef enum e_keyboard_key
 {
-	LEFT_CLICK = 1,
-	ESC = 65307,
+	LEFT_CLICK = 1,			/* Left click value */
+	ESC = 65307,			/* Escape key value */
 }	t_keyboard_key;
 
 
 /* main */
-t_teamcolor	get_new_color(uint32_t current_team_nb, uint32_t team_id);
 t_vec get_click_tile(t_vec mouse);
 
 /* parse pdata */
@@ -100,8 +98,8 @@ void display_pdata_lst(t_list *player_lst);
 void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y);
 
 /* display team */
-void		free_team(void *team);
-int8_t 		build_list_number_team(t_list **lst, uint32_t *array);
+// void		free_team(void *team);
+// int8_t 		build_list_number_team(t_list **lst, uint32_t *array);
 
 
 #endif /* DISPLAY_LEMIPC_H */ 

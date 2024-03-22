@@ -1,5 +1,23 @@
 # include "../include/display.h"
 
+
+// /* @brief Get maximum size in team lst, maybe to remove */
+// static uint32_t	get_max_strsize(t_list *list)
+// {
+// 	t_list		*tmp = list;
+// 	uint32_t	max = 0;
+// 	uint32_t	tmp_val = 0;
+
+// 	while (tmp) {
+// 		tmp_val = ft_strlen(((t_team *)tmp->content)->strsize);
+// 		if (tmp_val > max) {
+// 			max = tmp_val;
+// 		}
+// 		tmp = tmp->next;
+// 	}
+// 	return (max);
+// }
+
 /**
  *  @brief Check if team exist
  *  @param team linked list of team
@@ -76,30 +94,6 @@ int get_min_id(void *next, void *current)
 	return (((t_team *)next)->tid >= ((t_team *)current)->tid);
 }
 
-/* list sort function */
-void    list_sort(t_list **lst, int (*cmp)())
-{
-	t_list  *next;
-	t_list  *current;
-
-	if (cmp == NULL || lst == NULL || *lst == NULL)
-		return ;
-	current = *lst;
-	next = current;
-	while (next && current && current->next)
-	{
-		next = current->next;
-		if (cmp(next->content, current->content) <= 0) { /* if next value lower than current value reverse for strcmp works */
-
-			void *tmp_data = current->content; /* just swap data using tmp */
-			current->content = next->content;
-			next->content = tmp_data;
-			current = *lst;         /* reset current and next */
-			continue ;
-		}
-		current = next;
-	}
-}
 
 int8_t build_list_number_team(t_list **lst, uint32_t *array)
 {

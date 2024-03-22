@@ -197,8 +197,7 @@ enum e_msg_type {
 
 /* bonus send player data to display program */
 // void send_pdata_display(t_ipc *ipc, t_player *player, uint32_t msg_type);
-/* team handling become useless  if send pdata is implemented, need to remove it */
-void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);
+
 
 
 int8_t check_death(uint32_t *board, t_vec point, uint32_t team_id);
