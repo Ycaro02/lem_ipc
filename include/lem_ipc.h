@@ -137,11 +137,12 @@ typedef struct s_player {
 	{"player data team id", {0}}, \
 	{"player data pos", {0}}, \
 	{"player data target", {0}}, \
-	{"player data closest ally", {0}} \
+	{"player data closest ally", {0}}, \
+	{"player data supp", {0}} \
 }
 
 /* Message type extract */
-# define GET_MSG_TYPE(state) (state & 0b00111000)
+# define GET_MSG_TYPE(state) (state & 0b01111000)
 
 /* Message player state extract */
 # define GET_MSG_STATE(state) (state & 0b00000111)
@@ -154,6 +155,7 @@ typedef struct s_player {
 		- send player position		(index uint32)
 		- send player target pos	(index uint32)
 		- send player ally pos		(index uint32)
+		- send supp data only for update POS (new pos)
 */
 
 typedef struct s_player_data {
@@ -171,6 +173,7 @@ enum e_pdata_idx {
 	PDATA_POS,
 	PDATA_TARGET,
 	PDATA_ALLY,
+	PDATA_SUPP,
 	PDATA_LEN,
 };
 
@@ -186,8 +189,10 @@ enum e_player_state {
 enum e_msg_type {
 	P_CREATE=(1U << 3),
 	P_UPDATE=(1U << 4),
-	P_DELETE=(1U << 5),
+	P_UPDATE_POS=(1U << 5),
+	P_DELETE=(1U << 6),
 };
+
 
 
 # define DIR_MAX 8

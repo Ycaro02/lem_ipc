@@ -45,12 +45,12 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	}
 
 	t_pdata *target_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
-	if (!target_node) {
-		// ft_printf_fd(2, RED"\nError: player node not found in DELETE/UPDATE case\n"RESET);
-		return ;
-	}
 	if (type == P_DELETE) {
 		// ft_printf_fd(2, RED"Player data delete\n"RESET);
+		if (!target_node) {
+			ft_printf_fd(2, RED"Player node not found in DELETE case nothing todo (update kill counter maybe)\n"RESET);
+			return ;
+		}
 		int8_t is_selected_node = 0;
 		if (game->selected == target_node) {
 			is_selected_node = 1;
@@ -59,13 +59,21 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 		if (is_selected_node) {
 			game->selected = NULL;
 		}
-
-	} else if (type == P_UPDATE) {
-		pdata[PDATA_POS].vdata = get_board_pos(pdata[PDATA_TID].sdata);		/* update PPOS */
-		pdata[PDATA_TID].sdata = target_node[PDATA_TID].sdata;	/* restore player TID*/
-		// ft_printf_fd(2, CYAN"Player data update\n"RESET);
-		ft_memcpy((void *)target_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+		return ;
 	}
+	/* Update case here, just update pdata_pos for update_pos case*/
+	if (type == P_UPDATE_POS) {
+		pdata[PDATA_POS].vdata = pdata[PDATA_SUPP].vdata;		/* update PPOS */
+	}
+	if (target_node) {
+		ft_memcpy((void *)target_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+	} else {
+		ft_printf_fd(2, CYAN"Player node not found in UPDATE case create node %u\n"RESET, pdata[PDATA_TID].sdata);
+		t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
+		ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+		ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
+	}
+
 }
 
 /**

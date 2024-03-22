@@ -9,6 +9,7 @@ void display_packet(uint32_t *data)
 	ft_printf_fd(2, GREEN"pos: |%u| "RESET, data[PDATA_POS]);
 	ft_printf_fd(2, GREEN"target: |%u| "RESET, data[PDATA_TARGET]);
 	ft_printf_fd(2, GREEN"ally: |%u|"RESET, data[PDATA_ALLY]);
+	ft_printf_fd(2, GREEN"supp: |%u|"RESET, data[PDATA_SUPP]);
 	ft_printf_fd(2, CYAN"\n-------------------------Packet end---------------------------------------\n"RESET);
 
 }
@@ -21,11 +22,13 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 	uint32_t p_tid = player->team_id;
 	uint32_t p_state = (uint32_t)(player->state | msg_type);
 
-	if (msg_type == P_UPDATE) {
-		p_tid = get_board_index(player->next_pos);
+	uint32_t p_sup = 0x0;
+
+	if (msg_type == P_UPDATE_POS) {
+		p_sup = get_board_index(player->next_pos);
 	}
 
-	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally};
+	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally, p_sup};
 
 	// display_packet(data);
 	for (int i = 0; i < PDATA_LEN; ++i) {
@@ -185,7 +188,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 
 		/* Move */
 		if (!vector_cmp(player->next_pos, player->pos)) {
-			send_pdata_display(ipc, player, P_UPDATE);
+			send_pdata_display(ipc, player, P_UPDATE_POS);
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			player->pos = create_vector(player->next_pos.y, player->next_pos.x);
