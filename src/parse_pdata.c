@@ -47,6 +47,8 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	t_pdata *target_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
 	if (type == P_DELETE) {
 		// ft_printf_fd(2, RED"Player data delete\n"RESET);
+		uint32_t kill_by = get_board_index(pdata[PDATA_SUPP].vdata);
+		ft_printf_fd(2, RED"Player node delete kill by %u\n"RESET, kill_by);
 		if (!target_node) {
 			ft_printf_fd(2, RED"Player node not found in DELETE case nothing todo (update kill counter maybe)\n"RESET);
 			return ;

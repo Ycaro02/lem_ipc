@@ -75,6 +75,8 @@
 # define ADD_TEAM	1
 # define RM_TEAM	0
 
+# define ALIVE		0
+
 /* File used in ftok call */
 # define IPC_NAME		"/tmp/lemipc_key"
 
@@ -126,6 +128,7 @@ typedef struct s_player {
 	t_vec		target;		/* Target position */
 	t_vec		ally_pos;	/* Closest Ally position */
 	uint32_t	team_id;	/* Team id */
+	uint32_t	kill_by;	/* Kill by team id */
 	int8_t		state;		/* Player state */
 } t_player;
 
@@ -152,7 +155,7 @@ typedef struct s_player {
 		- send 0 for message start
 		- send state : (e_msg_type | s_player_state), access with GET_MSG_TYPE/STATE
 		- send player team id
-		- send player position		(index uint32)
+		- send player position		(index uint32) Identification field for all type exept create
 		- send player target pos	(index uint32)
 		- send player ally pos		(index uint32)
 		- send supp data only for update POS (new pos)
@@ -206,7 +209,7 @@ enum e_msg_type {
 
 
 
-int8_t check_death(uint32_t *board, t_vec point, uint32_t team_id);
+uint32_t check_death(uint32_t *board, t_vec point, uint32_t team_id);
 
 void player_tracker_follower(t_ipc *ipc, t_player *player);
 
