@@ -78,7 +78,7 @@ int destroy_windows(t_game *game)
 int display_board_stdout(t_game *game) {
 	sem_lock(game->ipc->semid);
 	if (get_attached_processnb(game->ipc) <= 1) {
-		ft_printf_fd(2, RED"Shutdown display\n"RESET);
+		ft_printf_fd(2, RED"Shutdown display Board stdout\n"RESET);
 		g_game_run = 0;
 		detach_shared_memory(game->ipc);
 		sem_unlock(game->ipc->semid);
@@ -216,9 +216,8 @@ int main_display(void *vgame)
 	}
 
 	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
-	/* game->ipc->ptr[TEAM_NB] easy to replace just loop on pdata linked list return number of tid */
 	if (game->player_nb <= 3) {
-		ft_printf_fd(2, PURPLE"Shutdown display team number [NB] won\n"RESET);
+		ft_printf_fd(2, PURPLE"Shutdown display\n"RESET);
 		g_game_run = 0;
 		detach_shared_memory(game->ipc);
 		sem_unlock(game->ipc->semid);
