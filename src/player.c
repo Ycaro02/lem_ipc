@@ -16,12 +16,14 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 
 	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally};
 
-	ft_printf_fd(2, GREEN"Data start: %u\n"RESET, data[PDATA_START]);
-	ft_printf_fd(2, GREEN"Data state: %u\n"RESET, data[PDATA_STATE]);
-	ft_printf_fd(2, GREEN"Data tid: %u\n"RESET, data[PDATA_TID]);
-	ft_printf_fd(2, GREEN"Data pos: %u\n"RESET, data[PDATA_POS]);
-	ft_printf_fd(2, GREEN"Data target: %u\n"RESET, data[PDATA_TARGET]);
-	ft_printf_fd(2, GREEN"Data ally: %u\n"RESET, data[PDATA_ALLY]);
+	ft_printf_fd(2, CYAN"\n-------------------------Send package--------------------------------------\n"RESET);
+	ft_printf_fd(2, GREEN"start: |%u| "RESET, data[PDATA_START]);
+	ft_printf_fd(2, GREEN"state: |%u| "RESET, data[PDATA_STATE]);
+	ft_printf_fd(2, GREEN"tid: |%u| "RESET, data[PDATA_TID]);
+	ft_printf_fd(2, GREEN"pos: |%u| "RESET, data[PDATA_POS]);
+	ft_printf_fd(2, GREEN"target: |%u| "RESET, data[PDATA_TARGET]);
+	ft_printf_fd(2, GREEN"ally: |%u|"RESET, data[PDATA_ALLY]);
+	ft_printf_fd(2, CYAN"\n-------------------------Package end---------------------------------------\n"RESET);
 
 
 	for (int i = 0; i < PDATA_LEN; ++i) {
@@ -133,14 +135,14 @@ void player_routine(t_ipc *ipc, t_player *player)
 
 		/* Check if player is dead */
 		if (check_player_death(ipc, player)) {
-			// send_pdata_display(ipc, player, P_DELETE);
+			send_pdata_display(ipc, player, P_DELETE);
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			clear_msg_queue(ipc, player->team_id);
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;
 		} else if (ipc->ptr[TEAM_NB] <= 1) { /* Check win */
-			// send_pdata_display(ipc, player, P_DELETE);
+			send_pdata_display(ipc, player, P_DELETE);
 			g_game_run = 0;
 			sem_unlock(ipc->semid);			
 			break;

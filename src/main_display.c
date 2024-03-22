@@ -70,8 +70,11 @@ static void display_pdata_lst(t_list *player_lst)
 			ft_printf_fd(2, YELLOW"%s: "RESET, pdata[i].name);
 			if (i >= PDATA_POS) {
 				ft_printf_fd(2, CYAN"[%u] [%u]\n"RESET, pdata[i].vdata.y, pdata[i].vdata.x);
+			} else if (i == PDATA_STATE) {
+				ft_printf_fd(2, PURPLE" Msg type %d, Player State: %s\n"RESET, GET_MSG_TYPE(pdata[i].sdata)\
+					, (GET_MSG_STATE(pdata[i].sdata) == S_WAITING) ? "WAITING" : (GET_MSG_STATE(pdata[i].sdata) == S_TRACKER) ? "TRACKER" : "FOLLOWER");
 			} else {
-				ft_printf_fd(2, PURPLE"%u\n"RESET, pdata[i].sdata);
+				ft_printf_fd(2, CYAN"%u\n"RESET, pdata[i].sdata);
 			}
 		}
 		tmp = tmp->next;
@@ -81,9 +84,12 @@ static void display_pdata_lst(t_list *player_lst)
 
 static void *get_player_node(t_list *lst, t_vec target)
 {
+	t_pdata *pdata = NULL;
 	for (t_list *current = lst; current; current = current->next) {
-		ft_printf_fd(2, RED"data:vec  %u %u", ((t_pdata *)current->content)[PDATA_POS].vdata.y, ((t_pdata *)current->content)[PDATA_POS].vdata.x);
-		if (vector_cmp(((t_pdata *)current->content)[PDATA_POS].vdata, target)) {
+		pdata = current->content;
+		ft_printf_fd(2, PURPLE"GetPlayerNode: vdaata [%u] [%u]\n", pdata[PDATA_POS].vdata.y, pdata[PDATA_POS].vdata.x);
+		ft_printf_fd(2, GREEN"GetPlayerNode: target [%u] [%u]\n", target.y, target.x);
+		if (vector_cmp(pdata[PDATA_POS].vdata, target)) {
 			return (current->content);
 		}
 	}
@@ -123,15 +129,15 @@ static void receive_player_data(t_game *game)
 			} else {
 				t_pdata *target_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
 				if (!target_node) {
-					ft_printf_fd(2, RED"Error: player node not found in P_DELETE/UPDATE case\n"RESET);
+					ft_printf_fd(2, RED"\nError: player node not found in P_DELETE/UPDATE case\n"RESET);
 					return ;
 				}
 				if (type == P_DELETE) {
 					ft_printf_fd(2, RED"Player data delete\n"RESET);
 					ft_lst_remove_if(&game->player_data, target_node, free, is_same_node);
 				} else if (type == P_UPDATE) {
-					pdata[PDATA_POS] = pdata[PDATA_TID];		/* update PPOS */
-					pdata[PDATA_TID] = target_node[PDATA_TID]; /* restore player TID*/
+					pdata[PDATA_POS].vdata = get_board_pos(pdata[PDATA_TID].sdata);		/* update PPOS */
+					pdata[PDATA_TID].sdata = target_node[PDATA_TID].sdata;	/* restore player TID*/
 					ft_printf_fd(2, CYAN"Player data update\n"RESET);
 					ft_memcpy((void *)target_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
 				}
@@ -339,6 +345,9 @@ int boardmlx_display(void *vgame)
 		if (tmp != UINT32_MAX) {
 			receive_player_data(game);
 		}
+		if (game->player_data) {
+			display_pdata_lst(game->player_data);
+		}
 	}
 
 	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
@@ -361,10 +370,7 @@ int boardmlx_display(void *vgame)
 	if (game->team) {
 		display_teamlist(game, game->team);
 	}
-	if (game->player_data) {
-		display_pdata_lst(game->player_data);
-		// ft_lstclear(&game->player_data, free);
-	}
+
 
 	usleep(10000); /* 1/10 sec */
 	return (0);
