@@ -154,7 +154,15 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 		}
 		if (type == P_DELETE) {
 			// ft_printf_fd(2, RED"Player data delete\n"RESET);
+			int8_t is_selected_node = 0;
+			if (game->selected == target_node) {
+				is_selected_node = 1;
+			}
 			ft_lst_remove_if(&game->player_data, target_node, free, is_same_node);
+			if (is_selected_node) {
+				game->selected = NULL;
+			}
+
 		} else if (type == P_UPDATE) {
 			pdata[PDATA_POS].vdata = get_board_pos(pdata[PDATA_TID].sdata);		/* update PPOS */
 			pdata[PDATA_TID].sdata = target_node[PDATA_TID].sdata;	/* restore player TID*/
@@ -230,7 +238,7 @@ int display_board_stdout(t_game *game) {
 
 /* @brief skip x utils, to know how much pixel we need to skip after string */
 int skip_x(char *str) {
-	return (ft_strlen(str) * CHAR_TOPIXEL_SKIP);
+	return (ft_strlen(str) * CHAR_TOPIXEL);
 }
 
 static char *get_vector_string(t_vec vec)
@@ -240,41 +248,74 @@ static char *get_vector_string(t_vec vec)
 	return (str);
 }
 
+static uint32_t put_vectostr(t_game *game, char *str, t_vec vdata, uint32_t y)
+{
+	char *vec_str = get_vector_string(vdata);
+	
+	char *tmp_str = ft_strjoin_free(str, vec_str, 's');
+
+	mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
+	free(tmp_str);
+	return (PAD_YTEAM);
+}
+
+static uint32_t put_uint_tostr(t_game *game, char *str, char *state, uint32_t data, uint32_t y)
+{
+	char *tmp_str = NULL;
+	if (state) {
+		tmp_str = ft_strjoin(str, state);
+	} else {
+		tmp_str = ft_strjoin_free(str, ft_ultoa(data), 's');
+	}
+	mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
+	free(tmp_str);
+	return (PAD_YTEAM);
+}
+
 static void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y)
 {
-	char *vec_str = get_vector_string(pdata[PDATA_POS].vdata);
+	// char *vec_str = get_vector_string(pdata[PDATA_POS].vdata);
 
-	char *tmp_str = ft_strjoin_free("Tile: ", vec_str, 's');
+	// char *tmp_str = ft_strjoin_free("Tile: ", vec_str, 's');
 
-	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, tmp_str);
-	y += PAD_YTEAM;
-	free(tmp_str);
+	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
+	// y += PAD_YTEAM;
+	// free(tmp_str);
+	char *str_state = get_player_strstate(GET_MSG_STATE(pdata[PDATA_STATE].sdata));
 
-	tmp_str = ft_strjoin_free("Team ID: ", ft_ultoa(pdata[PDATA_TID].sdata), 's');
-	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, tmp_str);
-	y += PAD_YTEAM;
-	free(tmp_str);
-
-	tmp_str = ft_strjoin("State: ", get_player_strstate(GET_MSG_STATE(pdata[PDATA_STATE].sdata)));
-	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, tmp_str);
-	y += PAD_YTEAM;
-	free(tmp_str);
+	y += put_vectostr(game, "Tile: ", pdata[PDATA_POS].vdata, y);
+	y += put_uint_tostr(game, "Team ID: ", NULL, pdata[PDATA_TID].sdata, y);
+	y += put_uint_tostr(game, "State: ", str_state, 0, y);
+	y += put_vectostr(game, "Position: ", pdata[PDATA_POS].vdata, y);
+	y += put_vectostr(game, "Target: ", pdata[PDATA_TARGET].vdata, y);
+	y += put_vectostr(game, "Ally: ", pdata[PDATA_ALLY].vdata, y);
 
 
-	tmp_str = ft_strjoin_free("Position: ", get_vector_string(pdata[PDATA_POS].vdata), 's');
-	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, tmp_str);
-	y += PAD_YTEAM;
-	free(tmp_str);
+	// tmp_str = ft_strjoin_free("Team ID: ", ft_ultoa(pdata[PDATA_TID].sdata), 's');
+	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
+	// y += PAD_YTEAM;
+	// free(tmp_str);
 
-	tmp_str = ft_strjoin_free("Target: ", get_vector_string(pdata[PDATA_TARGET].vdata), 's');
-	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, tmp_str);
-	y += PAD_YTEAM;
-	free(tmp_str);
+	// tmp_str = ft_strjoin("State: ", get_player_strstate(GET_MSG_STATE(pdata[PDATA_STATE].sdata)));
+	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
+	// y += PAD_YTEAM;
+	// free(tmp_str);
 
-	tmp_str = ft_strjoin_free("Ally: ", get_vector_string(pdata[PDATA_ALLY].vdata), 's');
-	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, tmp_str);
-	y += PAD_YTEAM;
-	free(tmp_str);
+
+	// tmp_str = ft_strjoin_free("Position: ", get_vector_string(pdata[PDATA_POS].vdata), 's');
+	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
+	// y += PAD_YTEAM;
+	// free(tmp_str);
+
+	// tmp_str = ft_strjoin_free("Target: ", get_vector_string(pdata[PDATA_TARGET].vdata), 's');
+	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
+	// y += PAD_YTEAM;
+	// free(tmp_str);
+
+	// tmp_str = ft_strjoin_free("Ally: ", get_vector_string(pdata[PDATA_ALLY].vdata), 's');
+	// mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, tmp_str);
+	// y += PAD_YTEAM;
+	// free(tmp_str);
 	// ft_printf_fd(2, CYAN"Player data found on [%u][%u]\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
 	// ft_printf_fd(2, CYAN"Team ID: %u\n"RESET, pdata[PDATA_TID].sdata);
 	// ft_printf_fd(2, CYAN"State: %s\n"RESET, get_player_strstate(GET_MSG_STATE(pdata[PDATA_STATE].sdata)));
@@ -294,7 +335,7 @@ static int	display_team_info(t_game *game, t_team *team, uint32_t pad_y, uint32_
 	mlx_string_put(game->mlx, game->win, x, y, team->data.color, "ID : ");
 	x += skip_x("ID : ");
 	mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, team->strid);
-	x += ((str_sizemax + 2) * CHAR_TOPIXEL_SKIP);
+	x += ((str_sizemax + 2) * CHAR_TOPIXEL);
 	mlx_string_put(game->mlx, game->win, x, y, team->data.color, "REMAIN : ");
 	x += skip_x("REMAIN : ");
 	mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, team->strsize);
@@ -415,7 +456,7 @@ int boardmlx_display(void *vgame)
 	if (!game->pause) {
 		sem_lock(game->ipc->semid);
 	}
-	/* Check for game pause click */
+	/* Check for game pause handle click */
 	if (game->mouse_pos.y == 0 && game->mouse_pos.x == UINT32_MAX) {
 		game->pause = !(game->pause);
 		game->mouse_pos.y = UINT32_MAX;
@@ -427,7 +468,7 @@ int boardmlx_display(void *vgame)
 	}
 
 	if (!game->pause) {
-		/* Update team info lst */
+		/* Update team info lst TO_REMOVE */
 		if ((uint32_t) get_attached_processnb(game->ipc) != game->player_nb) {
 			ft_lstclear(&game->team, free_team);
 			if (!build_list_number_team(&game->team, game->ipc->ptr)) {
@@ -442,9 +483,6 @@ int boardmlx_display(void *vgame)
 	if (tmp != UINT32_MAX) {
 		receive_player_data(game);
 	}
-	// if (game->player_data) {
-	// 	display_pdata_lst(game->player_data);
-	// }
 
 	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
 	if (game->ipc->ptr[TEAM_NB] <= 1 || get_attached_processnb(game->ipc) <= 3) {
@@ -463,25 +501,21 @@ int boardmlx_display(void *vgame)
 	}
 	/* Display image (flush) */
 	mlx_put_image_to_window(game->mlx, game->win, game->img.image, 0, 0);
+	/* Display old team list to remove/rework to read new data list */
 	display_teamlist(game, game->team, game->selected);
 	/* 1/10 sec */
 	// usleep(100000);
+	usleep(10000);
 	return (0);
 }
 
 static int check_mouse(int keycode, int x, int y, t_game *game)
 {
-	// int y = -1, x = -1;
 	if (keycode == LEFT_CLICK) {
 		// ft_printf_fd(2, CYAN"Mouse click %d pos [%d][%d] game %p\n"RESET, keycode, y, x, game);
 		t_vec mouse = create_vector(y, x);
 		t_vec mouse_pos = get_click_tile(mouse);
-		// if (mouse_pos.x == UINT32_MAX) {
-			// ft_printf_fd(2, RED"Mouse click on btn number %u\n"RESET, mouse_pos.y);
 		game->mouse_pos = create_vector(mouse_pos.y, mouse_pos.x);
-		// }
-		// ft_printf_fd(2, "Mouse UINT32 click y: %d x: %d\n", mouse.y, mouse.x);
-		// ft_printf_fd(2, YELLOW"Tile click y: %d x: %d\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
 		return (1);
 	}
 	return (0);

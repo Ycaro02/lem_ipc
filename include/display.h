@@ -44,10 +44,12 @@
 
 # define PLAYER_REMAIN "PLAYER REMAINING : "
 
-
+/* Y padding between str in rightband*/
 # define PAD_YTEAM 25U
-
-# define CHAR_TOPIXEL_SKIP 6
+/* Char len to pixel */
+# define CHAR_TOPIXEL 6
+/* Start x for write str in rightband */
+# define START_STR_X (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U)
 
 /* Team color struct */
 typedef struct s_teamcolor {
