@@ -61,13 +61,10 @@ int destroy_windows(t_game *game)
 	mlx_destroy_image(game->mlx, game->img.image);
 	mlx_destroy_window(game->mlx, game->win);
 	mlx_destroy_display(game->mlx);
-	// if (game->team) {
-	// 	ft_lstclear(&game->team, free_team);
-	// }
 	if (game->player_data) {
 		ft_lstclear(&game->player_data, free);
 	}
-	if (game->pause){
+	if (game->pause) {
 		ft_printf_fd(2, CYAN"Display was in pause state: restore sem\n"RESET);
 		ft_printf_fd(1, RED"Exit MLX\n"RESET);
 		sem_unlock(game->ipc->semid);

@@ -171,6 +171,15 @@ void player_routine(t_ipc *ipc, t_player *player)
 	/* Set First player position randomly */
 	put_player_on_board(ipc, player);
 
+	// sem_lock(ipc->semid);
+	// ft_printf_fd(2, "Player %u sleep for 15 sec\n", player->team_id);
+	// sem_unlock(ipc->semid);
+	// sleep(15); /* wait for client to connect */
+	// sem_lock(ipc->semid);
+	// ft_printf_fd(2, "Player %u sleep is finish\n", player->team_id);
+	// sem_unlock(ipc->semid);
+	
+	
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);

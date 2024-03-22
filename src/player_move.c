@@ -171,6 +171,8 @@ static void follower_logic(t_ipc *ipc, t_player *player)
 		}
 		player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
 		return ;
+	} else {
+		player->state = S_WAITING;
 	}
 }
 
