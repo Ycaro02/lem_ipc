@@ -213,8 +213,6 @@ enum e_direction {
 void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);
 
 
-
-
 int8_t check_death(uint32_t *board, t_vec point, uint32_t team_id);
 
 void player_tracker_follower(t_ipc *ipc, t_player *player);

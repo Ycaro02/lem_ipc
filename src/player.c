@@ -2,6 +2,19 @@
 
 
 
+void display_pack(uint32_t *data)
+{
+	ft_printf_fd(2, CYAN"\n-------------------------Send package--------------------------------------\n"RESET);
+	ft_printf_fd(2, GREEN"start: |%u| "RESET, data[PDATA_START]);
+	ft_printf_fd(2, GREEN"state: |%u| "RESET, data[PDATA_STATE]);
+	ft_printf_fd(2, GREEN"tid: |%u| "RESET, data[PDATA_TID]);
+	ft_printf_fd(2, GREEN"pos: |%u| "RESET, data[PDATA_POS]);
+	ft_printf_fd(2, GREEN"target: |%u| "RESET, data[PDATA_TARGET]);
+	ft_printf_fd(2, GREEN"ally: |%u|"RESET, data[PDATA_ALLY]);
+	ft_printf_fd(2, CYAN"\n-------------------------Package end---------------------------------------\n"RESET);
+
+}
+
 void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 {
 	uint32_t p_pos = get_board_index(player->pos);
@@ -16,14 +29,7 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 
 	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally};
 
-	ft_printf_fd(2, CYAN"\n-------------------------Send package--------------------------------------\n"RESET);
-	ft_printf_fd(2, GREEN"start: |%u| "RESET, data[PDATA_START]);
-	ft_printf_fd(2, GREEN"state: |%u| "RESET, data[PDATA_STATE]);
-	ft_printf_fd(2, GREEN"tid: |%u| "RESET, data[PDATA_TID]);
-	ft_printf_fd(2, GREEN"pos: |%u| "RESET, data[PDATA_POS]);
-	ft_printf_fd(2, GREEN"target: |%u| "RESET, data[PDATA_TARGET]);
-	ft_printf_fd(2, GREEN"ally: |%u|"RESET, data[PDATA_ALLY]);
-	ft_printf_fd(2, CYAN"\n-------------------------Package end---------------------------------------\n"RESET);
+	// display_pack(data);
 
 
 	for (int i = 0; i < PDATA_LEN; ++i) {
@@ -149,7 +155,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 
 		/* Player scan his environement to find nearest ally (update player->ally_pos if found) */
-		int8_t player_alone = (find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0);
+		int8_t player_alone = find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0;
 		/* Player scan his environement to find nearest enemy (update player->target if found) */
 		int8_t enemy_found = find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
 		/* Rush ally bool 1 for rush 0 for no */
@@ -185,6 +191,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 		sem_unlock(ipc->semid);
 		usleep(100000);
+		// usleep(10000);
 	}
 }
 
