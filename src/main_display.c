@@ -261,17 +261,17 @@ static void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y)
 	free(tmp_str);
 
 
-	tmp_str = ft_strjoin("Position: ", get_vector_string(pdata[PDATA_POS].vdata));
+	tmp_str = ft_strjoin_free("Position: ", get_vector_string(pdata[PDATA_POS].vdata), 's');
 	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, tmp_str);
 	y += PAD_YTEAM;
 	free(tmp_str);
 
-	tmp_str = ft_strjoin("Target: ", get_vector_string(pdata[PDATA_TARGET].vdata));
+	tmp_str = ft_strjoin_free("Target: ", get_vector_string(pdata[PDATA_TARGET].vdata), 's');
 	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, tmp_str);
 	y += PAD_YTEAM;
 	free(tmp_str);
 
-	tmp_str = ft_strjoin("Ally: ", get_vector_string(pdata[PDATA_ALLY].vdata));
+	tmp_str = ft_strjoin_free("Ally: ", get_vector_string(pdata[PDATA_ALLY].vdata), 's');
 	mlx_string_put(game->mlx, game->win, (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U), y, CYAN_INT, tmp_str);
 	y += PAD_YTEAM;
 	free(tmp_str);
@@ -335,6 +335,8 @@ void display_button(t_game *game)
 void display_teamlist(t_game *game, t_list *list, t_pdata *pdata)
 {
 	display_button(game);
+
+
 	t_list *tmp = list;
 	uint32_t y = (TILE_SIZE * 2) + 15U;
 
@@ -421,14 +423,6 @@ int boardmlx_display(void *vgame)
 	} else if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
 		ft_printf_fd(2, YELLOW"Click on [%u][%u]\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
 		game->selected = get_player_node(game->player_data, game->mouse_pos);
-		// if (game->selected) {
-		// 	ft_printf_fd(2, CYAN"Player data found on [%u][%u]\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
-		// 	ft_printf_fd(2, CYAN"Team ID: %u\n"RESET, game->selected[PDATA_TID].sdata);
-		// 	ft_printf_fd(2, CYAN"State: %s\n"RESET, get_player_strstate(GET_MSG_STATE(game->selected[PDATA_STATE].sdata)));
-		// 	ft_printf_fd(2, CYAN"Position: [%u][%u]\n"RESET, game->selected[PDATA_POS].vdata.y, game->selected[PDATA_POS].vdata.x);
-		// 	ft_printf_fd(2, CYAN"Target: [%u][%u]\n"RESET, game->selected[PDATA_TARGET].vdata.y, game->selected[PDATA_TARGET].vdata.x);
-		// 	ft_printf_fd(2, CYAN"Ally: [%u][%u]\n"RESET, game->selected[PDATA_ALLY].vdata.y, game->selected[PDATA_ALLY].vdata.x);
-		// }
 		game->mouse_pos = create_vector(UINT32_MAX, UINT32_MAX);
 	}
 
