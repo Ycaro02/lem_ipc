@@ -1,5 +1,39 @@
 # include "../include/lem_ipc.h"
 
+void display_packet(uint32_t *data)
+{
+	ft_printf_fd(2, CYAN"\n-------------------------Send packet --------------------------------------\n"RESET);
+	ft_printf_fd(2, GREEN"start: |%u| "RESET, data[PDATA_START]);
+	ft_printf_fd(2, GREEN"state: |%u| "RESET, data[PDATA_STATE]);
+	ft_printf_fd(2, GREEN"tid: |%u| "RESET, data[PDATA_TID]);
+	ft_printf_fd(2, GREEN"pos: |%u| "RESET, data[PDATA_POS]);
+	ft_printf_fd(2, GREEN"target: |%u| "RESET, data[PDATA_TARGET]);
+	ft_printf_fd(2, GREEN"ally: |%u|"RESET, data[PDATA_ALLY]);
+	ft_printf_fd(2, CYAN"\n-------------------------Packet end---------------------------------------\n"RESET);
+
+}
+
+void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
+{
+	uint32_t p_pos = get_board_index(player->pos);
+	uint32_t p_target = get_board_index(player->target);
+	uint32_t p_ally = get_board_index(player->ally_pos);
+	uint32_t p_tid = player->team_id;
+	uint32_t p_state = (uint32_t)(player->state | msg_type);
+
+	if (msg_type == P_UPDATE) {
+		p_tid = get_board_index(player->next_pos);
+	}
+
+	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally};
+
+	// display_packet(data);
+	for (int i = 0; i < PDATA_LEN; ++i) {
+		send_msg(ipc, UINT32_MAX, data[i]);
+	}
+
+}
+
 /* @brief Initialize player */
 int init_player(t_player *player, int argc, char **argv)
 {
@@ -75,13 +109,56 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	t_vec	 	point;
 
 	sem_lock(ipc->semid);
-	team_handling(ipc->ptr, player->team_id, ADD_TEAM);
+
 	point = get_random_point(ipc->ptr, player->pos);
-	ft_printf_fd(2, CYAN"Player in team |%u| start at [%u] [%u]\n"RESET, player->team_id, point.y, point.x);
 	set_tile_board_val(ipc->ptr, point, player->team_id);
 	player->pos = point;
-	player->target = point;
+	/* Update info to default value */
+	player->target = get_board_pos(OUT_OF_BOARD);
+	player->ally_pos = get_board_pos(OUT_OF_BOARD);
+	/* Send create packet to display */
+	send_pdata_display(ipc, player, P_CREATE);
 	sem_unlock(ipc->semid);
+}
+
+static int8_t check_break_loop(t_ipc *ipc, t_player *player, int8_t enemy_found)
+{
+	/* Check if player is dead */
+	if (check_player_death(ipc, player)) {
+		send_pdata_display(ipc, player, P_DELETE);
+		// set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+		clear_msg_queue(ipc, player->team_id);
+		g_game_run = 0;
+		return (1);
+	} else if (!enemy_found) { /* Check win condition */
+		ft_printf_fd(2, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
+		send_pdata_display(ipc, player, P_DELETE);
+		g_game_run = 0;
+		return (1);
+	}
+	return (0);
+}
+
+static void find_next_move(t_ipc *ipc, t_player *player, int8_t player_alone)
+{
+	/* Rush ally bool 1 for rush 0 for no */
+	int8_t rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
+
+	if (rush_ally) {
+		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
+		clear_msg_queue(ipc, player->team_id);
+		player->state = S_WAITING;
+	} else if (!player_alone) {
+		if (player->state == S_WAITING)
+			player_waiting(ipc, player);
+		else
+			player_tracker_follower(ipc, player);
+	} else { /* if player is alone or no enemy found*/
+		clear_msg_queue(ipc, player->team_id);
+		player->state = S_WAITING;
+		player->target = get_random_point(ipc->ptr, player->pos);
+		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
+	}
 }
 
 void player_routine(t_ipc *ipc, t_player *player) 
@@ -91,69 +168,42 @@ void player_routine(t_ipc *ipc, t_player *player)
 	}
 	/* Set First player position randomly */
 	put_player_on_board(ipc, player);
+
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
-
-		if (check_player_death(ipc, player)) {
-			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
-			clear_msg_queue(ipc, player->team_id);
-			g_game_run = 0;
-			sem_unlock(ipc->semid);			
-			break;
-		} else if (ipc->ptr[TEAM_NB] <= 1) {
-			g_game_run = 0;
-			sem_unlock(ipc->semid);			
-			break;
-		}
-
-		/* Player scan his environement to find nearest ally */
-		int8_t player_alone = (find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0);
-
-		/* Player scan his environement to find nearest enemy */
+		/* Player scan his environement to find nearest ally (update player->ally_pos if found) */
+		int8_t player_alone = find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0;
+		/* Player scan his environement to find nearest enemy (update player->target if found) */
 		int8_t enemy_found = find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
 
-		/* Rush ally bool 1 for rush 0 for no */
-		int8_t rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
+		/* Check break loop condition (death/win) */		
+		if (check_break_loop(ipc, player, enemy_found))
+			break ;
+		/* Player logic AI */
+		find_next_move(ipc, player, player_alone);
 
-		// if (player_alone) {
-		// 	ft_printf_fd(2, RED"Player %u is alone\n"RESET, player->team_id);
-		// } else  {
-		// 	ft_printf_fd(2, YELLOW"Player %u [%u][%u] is not alone, ally pos [%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x , player->ally_pos.y, player->ally_pos.x);
-		// 	rush_ally = get_heuristic_cost(player->pos, player->ally_pos) > 2;
-		// }
-
-		
-		if (rush_ally) {
-			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
-			clear_msg_queue(ipc, player->team_id);
-			player->state = S_WAITING;
-		} else if (!player_alone && enemy_found) {
-			if (player->state == S_WAITING)
-				player_waiting(ipc, player);
-			else
-				player_tracker_follower(ipc, player);
-		} else { /* if player is alone or no enemy found*/
-			clear_msg_queue(ipc, player->team_id);
-			player->state = S_WAITING;
-			player->target = get_random_point(ipc->ptr, player->pos);
-			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
-		}
-
-		
+		/* Move */
 		if (!vector_cmp(player->next_pos, player->pos)) {
+			send_pdata_display(ipc, player, P_UPDATE);
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			player->pos = create_vector(player->next_pos.y, player->next_pos.x);
 			/* Set team id value in new player position */
 			set_tile_board_val(ipc->ptr, player->pos, player->team_id);
 		}
-		
 		sem_unlock(ipc->semid);
 		usleep(100000);
+		// usleep(10000);
 	}
 }
 
+// if (player_alone) {
+// 	ft_printf_fd(2, RED"Player %u is alone\n"RESET, player->team_id);
+// } else  {
+// 	ft_printf_fd(2, YELLOW"Player %u [%u][%u] is not alone, ally pos [%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x , player->ally_pos.y, player->ally_pos.x);
+// 	rush_ally = get_heuristic_cost(player->pos, player->ally_pos) > 2;
+// }
 // ft_printf_fd(2, YELLOW"\nPlayer %u before at %u %u: --> "RESET, player->team_id, player->pos.y, player->pos.x);
 // ft_printf_fd(2, RED"Enemy found at %u %u\n"RESET, player->target.y, player->target.x);
 // ft_printf_fd(2, YELLOW"Player %u after at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);

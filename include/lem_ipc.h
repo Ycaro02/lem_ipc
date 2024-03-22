@@ -39,11 +39,11 @@
 
 /* Map height */
 // # define BOARD_H 30U
-# define BOARD_H 20U
+# define BOARD_H 30U
 
 /* Map width */
 // # define BOARD_W 65U
-# define BOARD_W 40U
+# define BOARD_W 50U
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
@@ -51,7 +51,8 @@
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
-# define TEAM_NB BOARD_SIZE /* offset team number */
+/* Display up magic number */
+# define DISPLAY_UP (OUT_OF_BOARD + 1)
 
 /* Shared memory data size needed */
 # define SHM_DATA_SIZE ((sizeof(uint32_t) * BOARD_SIZE) + sizeof(uint32_t)) /* (4 * (30 * 60)) + 4, last for team number */
@@ -128,29 +129,77 @@ typedef struct s_player {
 	int8_t		state;		/* Player state */
 } t_player;
 
+
+
+# define INIT_MSG_PACK { \
+	{"player data start", {0}}, \
+	{"player data state", {0}}, \
+	{"player data team id", {0}}, \
+	{"player data pos", {0}}, \
+	{"player data target", {0}}, \
+	{"player data closest ally", {0}} \
+}
+
+/* Message type extract */
+# define GET_MSG_TYPE(state) (state & 0b00111000)
+
+/* Message player state extract */
+# define GET_MSG_STATE(state) (state & 0b00000111)
+
+/* 
+	Message packets for display is build as follow:
+		- send 0 for message start
+		- send state : (e_msg_type | s_player_state), access with GET_MSG_TYPE/STATE
+		- send player team id
+		- send player position		(index uint32)
+		- send player target pos	(index uint32)
+		- send player ally pos		(index uint32)
+*/
+
+typedef struct s_player_data {
+	char			*name;
+	union {
+		uint32_t	sdata;
+		t_vec		vdata;
+	}; 
+} t_pdata;
+
+enum e_pdata_idx {
+	PDATA_START=0U,
+	PDATA_STATE,
+	PDATA_TID,
+	PDATA_POS,
+	PDATA_TARGET,
+	PDATA_ALLY,
+	PDATA_LEN,
+};
+
+
 /* Player state */
 enum e_player_state {
-	S_WAITING,				/* Waiting state*/
-	S_TRACKER,				/* Tracker state */
-	S_FOLLOWER,				/* Follower state */
+	S_WAITING=(1U << 0),				/* Waiting state*/
+	S_TRACKER=(1U << 1),				/* Tracker state */
+	S_FOLLOWER=(1U << 2),			/* Follower state */
 };
 
-/* Direction enum */
-enum e_direction {
-	NORTH,
-	SOUTH,
-	EAST,
-	WEST,
-	NORTH_EAST,
-	NORTH_WEST,
-	SOUTH_EAST,
-	SOUTH_WEST,
-	DIR_MAX
+/* Message type */
+enum e_msg_type {
+	P_CREATE=(1U << 3),
+	P_UPDATE=(1U << 4),
+	P_DELETE=(1U << 5),
 };
 
+
+# define DIR_MAX 8
 
 # define ALLY_FLAG 0
 # define ENEMY_FLAG 1
+
+
+/* bonus send player data to display program */
+// void send_pdata_display(t_ipc *ipc, t_player *player, uint32_t msg_type);
+
+
 
 int8_t check_death(uint32_t *board, t_vec point, uint32_t team_id);
 
@@ -166,11 +215,10 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 
 
 
-void		team_handling(uint32_t *array, uint32_t team_id, int8_t add);
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
-uint32_t 	extract_msg(t_ipc *ipc, t_player *player);
-int8_t		send_msg(t_ipc *ipc, t_player *player, uint32_t data);
+uint32_t 	extract_msg(t_ipc *ipc, uint32_t msg_id);
+int8_t		send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data);
 int8_t clear_msg_queue(t_ipc *ipc, long team_id);
 /* init semaphore */
 int			init_game(t_ipc *ipc, char *path, int8_t allow);

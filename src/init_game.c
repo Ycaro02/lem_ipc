@@ -96,12 +96,12 @@ int8_t clear_msg_queue(t_ipc *ipc, long team_id)
  *	@param player The player structure
  *	@return 0 on success, -1 on error
 */
-int8_t send_msg(t_ipc *ipc, t_player *player, uint32_t data)
+int8_t send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data)
 {
 	t_msgbuf msg = {};
 
-	fill_msgbuff(&msg, player->team_id, data);
-	// ft_printf_fd(1, YELLOW"Sending message to team %d value: %u\n"RESET, player->team_id, data);
+	fill_msgbuff(&msg, msg_id, data);
+	// ft_printf_fd(1, YELLOW"Sending message to team %d value: %u\n"RESET, msg_id, data);
 	// ft_printf_fd(1, YELLOW"msg.text [%d|%d|%d|%d]\nAfter cast: [%u] \n"RESET, msg.mtext[0], msg.mtext[1], msg.mtext[2], msg.mtext[3], (*(uint32_t *)msg.mtext));
 	errno = 0;
 	if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), 0) == -1) {
@@ -110,29 +110,29 @@ int8_t send_msg(t_ipc *ipc, t_player *player, uint32_t data)
 			clear_msg_queue(ipc, 0);
 			return (0);
 		}
-		ft_printf_fd(2, RED"Error msgsend from %d\n", player->team_id, RESET);
+		ft_printf_fd(2, RED"Error msgsend from %d\n", msg_id, RESET);
 		syscall_perror("msgsnd");
 		return (-1);
 	}
 	return (0);
 }
 
-uint32_t extract_msg(t_ipc *ipc, t_player *player)
+uint32_t extract_msg(t_ipc *ipc, uint32_t msg_id)
 {
 	t_msgbuf msg = {};
 	// int cpy_flag = 040000;
 	errno = 0;
-	// ft_printf_fd(1, GREEN"Extracting message from team %d, val flag %d\n"RESET, player->team_id, IPC_NOWAIT);
-	if (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), player->team_id, IPC_NOWAIT) == -1) {
+	// ft_printf_fd(1, GREEN"Extracting message from team %d, val flag %d\n"RESET, msg_id, IPC_NOWAIT);
+	if (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), msg_id, IPC_NOWAIT) == -1) {
 		if (errno == ENOMSG) {
-			// ft_printf_fd(2, YELLOW"No msg rcv from %d\n", player->team_id, RESET);
+			// ft_printf_fd(2, YELLOW"No msg rcv from %d\n", msg_id, RESET);
 			return (UINT32_MAX);
 		}
-		ft_printf_fd(2, RED"Error msgrcv from %d\n", player->team_id, RESET);
+		ft_printf_fd(2, RED"Error msgrcv from %d\n", msg_id, RESET);
 		syscall_perror("msgrcv");
 		return (UINT32_MAX);
 	}
-	// ft_printf_fd(1, PURPLE"Received message from team %d value: %u\n"RESET, player->team_id, (*(uint32_t *)msg.mtext));
+	// ft_printf_fd(1, PURPLE"Received message from team %d value: %u\n"RESET, msg_id, (*(uint32_t *)msg.mtext));
 	return (*(uint32_t *)msg.mtext);
 }
 
@@ -270,7 +270,7 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	// send_msg(ipc, &(t_player){.team_id = 1}, 42);
 	// send_msg(ipc, &(t_player){.team_id = 2}, 9);
 
-	sleep(8); /* wait for client to connect */
+	sleep(1); /* wait for client to connect */
 
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
 	return (0);

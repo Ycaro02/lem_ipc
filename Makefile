@@ -52,14 +52,6 @@ $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@printf "$(YELLOW)Compile $<$(RESET)\n"
 	@$(CC) -o $@ -c $< $(CFLAGS)
 
-bonus: clear_mandatory ${NAME}
-
-clear_mandatory:
-ifeq ($(shell [ -f ${OBJ_DIR}/main.o ] && echo 0 || echo 1), 0)
-	@printf "$(RED)Clean mandatory obj $(RESET)\n"
-	@rm -rf ${OBJ_DIR}
-endif
-
 clean:
 ifeq ($(shell [ -d ${OBJ_DIR} ] && echo 0 || echo 1), 0)
 	@$(RM) $(OBJ_DIR)

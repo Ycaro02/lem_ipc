@@ -44,10 +44,12 @@
 
 # define PLAYER_REMAIN "PLAYER REMAINING : "
 
-
+/* Y padding between str in rightband*/
 # define PAD_YTEAM 25U
-
-# define CHAR_TOPIXEL_SKIP 6
+/* Char len to pixel */
+# define CHAR_TOPIXEL 6
+/* Start x for write str in rightband */
+# define START_STR_X (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U)
 
 /* Team color struct */
 typedef struct s_teamcolor {
@@ -65,35 +67,39 @@ typedef struct s_team {
 
 typedef struct s_game
 {
-	t_xvar		*mlx;		/* mlx handler */
-	void		*win;		/* mlx window */
-	t_img		img;		/* mlx image */
-	t_ipc		*ipc;		/* ipc handler */
-	t_list		*team;		/* team list */
-	uint32_t	player_nb;	/* last team number store */
-	t_vec		mouse_pos;	/* Mouse position */
-	int8_t		pause;		/* Game pause bool */
+	t_xvar		*mlx;			/* mlx handler */
+	void		*win;			/* mlx window */
+	t_img		img;			/* mlx image */
+	t_ipc		*ipc;			/* ipc handler */
+	t_list		*player_data;	/* player data list */
+	t_pdata		*selected;		/* player data */
+	uint32_t	player_nb;		/* last team number store */
+	t_vec		mouse_pos;		/* mouse position, TODO can remove*/
+	int8_t		pause;			/* game pause bool */
 }	t_game;
 
+/* Key */
 typedef enum e_keyboard_key
 {
-	LEFT_CLICK = 1,
-	ESC = 65307,
-	UP = 119,
-	LEFT = 97,
-	DOWN = 115,
-	RIGHT = 100,
-	ARROW_UP = 65362,
-	ARROW_LEFT = 65361,
-	ARROW_RIGHT = 65363,
-	ARROW_DOWN = 65364,
+	LEFT_CLICK = 1,			/* Left click value */
+	ESC = 65307,			/* Escape key value */
 }	t_keyboard_key;
 
-void		free_team(void *team);
-t_teamcolor	get_new_color(uint32_t current_team_nb, uint32_t team_id);
-int8_t 		build_list_number_team(t_list **lst, uint32_t *array);
 
-
+/* main */
 t_vec get_click_tile(t_vec mouse);
+
+/* parse pdata */
+void receive_player_data(t_game *game);
+void *get_player_node(t_list *lst, t_vec target);
+
+/* display pdata */
+void display_pdata_lst(t_list *player_lst);
+void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y);
+
+/* display team */
+// void		free_team(void *team);
+// int8_t 		build_list_number_team(t_list **lst, uint32_t *array);
+
 
 #endif /* DISPLAY_LEMIPC_H */ 

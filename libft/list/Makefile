@@ -13,6 +13,7 @@ SRC =	ft_lstadd_back.c\
 		ft_lstclear_nodeptr.c\
 		ft_lst_remove_if.c\
 		get_lst_idx_content.c\
+		list_sort.c\
 		reverse_lst.c
 
 OBJ = $(SRC:.c=.o)

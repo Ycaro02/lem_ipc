@@ -157,7 +157,7 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t 
 static void follower_logic(t_ipc *ipc, t_player *player)
 {
 	t_vec		save_pos = create_vector(player->pos.y, player->pos.x);
-	uint32_t	to_rush = extract_msg(ipc, player);
+	uint32_t	to_rush = extract_msg(ipc, player->team_id);
 	t_vec		rush_vec = get_board_pos(to_rush);
 
 	if (to_rush != UINT32_MAX) {
@@ -171,6 +171,8 @@ static void follower_logic(t_ipc *ipc, t_player *player)
 		}
 		player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
 		return ;
+	} else {
+		player->state = S_WAITING;
 	}
 }
 
@@ -184,7 +186,7 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 		find_player_in_range(ipc, player, (int) BOARD_W, ENEMY_FLAG); /* get closest enemy of this position */
 		// ft_printf_fd(2, GREEN"Tracker %u send his pos to ally [%u][%u] and rush [%u][%u]\n"RESET, player->team_id, player->next_pos.y, player->next_pos.x, player->target.y, player->target.x);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
-		send_msg(ipc, player, get_board_index(player->next_pos));
+		send_msg(ipc, player->team_id, get_board_index(player->next_pos));
 	} else {
 		follower_logic(ipc, player);
 	}
@@ -192,8 +194,8 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 
 void player_waiting(t_ipc *ipc, t_player *player)
 {
-	/* Try to get team message store postiotion in uint32 */
-	uint32_t	to_rush = extract_msg(ipc, player);
+	/* Try to get team message store position in uint32 */
+	uint32_t	to_rush = extract_msg(ipc, player->team_id);
 	/* Transform this postion to vector pos */
 	t_vec		rush_vec = get_board_pos(to_rush);
 	/* Bool check msg, check if message is'nt my own position  */
@@ -206,7 +208,7 @@ void player_waiting(t_ipc *ipc, t_player *player)
 		player->state = S_TRACKER;
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 		
-		send_msg(ipc, player, get_board_index(player->next_pos));
+		send_msg(ipc, player->team_id, get_board_index(player->next_pos));
 	} else if (is_closest_ally) { /* If message receive and msg from the closest ally */
 		player->state = S_FOLLOWER;
 		player->target = create_vector(rush_vec.y, rush_vec.x);

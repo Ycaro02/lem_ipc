@@ -11,7 +11,7 @@
 					args:
 						void *: node to check
 */
-void	ft_lst_remove_if(t_list **list, void (*del)(void*), int (*condition)(void *))
+void	ft_lst_remove_if(t_list **list, void *ref, void (*del)(), int (*condition)())
 {
 	t_list	*tmp = NULL;
 	t_list	*lst = NULL;
@@ -19,14 +19,14 @@ void	ft_lst_remove_if(t_list **list, void (*del)(void*), int (*condition)(void *
 	if (list == NULL)
 		return;
 	lst = *list;
-	if (lst && condition(lst->content) == TRUE) {
+	if (lst && condition(lst->content, ref) == TRUE) {
 		*list = (*list)->next;
 		del(lst->content);
 		free(lst);
 		lst = *list;
 	}
 	while (lst) {
-		if (lst->next && condition(lst->next->content) == TRUE) {
+		if (lst->next && condition(lst->next->content, ref) == TRUE) {
 			tmp = lst->next;
 			lst->next = lst->next->next;
 			del(tmp->content);
