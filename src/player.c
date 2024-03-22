@@ -121,6 +121,48 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	sem_unlock(ipc->semid);
 }
 
+static int8_t check_break_loop(t_ipc *ipc, t_player *player, int8_t enemy_found)
+{
+	/* Check if player is dead */
+	if (check_player_death(ipc, player)) {
+		send_pdata_display(ipc, player, P_DELETE);
+		set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+		clear_msg_queue(ipc, player->team_id);
+		g_game_run = 0;
+		sem_unlock(ipc->semid);			
+		return (1);
+	} else if (!enemy_found) { /* Check win condition */
+		ft_printf_fd(2, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
+		send_pdata_display(ipc, player, P_DELETE);
+		g_game_run = 0;
+		sem_unlock(ipc->semid);			
+		return (1);
+	}
+	return (0);
+}
+
+static void find_next_move(t_ipc *ipc, t_player *player, int8_t player_alone)
+{
+	/* Rush ally bool 1 for rush 0 for no */
+	int8_t rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
+
+	if (rush_ally) {
+		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
+		clear_msg_queue(ipc, player->team_id);
+		player->state = S_WAITING;
+	} else if (!player_alone) {
+		if (player->state == S_WAITING)
+			player_waiting(ipc, player);
+		else
+			player_tracker_follower(ipc, player);
+	} else { /* if player is alone or no enemy found*/
+		clear_msg_queue(ipc, player->team_id);
+		player->state = S_WAITING;
+		player->target = get_random_point(ipc->ptr, player->pos);
+		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
+	}
+}
+
 void player_routine(t_ipc *ipc, t_player *player) 
 {
 	if (init_signal_handler() == -1) {
@@ -132,55 +174,20 @@ void player_routine(t_ipc *ipc, t_player *player)
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
-
 		/* Player scan his environement to find nearest ally (update player->ally_pos if found) */
 		int8_t player_alone = find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0;
 		/* Player scan his environement to find nearest enemy (update player->target if found) */
 		int8_t enemy_found = find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
-		/* Rush ally bool 1 for rush 0 for no */
-		int8_t rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
-		
-		// player->target = get_board_pos(OUT_OF_BOARD);
-		// player->ally_pos = get_board_pos(OUT_OF_BOARD);
-		
 
-		/* Check if player is dead */
-		if (check_player_death(ipc, player)) {
-			send_pdata_display(ipc, player, P_DELETE);
-			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
-			clear_msg_queue(ipc, player->team_id);
-			g_game_run = 0;
-			sem_unlock(ipc->semid);			
+		/* Check break loop condition (death/win) */		
+		if (check_break_loop(ipc, player, enemy_found))
 			break;
-		} else if (!enemy_found) { /* Check win TOCHANGE */
-			ft_printf_fd(2, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
-			send_pdata_display(ipc, player, P_DELETE);
-			g_game_run = 0;
-			sem_unlock(ipc->semid);			
-			break;
-		}
-
 		/* Player logic AI */
-		if (rush_ally) {
-			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
-			clear_msg_queue(ipc, player->team_id);
-			player->state = S_WAITING;
-		} else if (!player_alone /*&& enemy_found*/) {
-			if (player->state == S_WAITING)
-				player_waiting(ipc, player);
-			else
-				player_tracker_follower(ipc, player);
-		} else { /* if player is alone or no enemy found*/
-			clear_msg_queue(ipc, player->team_id);
-			player->state = S_WAITING;
-			player->target = get_random_point(ipc->ptr, player->pos);
-			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
-		}
+		find_next_move(ipc, player, player_alone);
 
 		/* Move */
 		if (!vector_cmp(player->next_pos, player->pos)) {
 			send_pdata_display(ipc, player, P_UPDATE);
-
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			player->pos = create_vector(player->next_pos.y, player->next_pos.x);
