@@ -62,6 +62,7 @@ typedef struct s_team {
 	char		*strid;		/* Team Id String */
 	uint32_t	tsize;		/* Team Size */
 	char		*strsize;	/* Team Size String */
+	uint32_t	kill;		/* Team Kill */
 	t_teamcolor	data;		/* Team color ? */
 } t_team;
 
@@ -86,6 +87,8 @@ typedef enum e_keyboard_key
 	ESC = 65307,			/* Escape key value */
 }	t_keyboard_key;
 
+/*lst utils in parsepdata*/
+int is_same_node(void *node, void *target);
 
 /* click_event */
 t_vec	get_click_tile(t_vec mouse);

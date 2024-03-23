@@ -18,24 +18,7 @@
 // 	return (max);
 // }
 
-/**
- *  @brief Check if team exist
- *  @param team linked list of team
- *  @param team_id team id
- *  @return 1 if team exist 0 otherwise
-*/
-int8_t team_exist(t_list **team, uint32_t team_id)
-{
-    t_list *current = *team;
 
-    while (current != NULL) {
-        if (((t_team *)current->content)->tid == team_id) {
-            return (1);
-        }
-        current = current->next;
-    }
-    return (0);
-}
 
 /**
  *  @brief Add team to the list
