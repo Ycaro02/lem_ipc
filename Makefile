@@ -79,7 +79,10 @@ clear:
 	@$(DISPLAY_TEST) rm
 
 run: $(NAME)
-	@$(LEMIPC_RUN)
+	@$(LEMIPC_RUN) 0
+
+runv: $(NAME)
+	@$(LEMIPC_RUN) 1
 
 re:			fclean all
 

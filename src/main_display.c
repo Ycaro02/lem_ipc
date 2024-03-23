@@ -68,7 +68,7 @@ int destroy_windows(t_game *game)
 		ft_printf_fd(2, PURPLE"Display lock sem\n"RESET);
 		sem_lock(game->ipc->semid);
 	}
-	ft_printf_fd(2, RED"Send controle packet to display handler\n"RESET); 
+	ft_printf_fd(2, CYAN"Display exit, resend controle packet\n"RESET); 
 	send_display_controle_packet(game->ipc);
 	detach_shared_memory(game->ipc);
 	sem_unlock(game->ipc->semid);
@@ -220,15 +220,9 @@ int main_display(void *vgame)
 /* @brief Init display */
 int8_t init_mlx(t_game *game) 
 {
+	int8_t	packet_extract = 0; 
+	int		endian = 0;
 
-	int8_t packet_extract = extract_controle_packet(game);
-	
-	if (!packet_extract) {
-		ft_printf_fd(2, RED"Display handler packet not found, exit\n"RESET);
-		return (ERROR_CASE);
-	}
-
-	int endian = 0;
 	game->mlx = mlx_init();
 	if (!game->mlx) {
 		ft_printf_fd(2, "mlx_init failed\n");
@@ -248,6 +242,14 @@ int8_t init_mlx(t_game *game)
 		return (ERROR_CASE);
 	}
 
+	/* Extract controle packet */
+	packet_extract = extract_controle_packet(game);
+	if (!packet_extract) {
+		ft_printf_fd(2, RED"Display handler packet not found, exit\n"RESET);
+		return (ERROR_CASE);
+	}
+
+
 	mlx_hook(game->win, 2, 1L, key_hooks_press, game);
 	mlx_hook(game->win, DestroyNotify, StructureNotifyMask, destroy_windows, game);
 	mlx_mouse_hook(game->win, check_mouse, game);
@@ -258,6 +260,7 @@ int8_t init_mlx(t_game *game)
 
 }
 
+/* @brief Main function for display handler */
 int main(int argc, char **argv) 
 {
 	t_ipc		ipc = {};

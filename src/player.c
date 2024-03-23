@@ -99,7 +99,7 @@ static int8_t check_break_loop(t_ipc *ipc, t_player *player, int8_t enemy_found)
 		g_game_run = 0;
 		return (1);
 	} else if (!enemy_found) { /* Check win condition */
-		ft_printf_fd(2, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
+		// ft_printf_fd(2, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
 		send_pdata_display(ipc, player, P_DELETE);
 		g_game_run = 0;
 		return (1);

@@ -50,7 +50,7 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 		// uint32_t kill_by = get_board_index(pdata[PDATA_SUPP].vdata);
 		// ft_printf_fd(2, RED"Player node delete kill by %u\n"RESET, kill_by);
 		if (!target_node) {
-			ft_printf_fd(2, RED"Player node not found in DELETE case nothing todo (update kill counter maybe)\n"RESET);
+			// ft_printf_fd(2, RED"Player node not found in DELETE case nothing todo (update kill counter maybe)\n"RESET);
 			return ;
 		}
 		int8_t is_selected_node = 0;
@@ -125,7 +125,7 @@ int8_t extract_controle_packet(t_game *game)
 		clear_msg_queue(game->ipc, UINT32_MAX);
 		ret = 1;
 	}
-	ft_printf_fd(2, CYAN"In display handler i val = %d, ret val %u\n"RESET, i, ret);
+	// ft_printf_fd(2, CYAN"In display handler i val = %d, ret val %u\n"RESET, i, ret);
 	sem_unlock(game->ipc->semid);
 	return (ret);
 }
