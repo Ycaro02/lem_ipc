@@ -230,32 +230,6 @@ int check_mouse(int keycode, int x, int y, t_game *game)
 	return (0);
 }
 
-static int8_t extract_receive_packet(t_game *game)
-{
-	uint32_t data[PDATA_LEN] = {0};
-	uint32_t i = 0;
-	int8_t ret = 0;
-
-	sem_lock(game->ipc->semid);
-	for (i = 0; i < PDATA_LEN; ++i) {
-		data[i] = extract_msg(game->ipc, CONTROLE_DISPLAY_CHAN);
-		if (data[i] != 0) {
-			break;
-		}
-	}
-	if (i == 0 && data[i] == UINT32_MAX) {
-		ft_printf_fd(2, GREEN"Display handler packet not found, display error\n"RESET);
-	} 
-	else if (i == PDATA_LEN) {
-		ft_printf_fd(2, GREEN"Display handler packet found\n"RESET);
-		clear_msg_queue(game->ipc, UINT32_MAX);
-		ret = 1;
-	}
-	ft_printf_fd(2, CYAN"In display handler i val = %d, ret val %u\n"RESET, i, ret);
-	sem_unlock(game->ipc->semid);
-	return (ret);
-}
-
 /* @brief Init display */
 int8_t init_mlx(t_game *game) 
 {
@@ -279,7 +253,7 @@ int8_t init_mlx(t_game *game)
 		return (ERROR_CASE);
 	}
 
-	int8_t packet_extract = extract_receive_packet(game);
+	int8_t packet_extract = extract_controle_packet(game);
 	if (!packet_extract) {
 		ft_printf_fd(2, RED"Display handler packet not found, exit\n"RESET);
 		return (ERROR_CASE);

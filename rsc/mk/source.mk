@@ -14,6 +14,7 @@ SHARED_SRCS		=	init_shared_mem.c\
 					ipcs_utils.c\
 					player.c\
 					player_move.c\
+					send_pdata.c\
 
 
 DISPLAY_SRCS	= 	${SHARED_SRCS}\

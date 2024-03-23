@@ -51,13 +51,11 @@
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
+/* Display controle chanel, ned to remove this value to accepted team val */
 # define CONTROLE_DISPLAY_CHAN (uint32_t)(UINT32_MAX - 1U)
 
-/* Display up magic number */
-# define DISPLAY_UP (OUT_OF_BOARD + 1)
-
 /* Shared memory data size needed */
-# define SHM_DATA_SIZE ((sizeof(uint32_t) * BOARD_SIZE) + sizeof(uint32_t)) /* (4 * (30 * 60)) + 4, last for team number */
+# define SHM_DATA_SIZE (sizeof(uint32_t) * BOARD_SIZE) /* (4 * (30 * 60)) */
 
 /* Modulo data size % page size */
 # define MOD_PAGESIZE (size_t) (SHM_DATA_SIZE % PAGE_SIZE)
@@ -72,11 +70,15 @@
 # define DISPLAY_HANDLER 0
 # define PLAYER 1
 
+/* DIR MAX*/
+# define DIR_MAX 8
 
-/* Define to handle increment decrement team number value */
-# define ADD_TEAM	1
-# define RM_TEAM	0
+/* Ally flag for find_player_in_range */
+# define ALLY_FLAG 0
+/* Enemy flag for find_player_in_range */
+# define ENEMY_FLAG 1
 
+/* Alive value to avoid magic number */
 # define ALIVE		0
 
 /* File used in ftok call */
@@ -96,11 +98,6 @@
 	{point.x + 1, point.y - 1}, \
 	{point.x + 1, point.y + 1} \
 }
-
-/* Int global for sigint handle game status */
-
-extern int g_game_run;
-
 
 /* Heuristic structure */
 typedef struct s_heuristic {
@@ -146,6 +143,12 @@ typedef struct s_player {
 	{"player data closest ally", {0}}, \
 	{"player data supp", {0}} \
 }
+
+/* Controle packet to start player's data send */
+# define DISPLAY_CTRL_PACKET {0, 0, 0, 0, 0, 0, 0}
+
+/* Invalid controle packet */
+# define INVALID_CTRL_PACKET {1, 1, 1, 1, 1, 1, 1}
 
 /* Message type extract */
 # define GET_MSG_TYPE(state) (state & 0b01111000)
@@ -201,41 +204,35 @@ enum e_msg_type {
 
 
 
-# define DIR_MAX 8
-
-# define ALLY_FLAG 0
-# define ENEMY_FLAG 1
+/* Int global for sigint handle game status */
+extern int g_game_run;
 
 
-/* bonus send player data to display program */
-// void send_pdata_display(t_ipc *ipc, t_player *player, uint32_t msg_type);
+/* main */
+uint32_t	check_death(uint32_t *board, t_vec point, uint32_t team_id);
+
+/* player move */
+void		player_tracker_follower(t_ipc *ipc, t_player *player);
+t_vec		find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id);
+void		player_waiting(t_ipc *ipc, t_player *player);
+uint32_t	get_heuristic_cost(t_vec start, t_vec end);
+int8_t		find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag);
 
 
 
-uint32_t check_death(uint32_t *board, t_vec point, uint32_t team_id);
-
-void player_tracker_follower(t_ipc *ipc, t_player *player);
-
-void player_waiting(t_ipc *ipc, t_player *player);
-
-uint32_t get_heuristic_cost(t_vec start, t_vec end);
-t_vec find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id);
-
-
-int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag);
-
-
+/* send pdata */
+void		send_display_controle_packet(t_ipc *ipc);
+int8_t		display_handler_state(t_ipc *ipc);
+void		send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type);
 
 /* Display controle packet */
-void	send_display_controle_packet(t_ipc *ipc);
-int8_t	check_display_state(t_ipc *ipc);
-
+void		send_display_controle_packet(t_ipc *ipc);
 
 /* msg */
 int8_t		remove_msg_queue(t_ipc *ipc);
 uint32_t 	extract_msg(t_ipc *ipc, uint32_t msg_id);
 int8_t		send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data);
-int8_t clear_msg_queue(t_ipc *ipc, long team_id);
+int8_t		clear_msg_queue(t_ipc *ipc, long team_id);
 /* init semaphore */
 int			init_game(t_ipc *ipc, char *path, int8_t allow);
 

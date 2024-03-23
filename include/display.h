@@ -88,15 +88,16 @@ typedef enum e_keyboard_key
 
 
 /* main */
-t_vec get_click_tile(t_vec mouse);
+t_vec	get_click_tile(t_vec mouse);
 
 /* parse pdata */
-void receive_player_data(t_game *game);
-void *get_player_node(t_list *lst, t_vec target);
+void	receive_player_data(t_game *game);
+void	*get_player_node(t_list *lst, t_vec target);
+int8_t	extract_controle_packet(t_game *game);
 
 /* display pdata */
-void display_pdata_lst(t_list *player_lst);
-void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y);
+void	display_pdata_lst(t_list *player_lst);
+void	display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y);
 
 /* display team */
 // void		free_team(void *team);
