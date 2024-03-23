@@ -17,8 +17,7 @@ void display_packet(uint32_t *data)
 
 void send_display_controle_packet(t_ipc *ipc)
 {
-	// uint32_t data[PDATA_LEN] = {(uint32_t) 0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0};
-	uint32_t	data[PDATA_LEN] = DISPLAY_CTRL_PACKET;
+	uint32_t	data[PDATA_LEN] = BUILD_CTRL_PACKET((uint32_t)0);
 
 	for (int i = 0; i < PDATA_LEN; ++i) {
 		send_msg(ipc, CONTROLE_DISPLAY_CHAN, data[i]);
@@ -27,7 +26,7 @@ void send_display_controle_packet(t_ipc *ipc)
 
 int8_t display_handler_state(t_ipc *ipc)
 {
-	uint32_t	data[PDATA_LEN] = INVALID_CTRL_PACKET;
+	uint32_t	data[PDATA_LEN] = BUILD_CTRL_PACKET((uint32_t)1);
 	int			i;
 	int8_t		ret = 0;
 
@@ -68,7 +67,7 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 	// display_packet(data);
 	if (player->display) {
 		for (int i = 0; i < PDATA_LEN; ++i) {
-			send_msg(ipc, UINT32_MAX, data[i]);
+			send_msg(ipc, DISPLAY_HANDLER_ID, data[i]);
 		}
 	}
 }

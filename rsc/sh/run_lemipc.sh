@@ -41,9 +41,9 @@ run_test() {
 	./rsc/mk/ascii.sh "tester"
 	# rm_pid_log ${PID_LOG}
 
-	for i in {0..99}
+	for i in {0..500}
 	do
-		local team_id=$(((i % 25) + 1))
+		local team_id=$(((i % 2) + 1))
 		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
 		if [ ${i} -eq 3 ]; then
 			display_color_msg ${YELLOW} "Lauch display handler ${LEMIPC_DISPLAY} ..."

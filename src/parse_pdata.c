@@ -39,8 +39,10 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	if (type == P_CREATE) {
 		// ft_printf_fd(2, CYAN"Player data create\n"RESET);
 		t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
-		ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
-		ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
+		if (tmp) {
+			tmp = ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+			ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
+		}
 		return ;
 	}
 
@@ -72,8 +74,10 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	} else {
 		// ft_printf_fd(2, CYAN"Player node not found in UPDATE case create node %u\n"RESET, pdata[PDATA_TID].sdata);
 		t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
-		ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
-		ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
+		if (tmp) {
+			tmp = ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+			ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
+		}
 	}
 
 }
@@ -89,7 +93,7 @@ void receive_player_data(t_game *game)
 	uint8_t		count = 1; /* count = 1 cause if we call this we already receive the first 0 data start */
 
 	do {
-		ret = extract_msg(game->ipc, UINT32_MAX);
+		ret = extract_msg(game->ipc, DISPLAY_HANDLER_ID);
 		pdata[count].sdata = ret;
 		if (count != PDATA_START) {
 			if (count >= PDATA_POS) {

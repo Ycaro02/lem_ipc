@@ -51,8 +51,14 @@
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
+/* Display handler id */
+# define DISPLAY_HANDLER_ID UINT32_MAX
+
 /* Display controle chanel, ned to remove this value to accepted team val */
 # define CONTROLE_DISPLAY_CHAN (uint32_t)(UINT32_MAX - 1U)
+
+/* Team id max, UINT32_MAX used for error value/display_handler ID, and UINT32_MAX - 1 for controle display channel */
+# define TEAM_ID_MAX (CONTROLE_DISPLAY_CHAN - 1U)
 
 /* Shared memory data size needed */
 # define SHM_DATA_SIZE (sizeof(uint32_t) * BOARD_SIZE) /* (4 * (30 * 60)) */
@@ -144,11 +150,10 @@ typedef struct s_player {
 	{"player data supp", {0}} \
 }
 
-/* Controle packet to start player's data send */
-# define DISPLAY_CTRL_PACKET {0, 0, 0, 0, 0, 0, 0}
 
-/* Invalid controle packet */
-# define INVALID_CTRL_PACKET {1, 1, 1, 1, 1, 1, 1}
+/* Controle packet macro builder */
+# define BUILD_CTRL_PACKET(x) {x, x, x, x, x, x, x}
+
 
 /* Message type extract */
 # define GET_MSG_TYPE(state) (state & 0b01111000)
