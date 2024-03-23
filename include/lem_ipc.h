@@ -130,6 +130,7 @@ typedef struct s_player {
 	uint32_t	team_id;	/* Team id */
 	uint32_t	kill_by;	/* Kill by team id */
 	int8_t		state;		/* Player state */
+	uint8_t		display;	/* Display handler conected */
 } t_player;
 
 
@@ -221,6 +222,11 @@ t_vec find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t 
 
 int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag);
 
+
+
+/* Display controle packet */
+void	send_display_controle_packet(t_ipc *ipc);
+int8_t	check_display_state(t_ipc *ipc);
 
 
 /* msg */

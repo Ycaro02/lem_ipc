@@ -16,37 +16,41 @@ void display_packet(uint32_t *data)
 
 void send_display_controle_packet(t_ipc *ipc)
 {
-	uint32_t data[PDATA_LEN] = {(uint32_t) 0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0};
+	// uint32_t data[PDATA_LEN] = {(uint32_t) 0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0, (uint32_t)0};
+	uint32_t	data[PDATA_LEN] = {0, 0, 0, 0, 0, 0, 0};
 
 	for (int i = 0; i < PDATA_LEN; ++i) {
 		send_msg(ipc, UINT32_MAX, data[i]);
 	}
 }
 
-int8_t check_display_state(t_ipc *ipc)
+int8_t display_handler_state(t_ipc *ipc)
 {
-	uint32_t	data[PDATA_LEN] = {0, 0, 0, 0, 0, 0, 0};
+	uint32_t	data[PDATA_LEN] = {1, 1, 1, 1, 1, 1, 1};
 	int			i;
+	int8_t		ret = 0;
+
+	sem_lock(ipc->semid);
 
 	for (i = 0; i < PDATA_LEN; ++i) {
 		data[i] = extract_msg(ipc, UINT32_MAX);
-		if (data[i] != (uint32_t)0) {
+		if (data[i] != 0) {
 			break;
 		}
 	}
-	if (i == 1 && data[i] == UINT32_MAX) {
-		ft_printf_fd(2, "Display handler packet not found, display here can start game\n");
-		return(1);
+	if (i == 0 && data[i] == UINT32_MAX) {
+		ft_printf_fd(2, GREEN"Display handler packet not found, display here can start game\n"RESET);
+		ret = 1;
+	} 
+	else {
+		ft_printf_fd(2, GREEN"Display handler packet found by client, resend it\n"RESET);
+		send_display_controle_packet(ipc);
 	}
-	if (i != PDATA_LEN) {
-		ft_printf_fd(2, "Error: Display packet error\n");
-		return (0);
-	}
-	send_display_controle_packet(ipc);
-	check_display_state(ipc);
-	return (1);
+	ft_printf_fd(2, PURPLE"i val = %d, ret val %u\n"RESET, i, ret);
+	sem_unlock(ipc->semid);
+	// display_handler_state(ipc);
+	return (ret);
 }
-
 
 void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 {
@@ -153,6 +157,13 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	/* Update info to default value */
 	player->target = get_board_pos(OUT_OF_BOARD);
 	player->ally_pos = get_board_pos(OUT_OF_BOARD);
+	sem_unlock(ipc->semid);
+
+	while ((player->display = display_handler_state(ipc)) == 0) { /* Wait for display handler extract controle packet*/
+		usleep(100000);
+	}
+
+	sem_lock(ipc->semid);
 	/* Send create packet to display */
 	send_pdata_display(ipc, player, P_CREATE);
 	sem_unlock(ipc->semid);
@@ -203,6 +214,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 	if (init_signal_handler() == -1) {
 		return ;
 	}
+
 	/* Set First player position randomly */
 	put_player_on_board(ipc, player);
 

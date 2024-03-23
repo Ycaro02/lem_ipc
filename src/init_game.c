@@ -269,8 +269,13 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	// ft_printf_fd(1, YELLOW"Semaphore value Before first send: "RESET""CYAN"%d\n"RESET, semctl(ipc->semid, 0, GETVAL));
 	// send_msg(ipc, &(t_player){.team_id = 1}, 42);
 	// send_msg(ipc, &(t_player){.team_id = 2}, 9);
+	ft_printf_fd(1, PURPLE"Server started waiting client 5sec ...\n"RESET);
+	sleep(5); /* wait for client to connect */
+	ft_printf_fd(1, CYAN"Server send controle display packet\n"RESET);
+	send_display_controle_packet(ipc);
 
-	sleep(8); /* wait for client to connect */
+
+
 
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
 	return (0);
