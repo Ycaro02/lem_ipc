@@ -36,12 +36,20 @@ int main(int argc, char **argv)
 
 	int nb_process = display_player_end(ipc, player);
 	
-
+	// if (nb_process == 2) {
+	// 	ft_printf_fd(1, PURPLE"Lem-ipc Server Want Down wait display handler nb process: %d\n"RESET, nb_process);
+	// 	sem_unlock(ipc.semid);
+	// 	sleep(5);
+	// 	sem_lock(ipc.semid);
+	// 	nb_process = get_attached_processnb(&ipc);
+	// 	ft_printf_fd(1, CYAN"Lem-ipc Server Want Down after sleep display handler nb process: %d\n"RESET, nb_process);
+	// }
 	if (nb_process == 1) {
 		clean_shared_rsc(&ipc);
 		ft_printf_fd(1, RED"Lem-ipc Server Down Team %u Won\n"RESET, player.team_id);
 	} else {
 		detach_shared_memory(&ipc);
+		ft_printf_fd(1, YELLOW"Lem-ipc Client Down NB remain %d Won\n"RESET, nb_process);
 		sem_unlock(ipc.semid);
 	}
 	return (ret);

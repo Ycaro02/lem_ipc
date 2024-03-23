@@ -39,11 +39,11 @@ int8_t display_handler_state(t_ipc *ipc)
 		}
 	}
 	if (i == 0 && data[i] == UINT32_MAX) {
-		ft_printf_fd(2, GREEN"Display handler packet not found, start send player status\n"RESET);
+		// ft_printf_fd(2, GREEN"Display handler packet not found, start send player status\n"RESET);
 		ret = 1;
 	} 
 	else {
-		ft_printf_fd(2, GREEN"Display handler packet found by client, resend it\n"RESET);
+		// ft_printf_fd(2, GREEN"Display handler packet found by client, resend it\n"RESET);
 		send_display_controle_packet(ipc);
 	}
 	// ft_printf_fd(2, PURPLE"Player i val = %d, ret val %u\n"RESET, i, ret);

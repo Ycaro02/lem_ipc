@@ -64,36 +64,34 @@ int destroy_windows(t_game *game)
 	if (game->player_data) {
 		ft_lstclear(&game->player_data, free);
 	}
-	if (game->pause) {
-		send_display_controle_packet(game->ipc);
-		ft_printf_fd(2, PURPLE"Display was in pause state: restore sem/send controle packet\n"RESET);
-		sem_unlock(game->ipc->semid);
-	} else {
-		ft_printf_fd(2, PURPLE"Display was not in pause state: lock sem to send controle packet\n"RESET);
+	if (!game->sem_lock) {
+		ft_printf_fd(2, PURPLE"Display lock sem\n"RESET);
 		sem_lock(game->ipc->semid);
-		send_display_controle_packet(game->ipc);
-		sem_unlock(game->ipc->semid);
 	}
+	ft_printf_fd(2, RED"Send controle packet to display handler\n"RESET); 
+	send_display_controle_packet(game->ipc);
+	detach_shared_memory(game->ipc);
+	sem_unlock(game->ipc->semid);
 	free(game->mlx);
 	free(game);
 	exit(0);
 }
 
 /* @brief first display function, display board on stdout */
-int display_board_stdout(t_game *game) {
-	sem_lock(game->ipc->semid);
-	if (get_attached_processnb(game->ipc) <= 1) {
-		ft_printf_fd(2, RED"Shutdown display Board stdout\n"RESET);
-		g_game_run = 0;
-		detach_shared_memory(game->ipc);
-		sem_unlock(game->ipc->semid);
-		destroy_windows(game);
-	}
-	display_uint16_array(game->ipc->ptr);
-	sem_unlock(game->ipc->semid);
-	usleep(10000); /* 1/10 sec */
-	return (0);
-}
+// int display_board_stdout(t_game *game) {
+// 	sem_lock(game->ipc->semid);
+// 	if (get_attached_processnb(game->ipc) <= 1) {
+// 		ft_printf_fd(2, RED"Shutdown display Board stdout\n"RESET);
+// 		g_game_run = 0;
+// 		detach_shared_memory(game->ipc);
+// 		sem_unlock(game->ipc->semid);
+// 		destroy_windows(game);
+// 	}
+// 	display_uint16_array(game->ipc->ptr);
+// 	sem_unlock(game->ipc->semid);
+// 	usleep(10000); /* 1/10 sec */
+// 	return (0);
+// }
 
 /* @brief skip x utils, to know how much pixel we need to skip after string */
 int skip_x(char *str) {
@@ -201,6 +199,7 @@ int main_display(void *vgame)
 	/* If game is paused sem already lock */
 	if (!game->pause) {
 		sem_lock(game->ipc->semid);
+		game->sem_lock = 1;
 	}
 	/* Check for game pause handle click */
 	if (game->mouse_pos.y == 0 && game->mouse_pos.x == UINT32_MAX) {
@@ -223,10 +222,8 @@ int main_display(void *vgame)
 
 	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
 	if (game->player_nb <= 3) {
-		ft_printf_fd(2, PURPLE"Shutdown display\n"RESET);
+		// ft_printf_fd(2, PURPLE"Shutdown display\n"RESET);
 		g_game_run = 0;
-		detach_shared_memory(game->ipc);
-		sem_unlock(game->ipc->semid);
 		destroy_windows(game);
 	}
 
@@ -235,6 +232,7 @@ int main_display(void *vgame)
 	/* Unlock sem if game is not paused */
 	if (!game->pause) {
 		sem_unlock(game->ipc->semid);
+		game->sem_lock = 0;
 	}
 	/* Display image (flush) */
 	mlx_put_image_to_window(game->mlx, game->win, game->img.image, 0, 0);
@@ -316,7 +314,6 @@ int8_t init_mlx(t_game *game)
 
 	mlx_hook(game->win, 2, 1L, key_hooks_press, game);
 	mlx_hook(game->win, DestroyNotify, StructureNotifyMask, destroy_windows, game);
-	ft_printf_fd(2, "Game ptr before check mouse %p\n", game);
 	mlx_mouse_hook(game->win, check_mouse, game);
 	// mlx_loop_hook(game->mlx, display_board_stdout, game);
 	mlx_loop_hook(game->mlx, main_display, game);

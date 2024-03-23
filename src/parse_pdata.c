@@ -47,8 +47,8 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	t_pdata *target_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
 	if (type == P_DELETE) {
 		// ft_printf_fd(2, RED"Player data delete\n"RESET);
-		uint32_t kill_by = get_board_index(pdata[PDATA_SUPP].vdata);
-		ft_printf_fd(2, RED"Player node delete kill by %u\n"RESET, kill_by);
+		// uint32_t kill_by = get_board_index(pdata[PDATA_SUPP].vdata);
+		// ft_printf_fd(2, RED"Player node delete kill by %u\n"RESET, kill_by);
 		if (!target_node) {
 			ft_printf_fd(2, RED"Player node not found in DELETE case nothing todo (update kill counter maybe)\n"RESET);
 			return ;
@@ -70,7 +70,7 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	if (target_node) {
 		ft_memcpy((void *)target_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
 	} else {
-		ft_printf_fd(2, CYAN"Player node not found in UPDATE case create node %u\n"RESET, pdata[PDATA_TID].sdata);
+		// ft_printf_fd(2, CYAN"Player node not found in UPDATE case create node %u\n"RESET, pdata[PDATA_TID].sdata);
 		t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
 		ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
 		ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
