@@ -1,39 +1,5 @@
 # include "../include/lem_ipc.h"
 
-void display_packet(uint32_t *data)
-{
-	ft_printf_fd(2, CYAN"\n-------------------------Send packet --------------------------------------\n"RESET);
-	ft_printf_fd(2, GREEN"start: |%u| "RESET, data[PDATA_START]);
-	ft_printf_fd(2, GREEN"state: |%u| "RESET, data[PDATA_STATE]);
-	ft_printf_fd(2, GREEN"tid: |%u| "RESET, data[PDATA_TID]);
-	ft_printf_fd(2, GREEN"pos: |%u| "RESET, data[PDATA_POS]);
-	ft_printf_fd(2, GREEN"target: |%u| "RESET, data[PDATA_TARGET]);
-	ft_printf_fd(2, GREEN"ally: |%u|"RESET, data[PDATA_ALLY]);
-	ft_printf_fd(2, CYAN"\n-------------------------Packet end---------------------------------------\n"RESET);
-
-}
-
-void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
-{
-	uint32_t p_pos = get_board_index(player->pos);
-	uint32_t p_target = get_board_index(player->target);
-	uint32_t p_ally = get_board_index(player->ally_pos);
-	uint32_t p_tid = player->team_id;
-	uint32_t p_state = (uint32_t)(player->state | msg_type);
-
-	if (msg_type == P_UPDATE) {
-		p_tid = get_board_index(player->next_pos);
-	}
-
-	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally};
-
-	// display_packet(data);
-	for (int i = 0; i < PDATA_LEN; ++i) {
-		send_msg(ipc, UINT32_MAX, data[i]);
-	}
-
-}
-
 /* @brief Initialize player */
 int init_player(t_player *player, int argc, char **argv)
 {
@@ -69,20 +35,20 @@ static int init_signal_handler(void)
 	return (0);
 }
 
-int8_t check_double_value(uint32_t *array, uint32_t team_id)
+uint32_t check_double_value(uint32_t *array, uint32_t team_id)
 {
 	for (int i = 0; i < DIR_MAX; i++) {
 		for (int j = 0; j < DIR_MAX; j++) {
 			if (i != j && array[i] == array[j]\
 				&& array[i] != TILE_EMPTY && array[i] != team_id) {
-				return (1);
+				return (array[i]);
 			}
 		}
 	}
-	return (0);
+	return (ALIVE);
 }
 
-int8_t check_death(uint32_t *board, t_vec point, uint32_t team_id)
+uint32_t check_death(uint32_t *board, t_vec point, uint32_t team_id)
 {
 	t_vec	arround[DIR_MAX] = ARROUND_VEC_ARRAY(point);
 	uint32_t arround_val[DIR_MAX] = {0};
@@ -96,12 +62,10 @@ int8_t check_death(uint32_t *board, t_vec point, uint32_t team_id)
 }
 
 /* Check if player is dead */
-uint8_t check_player_death(t_ipc *ipc, t_player *player)
+uint32_t check_player_death(t_ipc *ipc, t_player *player)
 {
-	uint8_t		ret = 0;
-	
-	ret = check_death(ipc->ptr, player->pos, player->team_id);
-	return (ret);
+	player->kill_by = check_death(ipc->ptr, player->pos, player->team_id);
+	return (player->kill_by);
 }
 
 static void put_player_on_board(t_ipc *ipc, t_player *player)
@@ -116,6 +80,10 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	/* Update info to default value */
 	player->target = get_board_pos(OUT_OF_BOARD);
 	player->ally_pos = get_board_pos(OUT_OF_BOARD);
+
+ 	/* Init display handler bool to know if we need to send data to display program */
+	player->display = display_handler_state(ipc);
+
 	/* Send create packet to display */
 	send_pdata_display(ipc, player, P_CREATE);
 	sem_unlock(ipc->semid);
@@ -124,14 +92,14 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 static int8_t check_break_loop(t_ipc *ipc, t_player *player, int8_t enemy_found)
 {
 	/* Check if player is dead */
-	if (check_player_death(ipc, player)) {
+	if (check_player_death(ipc, player) != ALIVE) {
+		/* Send data to display */
 		send_pdata_display(ipc, player, P_DELETE);
-		// set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 		clear_msg_queue(ipc, player->team_id);
 		g_game_run = 0;
 		return (1);
 	} else if (!enemy_found) { /* Check win condition */
-		ft_printf_fd(2, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
+		// ft_printf_fd(2, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
 		send_pdata_display(ipc, player, P_DELETE);
 		g_game_run = 0;
 		return (1);
@@ -166,12 +134,16 @@ void player_routine(t_ipc *ipc, t_player *player)
 	if (init_signal_handler() == -1) {
 		return ;
 	}
+
 	/* Set First player position randomly */
 	put_player_on_board(ipc, player);
 
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
+		/* Check if display handler is active */
+		player->display = display_handler_state(ipc);
+
 		/* Player scan his environement to find nearest ally (update player->ally_pos if found) */
 		int8_t player_alone = find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0;
 		/* Player scan his environement to find nearest enemy (update player->target if found) */
@@ -185,7 +157,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 
 		/* Move */
 		if (!vector_cmp(player->next_pos, player->pos)) {
-			send_pdata_display(ipc, player, P_UPDATE);
+			send_pdata_display(ipc, player, P_UPDATE_POS);
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			player->pos = create_vector(player->next_pos.y, player->next_pos.x);

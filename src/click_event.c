@@ -11,3 +11,16 @@ t_vec get_click_tile(t_vec mouse)
 	// ft_printf_fd(2, "Vec y: %d x: %d\n", y, x);
 	return (create_vector(y, x));
 }
+
+/* @brief check left mouse click, update game->mouse_pos in consequences */
+int check_mouse(int keycode, int x, int y, t_game *game)
+{
+	if (keycode == LEFT_CLICK) {
+		// ft_printf_fd(2, CYAN"Mouse click %d pos [%d][%d] game %p\n"RESET, keycode, y, x, game);
+		t_vec mouse = create_vector(y, x);
+		t_vec mouse_pos = get_click_tile(mouse);
+		game->mouse_pos = create_vector(mouse_pos.y, mouse_pos.x);
+		return (1);
+	}
+	return (0);
+}

@@ -64,31 +64,34 @@ int destroy_windows(t_game *game)
 	if (game->player_data) {
 		ft_lstclear(&game->player_data, free);
 	}
-	if (game->pause) {
-		ft_printf_fd(2, CYAN"Display was in pause state: restore sem\n"RESET);
-		ft_printf_fd(1, RED"Exit MLX\n"RESET);
-		sem_unlock(game->ipc->semid);
+	if (!game->sem_lock) {
+		ft_printf_fd(2, PURPLE"Display lock sem\n"RESET);
+		sem_lock(game->ipc->semid);
 	}
+	ft_printf_fd(2, CYAN"Display exit, resend controle packet\n"RESET); 
+	send_display_controle_packet(game->ipc);
+	detach_shared_memory(game->ipc);
+	sem_unlock(game->ipc->semid);
 	free(game->mlx);
 	free(game);
 	exit(0);
 }
 
 /* @brief first display function, display board on stdout */
-int display_board_stdout(t_game *game) {
-	sem_lock(game->ipc->semid);
-	if (get_attached_processnb(game->ipc) <= 1) {
-		ft_printf_fd(2, RED"Shutdown display Board stdout\n"RESET);
-		g_game_run = 0;
-		detach_shared_memory(game->ipc);
-		sem_unlock(game->ipc->semid);
-		destroy_windows(game);
-	}
-	display_uint16_array(game->ipc->ptr);
-	sem_unlock(game->ipc->semid);
-	usleep(10000); /* 1/10 sec */
-	return (0);
-}
+// int display_board_stdout(t_game *game) {
+// 	sem_lock(game->ipc->semid);
+// 	if (get_attached_processnb(game->ipc) <= 1) {
+// 		ft_printf_fd(2, RED"Shutdown display Board stdout\n"RESET);
+// 		g_game_run = 0;
+// 		detach_shared_memory(game->ipc);
+// 		sem_unlock(game->ipc->semid);
+// 		destroy_windows(game);
+// 	}
+// 	display_uint16_array(game->ipc->ptr);
+// 	sem_unlock(game->ipc->semid);
+// 	usleep(10000); /* 1/10 sec */
+// 	return (0);
+// }
 
 /* @brief skip x utils, to know how much pixel we need to skip after string */
 int skip_x(char *str) {
@@ -126,20 +129,6 @@ void display_righband(t_game *game, t_pdata *pdata)
 		free(player_remain);
 	}
 	y += PAD_YTEAM;
-
-
-	// if (list && player_remain) {
-	// 	uint32_t str_size_max = get_max_strsize(list);
-	// 	// y += PAD_YTEAM;
-	// 	mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, "TEAM INFO : ");
-
-	// 	while (tmp) {
-	// 		display_team_info(game, tmp->content, y, str_size_max);
-	// 		tmp = tmp->next;
-	// 		y += PAD_YTEAM;
-	// 	}
-	// }
-
 	if (pdata) {
 		display_pdata_node(game, pdata, y + PAD_YTEAM);
 	}
@@ -152,19 +141,6 @@ int	key_hooks_press(int keycode, t_game *game)
 		destroy_windows(game); /* maybe need to check sem value and lock it to detash mem */
 	return (0);
 }
-
-/* @brief Get team color from team id */
-// static int get_team_color(t_list *team, uint32_t team_id)
-// {
-// 	t_list *tmp = team;
-// 	while (tmp) {
-// 		if (((t_team *)tmp->content)->tid == team_id) {
-// 			return (((t_team *)tmp->content)->data.color);
-// 		}
-// 		tmp = tmp->next;
-// 	}
-// 	return (0);
-// }
 
 /* @brief Draw board */
 static void draw_board(t_game *game)
@@ -186,6 +162,7 @@ static void draw_board(t_game *game)
 
 }
 
+
 /* Main display function called in mlx loop hook */
 int main_display(void *vgame)
 {
@@ -195,6 +172,7 @@ int main_display(void *vgame)
 	/* If game is paused sem already lock */
 	if (!game->pause) {
 		sem_lock(game->ipc->semid);
+		game->sem_lock = 1;
 	}
 	/* Check for game pause handle click */
 	if (game->mouse_pos.y == 0 && game->mouse_pos.x == UINT32_MAX) {
@@ -217,10 +195,8 @@ int main_display(void *vgame)
 
 	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
 	if (game->player_nb <= 3) {
-		ft_printf_fd(2, PURPLE"Shutdown display\n"RESET);
+		// ft_printf_fd(2, PURPLE"Shutdown display\n"RESET);
 		g_game_run = 0;
-		detach_shared_memory(game->ipc);
-		sem_unlock(game->ipc->semid);
 		destroy_windows(game);
 	}
 
@@ -229,6 +205,7 @@ int main_display(void *vgame)
 	/* Unlock sem if game is not paused */
 	if (!game->pause) {
 		sem_unlock(game->ipc->semid);
+		game->sem_lock = 0;
 	}
 	/* Display image (flush) */
 	mlx_put_image_to_window(game->mlx, game->win, game->img.image, 0, 0);
@@ -240,23 +217,12 @@ int main_display(void *vgame)
 	return (0);
 }
 
-/* @brief check left mouse click, update game->mouse_pos in consequences */
-int check_mouse(int keycode, int x, int y, t_game *game)
-{
-	if (keycode == LEFT_CLICK) {
-		// ft_printf_fd(2, CYAN"Mouse click %d pos [%d][%d] game %p\n"RESET, keycode, y, x, game);
-		t_vec mouse = create_vector(y, x);
-		t_vec mouse_pos = get_click_tile(mouse);
-		game->mouse_pos = create_vector(mouse_pos.y, mouse_pos.x);
-		return (1);
-	}
-	return (0);
-}
-
 /* @brief Init display */
 int8_t init_mlx(t_game *game) 
 {
-	int endian = 0;
+	int8_t	packet_extract = 0; 
+	int		endian = 0;
+
 	game->mlx = mlx_init();
 	if (!game->mlx) {
 		ft_printf_fd(2, "mlx_init failed\n");
@@ -276,9 +242,16 @@ int8_t init_mlx(t_game *game)
 		return (ERROR_CASE);
 	}
 
+	/* Extract controle packet */
+	packet_extract = extract_controle_packet(game);
+	if (!packet_extract) {
+		ft_printf_fd(2, RED"Display handler packet not found, exit\n"RESET);
+		return (ERROR_CASE);
+	}
+
+
 	mlx_hook(game->win, 2, 1L, key_hooks_press, game);
 	mlx_hook(game->win, DestroyNotify, StructureNotifyMask, destroy_windows, game);
-	ft_printf_fd(2, "Game ptr before check mouse %p\n", game);
 	mlx_mouse_hook(game->win, check_mouse, game);
 	// mlx_loop_hook(game->mlx, display_board_stdout, game);
 	mlx_loop_hook(game->mlx, main_display, game);
@@ -287,6 +260,7 @@ int8_t init_mlx(t_game *game)
 
 }
 
+/* @brief Main function for display handler */
 int main(int argc, char **argv) 
 {
 	t_ipc		ipc = {};
@@ -299,6 +273,7 @@ int main(int argc, char **argv)
 	if (init_display(&player, argc, argv) != 0\
 		|| init_game(&ipc, IPC_NAME, DISPLAY_HANDLER) == ERROR_CASE\
 		|| init_mlx(game) == ERROR_CASE) {
+		free(game);
 		return (1);
 	}
 	return (0);

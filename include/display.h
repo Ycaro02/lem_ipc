@@ -76,6 +76,7 @@ typedef struct s_game
 	uint32_t	player_nb;		/* last team number store */
 	t_vec		mouse_pos;		/* mouse position, TODO can remove*/
 	int8_t		pause;			/* game pause bool */
+	int8_t sem_lock;			/* sem is locked by display handler*/
 }	t_game;
 
 /* Key */
@@ -86,16 +87,18 @@ typedef enum e_keyboard_key
 }	t_keyboard_key;
 
 
-/* main */
-t_vec get_click_tile(t_vec mouse);
+/* click_event */
+t_vec	get_click_tile(t_vec mouse);
+int check_mouse(int keycode, int x, int y, t_game *game);
 
 /* parse pdata */
-void receive_player_data(t_game *game);
-void *get_player_node(t_list *lst, t_vec target);
+void	receive_player_data(t_game *game);
+void	*get_player_node(t_list *lst, t_vec target);
+int8_t	extract_controle_packet(t_game *game);
 
 /* display pdata */
-void display_pdata_lst(t_list *player_lst);
-void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y);
+void	display_pdata_lst(t_list *player_lst);
+void	display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y);
 
 /* display team */
 // void		free_team(void *team);
