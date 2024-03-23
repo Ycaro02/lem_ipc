@@ -30,8 +30,6 @@ int8_t display_handler_state(t_ipc *ipc)
 	int			i;
 	int8_t		ret = 0;
 
-	// sem_lock(ipc->semid);
-
 	for (i = 0; i < PDATA_LEN; ++i) {
 		data[i] = extract_msg(ipc, CONTROLE_DISPLAY_CHAN);
 		if (data[i] != 0) {
@@ -42,12 +40,10 @@ int8_t display_handler_state(t_ipc *ipc)
 		// ft_printf_fd(2, GREEN"Display handler packet not found, start send player status\n"RESET);
 		ret = 1;
 	} 
-	else {
+	else if (i == PDATA_LEN){
 		// ft_printf_fd(2, GREEN"Display handler packet found by client, resend it\n"RESET);
 		send_display_controle_packet(ipc);
 	}
-	// ft_printf_fd(2, PURPLE"Player i val = %d, ret val %u\n"RESET, i, ret);
-	// sem_unlock(ipc->semid);
 	return (ret);
 }
 

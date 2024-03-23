@@ -1,7 +1,7 @@
 # include "../include/lem_ipc.h"
 
+/* Can be remove game run sattus */
 int g_game_run;
-
 
 static int display_player_end(t_ipc ipc, t_player player)
 {
@@ -20,7 +20,7 @@ int main(int argc, char **argv)
 {
 	t_ipc		ipc;
 	t_player	player;
-	int			ret = 0;
+	int			ret = 0, nb_process = 0;
 
 
 	ft_bzero(&ipc, sizeof(t_ipc));
@@ -31,26 +31,24 @@ int main(int argc, char **argv)
 		|| init_game(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
 		return (1);
 	}
-
 	player_routine(&ipc, &player);
-
-	int nb_process = display_player_end(ipc, player);
-	
-	// if (nb_process == 2) {
-	// 	ft_printf_fd(1, PURPLE"Lem-ipc Server Want Down wait display handler nb process: %d\n"RESET, nb_process);
-	// 	sem_unlock(ipc.semid);
-	// 	sleep(5);
-	// 	sem_lock(ipc.semid);
-	// 	nb_process = get_attached_processnb(&ipc);
-	// 	ft_printf_fd(1, CYAN"Lem-ipc Server Want Down after sleep display handler nb process: %d\n"RESET, nb_process);
-	// }
+	nb_process = display_player_end(ipc, player);
 	if (nb_process == 1) {
 		clean_shared_rsc(&ipc);
 		ft_printf_fd(1, RED"Lem-ipc Server Down Team %u Won\n"RESET, player.team_id);
 	} else {
 		detach_shared_memory(&ipc);
-		ft_printf_fd(1, YELLOW"Lem-ipc Client Down NB remain %d Won\n"RESET, nb_process);
+		// ft_printf_fd(1, YELLOW"Lem-ipc Client Down NB remain %d\n"RESET, nb_process);
 		sem_unlock(ipc.semid);
 	}
 	return (ret);
 }
+
+// if (nb_process == 2) {
+// 	ft_printf_fd(1, PURPLE"Lem-ipc Server Want Down wait display handler nb process: %d\n"RESET, nb_process);
+// 	sem_unlock(ipc.semid);
+// 	sleep(5);
+// 	sem_lock(ipc.semid);
+// 	nb_process = get_attached_processnb(&ipc);
+// 	ft_printf_fd(1, CYAN"Lem-ipc Server Want Down after sleep display handler nb process: %d\n"RESET, nb_process);
+// }

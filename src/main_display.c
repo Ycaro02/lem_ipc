@@ -129,20 +129,6 @@ void display_righband(t_game *game, t_pdata *pdata)
 		free(player_remain);
 	}
 	y += PAD_YTEAM;
-
-
-	// if (list && player_remain) {
-	// 	uint32_t str_size_max = get_max_strsize(list);
-	// 	// y += PAD_YTEAM;
-	// 	mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, "TEAM INFO : ");
-
-	// 	while (tmp) {
-	// 		display_team_info(game, tmp->content, y, str_size_max);
-	// 		tmp = tmp->next;
-	// 		y += PAD_YTEAM;
-	// 	}
-	// }
-
 	if (pdata) {
 		display_pdata_node(game, pdata, y + PAD_YTEAM);
 	}
@@ -155,19 +141,6 @@ int	key_hooks_press(int keycode, t_game *game)
 		destroy_windows(game); /* maybe need to check sem value and lock it to detash mem */
 	return (0);
 }
-
-/* @brief Get team color from team id */
-// static int get_team_color(t_list *team, uint32_t team_id)
-// {
-// 	t_list *tmp = team;
-// 	while (tmp) {
-// 		if (((t_team *)tmp->content)->tid == team_id) {
-// 			return (((t_team *)tmp->content)->data.color);
-// 		}
-// 		tmp = tmp->next;
-// 	}
-// 	return (0);
-// }
 
 /* @brief Draw board */
 static void draw_board(t_game *game)
@@ -273,7 +246,7 @@ static int8_t extract_receive_packet(t_game *game)
 	if (i == 0 && data[i] == UINT32_MAX) {
 		ft_printf_fd(2, GREEN"Display handler packet not found, display error\n"RESET);
 	} 
-	else {
+	else if (i == PDATA_LEN) {
 		ft_printf_fd(2, GREEN"Display handler packet found\n"RESET);
 		clear_msg_queue(game->ipc, UINT32_MAX);
 		ret = 1;
