@@ -1,7 +1,7 @@
 # include "../include/display.h"
 
 # define REMOVE_TEAM 0
-# define ADD_TEAM 1
+# define JOIN_TEAM 1
 # define UPDATE_KILL 2 
 
 
@@ -95,7 +95,7 @@ void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd)
             return ;
 		}
 	}
-    if (cmd == ADD_TEAM) {
+    if (cmd == JOIN_TEAM) {
         if (inc_teamsize) {
             increment_team_size(lst, team_id);
             return ;
