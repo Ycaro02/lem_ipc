@@ -217,22 +217,17 @@ int main_display(void *vgame)
 	return (0);
 }
 
-/* @brief check left mouse click, update game->mouse_pos in consequences */
-int check_mouse(int keycode, int x, int y, t_game *game)
-{
-	if (keycode == LEFT_CLICK) {
-		// ft_printf_fd(2, CYAN"Mouse click %d pos [%d][%d] game %p\n"RESET, keycode, y, x, game);
-		t_vec mouse = create_vector(y, x);
-		t_vec mouse_pos = get_click_tile(mouse);
-		game->mouse_pos = create_vector(mouse_pos.y, mouse_pos.x);
-		return (1);
-	}
-	return (0);
-}
-
 /* @brief Init display */
 int8_t init_mlx(t_game *game) 
 {
+
+	int8_t packet_extract = extract_controle_packet(game);
+	
+	if (!packet_extract) {
+		ft_printf_fd(2, RED"Display handler packet not found, exit\n"RESET);
+		return (ERROR_CASE);
+	}
+
 	int endian = 0;
 	game->mlx = mlx_init();
 	if (!game->mlx) {
@@ -250,12 +245,6 @@ int8_t init_mlx(t_game *game)
 			&game->img.width, &endian);
 	if (!game->img.data) {
 		ft_printf_fd(2, "mlx_get_data_addr failed\n");
-		return (ERROR_CASE);
-	}
-
-	int8_t packet_extract = extract_controle_packet(game);
-	if (!packet_extract) {
-		ft_printf_fd(2, RED"Display handler packet not found, exit\n"RESET);
 		return (ERROR_CASE);
 	}
 
@@ -281,6 +270,7 @@ int main(int argc, char **argv)
 	if (init_display(&player, argc, argv) != 0\
 		|| init_game(&ipc, IPC_NAME, DISPLAY_HANDLER) == ERROR_CASE\
 		|| init_mlx(game) == ERROR_CASE) {
+		free(game);
 		return (1);
 	}
 	return (0);

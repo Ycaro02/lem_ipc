@@ -118,7 +118,7 @@ int8_t extract_controle_packet(t_game *game)
 		}
 	}
 	if (i == 0 && data[i] == UINT32_MAX) {
-		ft_printf_fd(2, GREEN"Display handler packet not found, display error\n"RESET);
+		ft_printf_fd(2, RED"Display handler packet not found, display error\n"RESET);
 	} 
 	else if (i == PDATA_LEN) {
 		ft_printf_fd(2, GREEN"Display handler packet found\n"RESET);

@@ -87,8 +87,9 @@ typedef enum e_keyboard_key
 }	t_keyboard_key;
 
 
-/* main */
+/* click_event */
 t_vec	get_click_tile(t_vec mouse);
+int check_mouse(int keycode, int x, int y, t_game *game);
 
 /* parse pdata */
 void	receive_player_data(t_game *game);
