@@ -20,7 +20,7 @@ void send_display_controle_packet(t_ipc *ipc)
 	uint32_t	data[PDATA_LEN] = {0, 0, 0, 0, 0, 0, 0};
 
 	for (int i = 0; i < PDATA_LEN; ++i) {
-		send_msg(ipc, UINT32_MAX, data[i]);
+		send_msg(ipc, CONTROLE_DISPLAY_CHAN, data[i]);
 	}
 }
 
@@ -30,25 +30,24 @@ int8_t display_handler_state(t_ipc *ipc)
 	int			i;
 	int8_t		ret = 0;
 
-	sem_lock(ipc->semid);
+	// sem_lock(ipc->semid);
 
 	for (i = 0; i < PDATA_LEN; ++i) {
-		data[i] = extract_msg(ipc, UINT32_MAX);
+		data[i] = extract_msg(ipc, CONTROLE_DISPLAY_CHAN);
 		if (data[i] != 0) {
 			break;
 		}
 	}
 	if (i == 0 && data[i] == UINT32_MAX) {
-		ft_printf_fd(2, GREEN"Display handler packet not found, display here can start game\n"RESET);
+		ft_printf_fd(2, GREEN"Display handler packet not found, start send player status\n"RESET);
 		ret = 1;
 	} 
 	else {
 		ft_printf_fd(2, GREEN"Display handler packet found by client, resend it\n"RESET);
 		send_display_controle_packet(ipc);
 	}
-	ft_printf_fd(2, PURPLE"i val = %d, ret val %u\n"RESET, i, ret);
-	sem_unlock(ipc->semid);
-	// display_handler_state(ipc);
+	// ft_printf_fd(2, PURPLE"Player i val = %d, ret val %u\n"RESET, i, ret);
+	// sem_unlock(ipc->semid);
 	return (ret);
 }
 
@@ -59,20 +58,21 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 	uint32_t p_ally = get_board_index(player->ally_pos);
 	uint32_t p_tid = player->team_id;
 	uint32_t p_state = (uint32_t)(player->state | msg_type);
-
-	uint32_t p_sup = 0x0;
+	uint32_t p_sup = 0;
 
 	if (msg_type == P_UPDATE_POS) {
 		p_sup = get_board_index(player->next_pos);
 	} else if (msg_type == P_DELETE) {
 		p_sup = player->kill_by;
 	}
-
+	/* Hard build packet maybe do it cleaner in macro/function */
 	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally, p_sup};
 
 	// display_packet(data);
-	for (int i = 0; i < PDATA_LEN; ++i) {
-		send_msg(ipc, UINT32_MAX, data[i]);
+	if (player->display) {
+		for (int i = 0; i < PDATA_LEN; ++i) {
+			send_msg(ipc, UINT32_MAX, data[i]);
+		}
 	}
 
 }
@@ -157,13 +157,10 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	/* Update info to default value */
 	player->target = get_board_pos(OUT_OF_BOARD);
 	player->ally_pos = get_board_pos(OUT_OF_BOARD);
-	sem_unlock(ipc->semid);
 
-	while ((player->display = display_handler_state(ipc)) == 0) { /* Wait for display handler extract controle packet*/
-		usleep(100000);
-	}
+ 	/* Init display handler bool to know if we need to send data to display program */
+	player->display = display_handler_state(ipc);
 
-	sem_lock(ipc->semid);
 	/* Send create packet to display */
 	send_pdata_display(ipc, player, P_CREATE);
 	sem_unlock(ipc->semid);
@@ -221,6 +218,9 @@ void player_routine(t_ipc *ipc, t_player *player)
 	/* start routine */
 	while (g_game_run) {
 		sem_lock(ipc->semid);
+		/* Check if display handler is active */
+		player->display = display_handler_state(ipc);
+
 		/* Player scan his environement to find nearest ally (update player->ally_pos if found) */
 		int8_t player_alone = find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0;
 		/* Player scan his environement to find nearest enemy (update player->target if found) */

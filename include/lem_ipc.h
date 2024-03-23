@@ -51,6 +51,8 @@
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
+# define CONTROLE_DISPLAY_CHAN (uint32_t)(UINT32_MAX - 1U)
+
 /* Display up magic number */
 # define DISPLAY_UP (OUT_OF_BOARD + 1)
 
@@ -130,7 +132,7 @@ typedef struct s_player {
 	uint32_t	team_id;	/* Team id */
 	uint32_t	kill_by;	/* Kill by team id */
 	int8_t		state;		/* Player state */
-	uint8_t		display;	/* Display handler conected */
+	int8_t		display;	/* Display handler conected */
 } t_player;
 
 

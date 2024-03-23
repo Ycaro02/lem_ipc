@@ -65,8 +65,13 @@ int destroy_windows(t_game *game)
 		ft_lstclear(&game->player_data, free);
 	}
 	if (game->pause) {
-		ft_printf_fd(2, CYAN"Display was in pause state: restore sem\n"RESET);
-		ft_printf_fd(1, RED"Exit MLX\n"RESET);
+		send_display_controle_packet(game->ipc);
+		ft_printf_fd(2, PURPLE"Display was in pause state: restore sem/send controle packet\n"RESET);
+		sem_unlock(game->ipc->semid);
+	} else {
+		ft_printf_fd(2, PURPLE"Display was not in pause state: lock sem to send controle packet\n"RESET);
+		sem_lock(game->ipc->semid);
+		send_display_controle_packet(game->ipc);
 		sem_unlock(game->ipc->semid);
 	}
 	free(game->mlx);
@@ -262,7 +267,7 @@ static int8_t extract_receive_packet(t_game *game)
 
 	sem_lock(game->ipc->semid);
 	for (i = 0; i < PDATA_LEN; ++i) {
-		data[i] = extract_msg(game->ipc, UINT32_MAX);
+		data[i] = extract_msg(game->ipc, CONTROLE_DISPLAY_CHAN);
 		if (data[i] != 0) {
 			break;
 		}
