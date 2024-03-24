@@ -111,7 +111,7 @@ void display_pdata_lst(t_list *player_lst)
  *	@brief Display pdata node
  *	@param game: game struct
  *	@param pdata: pdata node to display
- *	@param y: current y position to display
+ *	@param y: current y position to display in pixel
 */
 void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y)
 {

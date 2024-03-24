@@ -19,6 +19,7 @@
 # define JOIN_TEAM 1
 # define UPDATE_KILL 2 
 
+# define BEST_TEAM 5
 
 // # define TOPBAND_HEIGHT (TILE_SIZE * 2)
 
@@ -72,7 +73,7 @@ typedef struct s_team {
 	char		*strsize;	/* Team Size String */
 	uint32_t	kill;		/* Team Kill */
 	char		*kill_str;	/* Team Kill String */
-	t_teamcolor	data;		/* Team color ? */
+	t_teamcolor	color;		/* Team color ? */
 } t_team;
 
 typedef struct s_game
@@ -99,6 +100,10 @@ typedef enum e_keyboard_key
 	ESC = 65307,			/* Escape key value */
 }	t_keyboard_key;
 
+/* main */
+t_teamcolor get_new_color(uint32_t team_id); 
+
+/* team handling */
 void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd);
 void free_team(void *team);
 

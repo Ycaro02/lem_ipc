@@ -71,6 +71,8 @@ static t_team *build_team_node(uint32_t team_id)
     team->strid = ft_itoa(team_id);
     team->strsize = ft_itoa(team->tsize);
     team->kill = 0;
+	team->kill_str = ft_itoa(team->kill);
+	team->color = get_new_color(team_id);
     return (team);
 }
 
