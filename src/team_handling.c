@@ -1,9 +1,5 @@
 # include "../include/display.h"
 
-# define REMOVE_TEAM 0
-# define JOIN_TEAM 1
-# define UPDATE_KILL 2 
-
 
 /**
  *  @brief Check if team exist
@@ -24,17 +20,39 @@ static int8_t team_exist(t_list **team, uint32_t team_id)
     return (0);
 }
 
-static void increment_team_size(t_list **team, uint32_t team_id)
+static void handle_team_size(t_list **team, uint32_t team_id, int8_t add)
 {
 	t_list *current = *team;
 
 	while (current != NULL) {
 		if (((t_team *)current->content)->tid == team_id) {
-			((t_team *)current->content)->tsize += 1;
+            if (add) {
+			    ((t_team *)current->content)->tsize += 1;
+            } else if (((t_team *)current->content)->tsize > 0) {
+			    ((t_team *)current->content)->tsize -= 1;
+            }
 			if (((t_team *)current->content)->strsize != NULL) {
                 free(((t_team *)current->content)->strsize);
             }
 			((t_team *)current->content)->strsize = ft_itoa(((t_team *)current->content)->tsize);
+			return ;
+		}
+		current = current->next;
+	}
+}
+
+
+static void handle_team_kill(t_list **team, uint32_t team_id)
+{
+	t_list *current = *team;
+
+	while (current != NULL) {
+		if (((t_team *)current->content)->tid == team_id) {
+                ((t_team *)current->content)->kill += 1;
+			if (((t_team *)current->content)->kill_str != NULL) {
+                free(((t_team *)current->content)->kill_str);
+            }
+			((t_team *)current->content)->kill_str = ft_itoa(((t_team *)current->content)->kill);
 			return ;
 		}
 		current = current->next;
@@ -87,19 +105,16 @@ static void free_team(void *team)
 void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd)
 {
     t_team      *team = NULL;
-	uint32_t    i = 0;
     int8_t      inc_teamsize = team_exist(lst, team_id);
+    (void)array;
 
-	for (i = 0; i < BOARD_SIZE; i++) {
-		if (array[i] == team_id) {
-            return ;
-		}
-	}
     if (cmd == JOIN_TEAM) {
         if (inc_teamsize) {
-            increment_team_size(lst, team_id);
+            // ft_printf_fd(2, "Team %u exist\n", team_id);
+            handle_team_size(lst, team_id, 1);
             return ;
         }
+        // ft_printf_fd(2, "Team %u does not exist\n", team_id);
         team = build_team_node(team_id);
         if (team) {
             ft_lstadd_back(lst, ft_lstnew(team));
@@ -109,9 +124,15 @@ void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd)
     
     team = get_team_node(lst, team_id);
     if (cmd == REMOVE_TEAM && team) {
-        ft_lst_remove_if(lst, team, free_team, is_same_node);
+        handle_team_size(lst, team_id, 0);
+        team = get_team_node(lst, team_id);
+        if (team->tsize == 0) {
+            ft_lst_remove_if(lst, team, free_team, is_same_node);
+        }
     } else if (cmd == UPDATE_KILL && team) {
-        team->kill++;
+        handle_team_kill(lst, team_id);
+        /* get team killer node and increment this->kill */
+        // team->kill++;
     }
 }
 

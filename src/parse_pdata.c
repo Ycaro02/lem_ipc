@@ -25,6 +25,16 @@ void *get_player_node(t_list *lst, t_vec target)
 	return (NULL);
 }
 
+
+static void add_pdata_node(t_game *game, t_pdata *pdata)
+{
+	t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
+	if (tmp) {
+		tmp = ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+		ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
+	}
+}
+
 /**
  *	@brief Handle player data, update linked list (create update and delete node gestion)
  *	@param game: game struct
@@ -37,19 +47,17 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	// uint8_t 	state = GET_MSG_STATE(type_state);
 	
 	if (type == P_CREATE) {
-		// ft_printf_fd(2, CYAN"Player data create\n"RESET);
-		t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
-		if (tmp) {
-			tmp = ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
-			ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
-		}
+		add_pdata_node(game, pdata);
+		team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, JOIN_TEAM);
 		return ;
 	}
 
 	t_pdata *target_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
 	if (type == P_DELETE) {
 		int8_t is_selected_node = 0;
-		// uint32_t kill_by = get_board_index(pdata[PDATA_SUPP].vdata);
+		uint32_t kill_by = get_board_index(pdata[PDATA_SUPP].vdata);
+
+		team_handling(&game->team_data, game->ipc->ptr, kill_by, UPDATE_KILL);
 		// ft_printf_fd(2, RED"Player node delete kill by %u\n"RESET, kill_by);
 		if (!target_node) {
 			// ft_printf_fd(2, RED"Player node not found in DELETE case nothing todo (update kill counter maybe)\n"RESET);
@@ -59,6 +67,9 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 			is_selected_node = 1;
 		}
 		ft_lst_remove_if(&game->player_data, target_node, free, is_same_node);
+		team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, REMOVE_TEAM);
+		// team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, REMOVE_TEAM);
+
 		if (is_selected_node) {
 			game->selected = NULL;
 		}
@@ -71,12 +82,8 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	if (target_node) {
 		ft_memcpy((void *)target_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
 	} else {
-		// ft_printf_fd(2, CYAN"Player node not found in UPDATE case create node %u\n"RESET, pdata[PDATA_TID].sdata);
-		t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
-		if (tmp) {
-			tmp = ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
-			ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
-		}
+		add_pdata_node(game, pdata);
+		team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, JOIN_TEAM);
 	}
 
 }

@@ -100,19 +100,29 @@ int skip_x(char *str) {
 	return (ft_strlen(str) * CHAR_TOPIXEL);
 }
 
-/* @brief Basic display btn  */
-// void display_color_button(t_game *game)
-// {
-// 	uint32_t width = RIGHTBAND_WIDTH;
-// 	uint32_t height = TILE_SIZE * 2;
-// 	uint32_t start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH;
-
-// 	for (uint32_t y = 0; y < height; ++y) {
-// 		for (uint32_t x = start_x; x < start_x + width; ++x) {
-// 			((uint32_t *)game->img.data)[x + (y * SCREEN_WIDTH)] = BLUE_INT;
-// 		}
-// 	}
-// }
+/* @brief Display team info lst */
+static int	display_team_info(t_game *game, t_team *team, uint32_t pad_y, uint32_t str_sizemax)
+{
+	uint32_t start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
+	uint32_t y = 20U + pad_y;
+	uint32_t x = start_x;
+	mlx_string_put(game->mlx, game->win, x, y, YELLOW_INT, "ID : ");
+	x += skip_x("ID : ");
+	mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, team->strid); 
+	x += (str_sizemax * CHAR_TOPIXEL);
+	mlx_string_put(game->mlx, game->win, x, y, YELLOW_INT, "NB : ");
+	x += skip_x("NB : ");
+	mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, team->strsize); 
+	x += ((str_sizemax - 1) * CHAR_TOPIXEL);
+	mlx_string_put(game->mlx, game->win, x, y, RED_INT, "K : ");
+	x += skip_x("K : ");
+	if (team->kill_str) {
+		mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, team->kill_str); 
+	} else {
+		mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, "0"); 
+	}
+	return (0);
+}
 
 
 /* TO_REWORK read new dataset */
@@ -124,13 +134,23 @@ void display_righband(t_game *game, t_pdata *pdata)
 	/* reset right band */
 	mlx_put_image_to_window(game->mlx, game->win, game->right_band.image, SCREEN_WIDTH - RIGHTBAND_WIDTH, 0);
 
+	/* Display btn */
 	mlx_put_image_to_window(game->mlx, game->win, game->pause_btn, (int)(SCREEN_WIDTH - RIGHTBAND_WIDTH), SCREEN_HEIGHT - (TILE_SIZE * 2));
+
 	mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, PLAYER_REMAIN);
 	if (player_remain) {
 		mlx_string_put(game->mlx, game->win, START_STR_X + skip_x(PLAYER_REMAIN), y, RED_INT, player_remain);
 		free(player_remain);
 	}
 	y += PAD_YTEAM;
+
+	if (game->team_data) {
+		for (t_list *current = game->team_data; current; current = current->next) {
+			display_team_info(game, current->content, y, 3);
+			y += PAD_YTEAM;
+		}
+	}
+
 	if (pdata) {
 		display_pdata_node(game, pdata, y + PAD_YTEAM);
 	}
@@ -300,23 +320,6 @@ int main(int argc, char **argv)
 	}
 	return (0);
 }
-
-
-/* @brief Display team info lst */
-// static int	display_team_info(t_game *game, t_team *team, uint32_t pad_y, uint32_t str_sizemax)
-// {
-// 	uint32_t start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
-// 	uint32_t y = 20U + pad_y;
-// 	uint32_t x = start_x;
-// 	mlx_string_put(game->mlx, game->win, x, y, team->data.color, "ID : ");
-// 	x += skip_x("ID : ");
-// 	mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, team->strid); change data here 
-// 	x += ((str_sizemax + 2) * CHAR_TOPIXEL);
-// 	mlx_string_put(game->mlx, game->win, x, y, team->data.color, "REMAIN : ");
-// 	x += skip_x("REMAIN : ");
-// 	mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, team->strsize); change data here 
-// 	return (0);
-// }
 
 /* CLear pixel buff */
 // size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);

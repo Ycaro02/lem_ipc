@@ -15,6 +15,10 @@
 # define BLACK_INT 0x000000
 
 
+# define REMOVE_TEAM 0
+# define JOIN_TEAM 1
+# define UPDATE_KILL 2 
+
 
 // # define TOPBAND_HEIGHT (TILE_SIZE * 2)
 
@@ -67,6 +71,7 @@ typedef struct s_team {
 	uint32_t	tsize;		/* Team Size */
 	char		*strsize;	/* Team Size String */
 	uint32_t	kill;		/* Team Kill */
+	char		*kill_str;	/* Team Kill String */
 	t_teamcolor	data;		/* Team color ? */
 } t_team;
 
@@ -78,8 +83,9 @@ typedef struct s_game
 	t_img		img;			/* mlx image, represent all screen execpt right band */
 	t_img		right_band;		/* right band image */
 	t_ipc		*ipc;			/* ipc handler */
+	t_list		*team_data;		/* team data list */
 	t_list		*player_data;	/* player data list */
-	t_pdata		*selected;		/* player data */
+	t_pdata		*selected;		/* player data to display */
 	uint32_t	player_nb;		/* last team number store */
 	t_vec		mouse_pos;		/* mouse position, TODO can remove*/
 	int8_t		pause;			/* game pause bool */
@@ -92,6 +98,8 @@ typedef enum e_keyboard_key
 	LEFT_CLICK = 1,			/* Left click value */
 	ESC = 65307,			/* Escape key value */
 }	t_keyboard_key;
+
+void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd);
 
 /*lst utils in parsepdata*/
 int is_same_node(void *node, void *target);
