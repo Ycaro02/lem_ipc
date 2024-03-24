@@ -106,12 +106,12 @@ int8_t send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data)
 	errno = 0;
 	if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), 0) == -1) {
 		 if (errno == EAGAIN) {
-			ft_printf_fd(2, RED"Message queue is full\n"RESET);
+			// ft_printf_fd(2, RED"Message queue is full\n"RESET);
 			clear_msg_queue(ipc, 0);
 			return (0);
 		}
-		ft_printf_fd(2, RED"Error msgsend from %d\n", msg_id, RESET);
-		syscall_perror("msgsnd");
+		// ft_printf_fd(2, RED"Error msgsend from %d\n", msg_id, RESET);
+		// syscall_perror("msgsnd");
 		return (-1);
 	}
 	return (0);
