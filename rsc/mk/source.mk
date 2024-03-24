@@ -1,10 +1,12 @@
 OBJ_DIR			= obj
 
+DISPLAY_OBJ_DIR	= obj/display
+
 SRC_DIR 		= src
 
 MAIN_MANDATORY	=	main.c
 
-MAIN_DISPLAY	=	main_display.c
+MAIN_DISPLAY	=	display/main_display.c
 
 SHARED_SRCS		=	init_shared_mem.c\
 					init_game.c\
@@ -19,11 +21,11 @@ SHARED_SRCS		=	init_shared_mem.c\
 
 DISPLAY_SRCS	= 	${SHARED_SRCS}\
 					${MAIN_DISPLAY}\
-					click_event.c\
-					parse_pdata.c\
-					display_pdata.c\
-					team_handling.c\
-					
+					display/click_event.c\
+					display/parse_pdata.c\
+					display/display_pdata.c\
+					display/team_handling.c\
+
 
 SRCS			=	${SHARED_SRCS}
 

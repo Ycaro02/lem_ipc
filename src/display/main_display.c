@@ -1,4 +1,4 @@
-# include "../include/display.h"
+# include "../../include/display.h"
 
 int		g_game_run; 
 
