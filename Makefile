@@ -12,7 +12,9 @@ IPCS_FREE		=	./rsc/sh/check_ipcs_free.sh
 
 LEMIPC_RUN		=	./rsc/sh/run_lemipc.sh
 DISPLAY_TEST	=	./rsc/sh/display_test.sh
-MLX_FLAG 		=	-Lminilibx-linux -lmlx -lX11 -lXext -lm
+MLX_FLAG 		=	-Lmini_mlx -lmlx -lX11 -lXext -lm
+
+MLX = mini_mlx/libmlx.a
 
 all:		$(NAME)
 
@@ -24,11 +26,18 @@ $(NAME):	$(OBJ_DIR) $(OBJS) $(DISPLAY_NAME) $(LIST) $(LIBFT)
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBFT) $(LIST)
 	@printf "$(GREEN)Compiling $(NAME) done$(RESET)\n"
 
-$(DISPLAY_NAME): $(DISPLAY_OBJS) $(LIST) $(LIBFT)
-	@make -s -C minilibx-linux
+$(DISPLAY_NAME): $(LIBFT) $(LIST) ${MLX} $(DISPLAY_OBJS) 
 	@printf "$(CYAN)Compiling ${DISPLAY_NAME} ...$(RESET)\n"
 	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST) ${MLX_FLAG}
 	@printf "$(GREEN)Compiling $(DISPLAY_NAME) done$(RESET)\n"
+
+
+${MLX}:
+ifeq ($(shell [ -f ${MLX} ] && echo 0 || echo 1), 1)
+	@printf "$(CYAN)Compiling mini_mlx...$(RESET)\n"
+	@make -s -C mini_mlx
+	@printf "$(GREEN)Compiling mini_mlx done$(RESET)\n"
+endif
 
 $(LIST):
 ifeq ($(shell [ -f ${LIST} ] && echo 0 || echo 1), 1)
@@ -49,7 +58,7 @@ $(OBJ_DIR):
 	@$(ASCII_ART) $(ASCII_NAME)
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@printf "$(YELLOW)Compile $<$(RESET)\n"
+	@printf "$(YELLOW)Compiling $<$(RESET)\n"
 	@$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
@@ -59,14 +68,17 @@ ifeq ($(shell [ -d ${OBJ_DIR} ] && echo 0 || echo 1), 0)
 	@$(RM) ${TESTER_OUT_FILES}
 endif
 
-fclean:		clean clear
+fclean:		clean clear clean_lib
 	@printf "$(RED)Clean $(NAME)/lib$(RESET)\n"
 	@$(RM) $(NAME) ${TESTER_OUT_FILES} ${DISPLAY_NAME}
 
 clean_lib:
+	@printf "$(RED)Clean libft$(RESET)\n"
 	@$(MAKE_LIBFT) fclean
+	@printf "$(RED)Clean list$(RESET)\n"
 	@$(MAKE_LIST) fclean
-	@make -C minilibx-linux clean
+	@printf "$(RED)Clean mini_mlx$(RESET)\n"
+	@make -s -C mini_mlx clean
 
 test: $(NAME)
 	@./$(NAME) 1 && ${CHECK_IPC}

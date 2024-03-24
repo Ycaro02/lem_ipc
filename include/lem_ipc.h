@@ -20,8 +20,8 @@
 /* MLX */
 # include <math.h>
 # include <fcntl.h>
-# include "../minilibx-linux/mlx.h"
-# include "../minilibx-linux/mlx_int.h"
+# include "../mini_mlx/mlx.h"
+# include "../mini_mlx/mlx_int.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //                                                                            //
