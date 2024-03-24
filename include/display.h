@@ -51,6 +51,10 @@
 /* Start x for write str in rightband */
 # define START_STR_X (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U)
 
+
+# define PAUSE_BTN_ASSET "rsc/assets/pause_btn.xpm"
+
+
 /* Team color struct */
 typedef struct s_teamcolor {
 	char		*strcolor;	/* Team color name */
@@ -70,7 +74,9 @@ typedef struct s_game
 {
 	t_xvar		*mlx;			/* mlx handler */
 	void		*win;			/* mlx window */
-	t_img		img;			/* mlx image */
+	t_img		*pause_btn;		/* pause btn image */
+	t_img		img;			/* mlx image, represent all screen execpt right band */
+	t_img		right_band;		/* right band image */
 	t_ipc		*ipc;			/* ipc handler */
 	t_list		*player_data;	/* player data list */
 	t_pdata		*selected;		/* player data */

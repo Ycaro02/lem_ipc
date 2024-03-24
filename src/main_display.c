@@ -59,6 +59,8 @@ int init_display(t_player *player, int argc, char **argv)
 int destroy_windows(t_game *game)
 {
 	mlx_destroy_image(game->mlx, game->img.image);
+	mlx_destroy_image(game->mlx, game->right_band.image);
+	mlx_destroy_image(game->mlx, game->pause_btn);
 	mlx_destroy_window(game->mlx, game->win);
 	mlx_destroy_display(game->mlx);
 	if (game->player_data) {
@@ -99,30 +101,30 @@ int skip_x(char *str) {
 }
 
 /* @brief Basic display btn  */
-void display_button(t_game *game)
-{
-	uint32_t width = RIGHTBAND_WIDTH;
-	uint32_t height = TILE_SIZE * 2;
-	uint32_t start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH;
+// void display_color_button(t_game *game)
+// {
+// 	uint32_t width = RIGHTBAND_WIDTH;
+// 	uint32_t height = TILE_SIZE * 2;
+// 	uint32_t start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH;
 
-	for (uint32_t y = 0; y < height; ++y) {
-		for (uint32_t x = start_x; x < start_x + width; ++x) {
-			((uint32_t *)game->img.data)[x + (y * SCREEN_WIDTH)] = BLUE_INT;
-		}
-	}
-}
+// 	for (uint32_t y = 0; y < height; ++y) {
+// 		for (uint32_t x = start_x; x < start_x + width; ++x) {
+// 			((uint32_t *)game->img.data)[x + (y * SCREEN_WIDTH)] = BLUE_INT;
+// 		}
+// 	}
+// }
 
 
 /* TO_REWORK read new dataset */
 void display_righband(t_game *game, t_pdata *pdata)
 {
-	// t_list *tmp = list;
-	
 	uint32_t y = (TILE_SIZE * 2) + 20U;
 	char *player_remain = ft_ultoa(get_attached_processnb(game->ipc) - 1U);
 	
-	display_button(game);
-	mlx_string_put(game->mlx, game->win, (START_STR_X + (TILE_SIZE * 2)), TILE_SIZE, BLACK_INT, "PAUSE");
+	/* reset right band */
+	mlx_put_image_to_window(game->mlx, game->win, game->right_band.image, SCREEN_WIDTH - RIGHTBAND_WIDTH, (y - 20U));
+
+	mlx_put_image_to_window(game->mlx, game->win, game->pause_btn, (int)(SCREEN_WIDTH - RIGHTBAND_WIDTH), 0);
 	mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, PLAYER_REMAIN);
 	if (player_remain) {
 		mlx_string_put(game->mlx, game->win, START_STR_X + skip_x(PLAYER_REMAIN), y, RED_INT, player_remain);
@@ -148,26 +150,25 @@ static void draw_board(t_game *game)
 	int color = 0;
 
 	for (uint32_t y = 1; y < SCREEN_HEIGHT; ++y) {
-		for (uint32_t x = 1; x < SCREEN_WIDTH - RIGHTBAND_WIDTH; ++x) {
+		for (uint32_t x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
 			uint32_t x_compute =  ((x / TILE_SIZE) % BOARD_W);
 			uint32_t y_compute = ((y / TILE_SIZE) * BOARD_W);   
 			uint32_t idx = x_compute + y_compute;
 			uint32_t tile_state = game->ipc->ptr[idx];
 			color = tile_state == TILE_EMPTY ? 0xFFFFFF : get_new_color(tile_state).color;
 			if (x % TILE_SIZE != 0 && y % TILE_SIZE != 0) {
-				((uint32_t *)game->img.data)[x + (y * SCREEN_WIDTH)] = color;
+				((uint32_t *)game->img.data)[x + (y * (SCREEN_WIDTH - RIGHTBAND_WIDTH))] = color;
 			}
 		}
 	}
-
 }
-
 
 /* Main display function called in mlx loop hook */
 int main_display(void *vgame)
 {
 	t_game		*game = vgame;
 	uint32_t	tmp = 0U;
+
 
 	/* If game is paused sem already lock */
 	if (!game->pause) {
@@ -207,13 +208,17 @@ int main_display(void *vgame)
 		sem_unlock(game->ipc->semid);
 		game->sem_lock = 0;
 	}
+
+	
 	/* Display image (flush) */
 	mlx_put_image_to_window(game->mlx, game->win, game->img.image, 0, 0);
+
+	
 	/* Display old team list to remove/rework to read new data list */
 	display_righband(game, game->selected);
 	/* 1/10 sec */
 	// usleep(100000);
-	usleep(10000);
+	// usleep(10000);
 	return (0);
 }
 
@@ -229,18 +234,36 @@ int8_t init_mlx(t_game *game)
 		return (ERROR_CASE);
 	}
 	game->win = mlx_new_window(game->mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "LEM_IPC");
-	game->img.image = mlx_new_image(game->mlx, SCREEN_WIDTH, SCREEN_HEIGHT);
+	game->img.image = mlx_new_image(game->mlx, SCREEN_WIDTH - RIGHTBAND_WIDTH, SCREEN_HEIGHT);
+	game->right_band.image = mlx_new_image(game->mlx, RIGHTBAND_WIDTH, SCREEN_HEIGHT - (TILE_SIZE * 2));
 	// ft_printf_fd(1, CYAN"SCREEN WIDTH %u SCREEN HEIGHT %u\n"RESET, SCREEN_WIDTH, SCREEN_HEIGHT);
-	if (!game->win || !game->img.image) {
+	if (!game->win || !game->img.image || !game->right_band.image) {
 		ft_printf_fd(2, "mlx_new_window or image failed\n");
 		return (ERROR_CASE);
 	}
 	game->img.data = mlx_get_data_addr(game->img.image, &game->img.bpp,
 			&game->img.width, &endian);
-	if (!game->img.data) {
+	game->right_band.data = mlx_get_data_addr(game->right_band.image, &game->right_band.bpp,
+			&game->right_band.width, &endian);
+	if (!game->img.data || !game->right_band.data) {
 		ft_printf_fd(2, "mlx_get_data_addr failed\n");
 		return (ERROR_CASE);
 	}
+
+
+	int btn_width = (int)RIGHTBAND_WIDTH;
+	int btn_height = (int)(TILE_SIZE * 2);
+	// game->pause_btn = mlx_new_image(game->mlx, btn_width, btn_height);
+	ft_printf_fd(2, PURPLE"Pause btn GIVEN before btn_width %d btn_height %d\n"RESET, btn_width, btn_height);
+	game->pause_btn = mlx_xpm_file_to_image(game->mlx, PAUSE_BTN_ASSET, &btn_width, &btn_height);
+	if (!game->pause_btn) {
+		ft_printf_fd(2, "mlx_xpm_file_to_image %s failed\n", PAUSE_BTN_ASSET);
+	}
+	game->pause_btn->width = (int)RIGHTBAND_WIDTH;
+	game->pause_btn->height = (int)(TILE_SIZE * 2);
+	// ft_printf_fd(2, GREEN"Pause btn GIVEN after btn_width %d btn_height %d\n"RESET, btn_width, btn_height);
+	// ft_printf_fd(2, CYAN"Pause btn GOT btn_width %d btn_height %d\n"RESET, game->pause_btn->width, ((t_img *)game->pause_btn)->height);
+
 
 	/* Extract controle packet */
 	packet_extract = extract_controle_packet(game);
