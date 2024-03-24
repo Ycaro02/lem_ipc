@@ -80,12 +80,6 @@ clean_lib:
 	@printf "$(RED)Clean mini_mlx$(RESET)\n"
 	@make -s -C mini_mlx clean
 
-test: $(NAME)
-	@./$(NAME) 1 && ${CHECK_IPC}
-
-display: $(NAME)
-	@$(DISPLAY_TEST)
-
 clear:
 	@$(IPCS_FREE)
 	@$(DISPLAY_TEST) rm
