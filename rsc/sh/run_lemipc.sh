@@ -2,10 +2,12 @@
 
 source ./rsc/sh/color.sh
 LEMIPC="./lemipc"
-VAL_LOG="valgrind.log"
-VALGRIND="valgrind --leak-check=full --track-fds=yes --log-file=${VAL_LOG}"
+OUT_VALGRIND_DISPLAY="valgrind_display.log"
+VALGRIND_DISPLAY="valgrind --leak-check=full --track-fds=yes --log-file=${OUT_VALGRIND_DISPLAY}"
 LEMIPC_DISPLAY="./lemipc_display"
 SLEEP_VAL=0.02
+
+VALGRIND="valgrind --leak-check=full --track-fds=yes"
 
 
 
@@ -17,7 +19,7 @@ handle_opt() {
 
 	if [ "${1}" == "1" ]; then
 		LEMIPC="${VALGRIND} ${LEMIPC}"
-		LEMIPC_DISPLAY="${VALGRIND} ${LEMIPC_DISPLAY}"
+		LEMIPC_DISPLAY="${VALGRIND_DISPLAY} ${LEMIPC_DISPLAY}"
 		SLEEP_VAL=0.1
 	fi
 
@@ -28,10 +30,10 @@ handle_opt() {
 }
 
 display_valgrind_log() {
-	if [ -f "${VAL_LOG}" ]; then
+	if [ -f "${OUT_VALGRIND_DISPLAY}" ]; then
 		display_color_msg ${GREEN} "Valgrind log found."
-		cat ${VAL_LOG}
-		rm ${VAL_LOG}
+		cat ${OUT_VALGRIND_DISPLAY}
+		rm ${OUT_VALGRIND_DISPLAY}
 	fi
 }
 

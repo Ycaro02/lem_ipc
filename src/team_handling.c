@@ -105,6 +105,10 @@ void free_team(void *team)
     }
 }
 
+static int get_max_kill(void *next, void *current) {
+	return (((t_team *)next)->kill <= ((t_team *)current)->kill);
+}
+
 void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd)
 {
     t_team      *team = NULL;
@@ -137,10 +141,8 @@ void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd)
         /* get team killer node and increment this->kill */
         // team->kill++;
     }
+	list_sort(lst, get_max_kill);
+
 }
 
-// int get_min_id(void *next, void *current)
-// {
-// 	return (((t_team *)next)->tid >= ((t_team *)current)->tid);
-// }
-// list_sort(lst, get_min_id);
+
