@@ -66,6 +66,9 @@ int destroy_windows(t_game *game)
 	if (game->player_data) {
 		ft_lstclear(&game->player_data, free);
 	}
+	if (game->team_data) {
+		ft_lstclear(&game->team_data, free_team);
+	}
 	if (!game->sem_lock) {
 		ft_printf_fd(2, PURPLE"Display lock sem\n"RESET);
 		sem_lock(game->ipc->semid);

@@ -87,7 +87,7 @@ static t_team *get_team_node(t_list **team, uint32_t team_id)
     return (NULL);
 }
 
-static void free_team(void *team)
+void free_team(void *team)
 {
 	t_team *tmp = (t_team *)team;
     
@@ -96,6 +96,9 @@ static void free_team(void *team)
     }
     if (tmp->strsize) {
         free(tmp->strsize);
+    }
+    if (tmp->kill_str) {
+        free(tmp->kill_str);
     }
     if (team) {
     	free(team);

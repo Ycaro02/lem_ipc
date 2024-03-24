@@ -100,6 +100,7 @@ typedef enum e_keyboard_key
 }	t_keyboard_key;
 
 void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd);
+void free_team(void *team);
 
 /*lst utils in parsepdata*/
 int is_same_node(void *node, void *target);
