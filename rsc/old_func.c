@@ -15,3 +15,27 @@
 // 	}
 // 	ft_printf_fd(1, "\n");
 // }
+
+/**
+ *	@brief Set message length
+ *	@param ipc The ipc structure
+ *	@param len The new message length
+ *	@return 0 on success, -1 on error
+*/
+int set_msg_len (t_ipc *ipc, msglen_t len)
+{
+	struct msqid_ds buf;
+
+	errno = 0;
+	if (msgctl(ipc->msgid, IPC_STAT, &buf) == -1) {
+		syscall_perror("msgctl");
+		return (-1);
+	}
+	buf.msg_qbytes = len;
+	errno = 0;
+	if (msgctl(ipc->msgid, IPC_SET, &buf) == -1) {
+		syscall_perror("msgctl");
+		return (-1);
+	}
+	return (0);
+}

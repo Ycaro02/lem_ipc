@@ -12,6 +12,7 @@ SHARED_SRCS		=	init_shared_mem.c\
 					init_game.c\
 					handle_board.c\
 					sem_handling.c\
+					message_queue.c\
 					random_position.c\
 					ipcs_utils.c\
 					player.c\

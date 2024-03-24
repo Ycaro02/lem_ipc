@@ -94,7 +94,7 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 */
 void receive_player_data(t_game *game)
 {
-	t_pdata		pdata[PDATA_LEN] = INIT_MSG_PACK;
+	t_pdata		pdata[PDATA_LEN] = INIT_PDATA_PACKET;
 	uint32_t	ret = UINT32_MAX;
 	uint8_t		count = 1; /* count = 1 cause if we call this we already receive the first 0 data start */
 

@@ -139,8 +139,8 @@ typedef struct s_player {
 } t_player;
 
 
-
-# define INIT_MSG_PACK { \
+/* Player data packet init */
+# define INIT_PDATA_PACKET { \
 	{"player data start", {0}}, \
 	{"player data state", {0}}, \
 	{"player data team id", {0}}, \
@@ -170,48 +170,56 @@ typedef struct s_player {
 		- send player target pos	(index uint32)
 		- send player ally pos		(index uint32)
 		- send supp data only for update POS (new pos)
+	When the packet is read by the display handler, it will store data as follow:
+		- Read start packet dont't store it
+		- Read state packet, extract type and state with macro to store it
+		- Read team id, store it as sdata field
+		- Read position, store it as vdata field
+		- Read target, store it as vdata field
+		- Read ally, store it as vdata field
+		- Read supp data if needed, store it as vdata field
+		- Display packet	
 */
 
+/* Player data structure */
 typedef struct s_player_data {
-	char			*name;
+	char			*name;	/* Data name field */
 	union {
-		uint32_t	sdata;
-		t_vec		vdata;
+		uint32_t	sdata;	/* Data simple value */
+		t_vec		vdata;	/* Data vector value */
 	}; 
 } t_pdata;
 
+/* Player data index */
 enum e_pdata_idx {
-	PDATA_START=0U,
-	PDATA_STATE,
-	PDATA_TID,
-	PDATA_POS,
-	PDATA_TARGET,
-	PDATA_ALLY,
-	PDATA_SUPP,
-	PDATA_LEN,
+	PDATA_START=0U,			/* Start packet */
+	PDATA_STATE,			/* Player state mixed with message type */
+	PDATA_TID,				/* Player team id */
+	PDATA_POS,				/* Player position */
+	PDATA_TARGET,			/* Player target */
+	PDATA_ALLY,				/* Player closest ally */
+	PDATA_SUPP,				/* Supp data for update pos or kill counter */
+	PDATA_LEN,				/* Packet len */
 };
-
 
 /* Player state */
 enum e_player_state {
-	S_WAITING=(1U << 0),				/* Waiting state*/
-	S_TRACKER=(1U << 1),				/* Tracker state */
-	S_FOLLOWER=(1U << 2),			/* Follower state */
+	S_WAITING=(1U << 0),	/* Waiting state*/
+	S_TRACKER=(1U << 1),	/* Tracker state */
+	S_FOLLOWER=(1U << 2),	/* Follower state */
 };
 
 /* Message type */
 enum e_msg_type {
-	P_CREATE=(1U << 3),
-	P_UPDATE=(1U << 4),
-	P_UPDATE_POS=(1U << 5),
-	P_DELETE=(1U << 6),
+	P_CREATE=(1U << 3),		/* Create player */
+	P_UPDATE=(1U << 4),		/* Update player */
+	P_UPDATE_POS=(1U << 5), /* Update player position */
+	P_DELETE=(1U << 6),		/* Delete player */
 };
-
 
 
 /* Int global for sigint handle game status */
 extern int g_game_run;
-
 
 /* main */
 uint32_t	check_death(uint32_t *board, t_vec point, uint32_t team_id);
@@ -223,8 +231,6 @@ void		player_waiting(t_ipc *ipc, t_player *player);
 uint32_t	get_heuristic_cost(t_vec start, t_vec end);
 int8_t		find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag);
 
-
-
 /* send pdata */
 void		send_display_controle_packet(t_ipc *ipc);
 int8_t		display_handler_state(t_ipc *ipc);
@@ -233,7 +239,8 @@ void		send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type);
 /* Display controle packet */
 void		send_display_controle_packet(t_ipc *ipc);
 
-/* msg */
+/* message queue */
+int			get_msg_queue(key_t key, int flag);
 int8_t		remove_msg_queue(t_ipc *ipc);
 uint32_t 	extract_msg(t_ipc *ipc, uint32_t msg_id);
 int8_t		send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data);
@@ -257,7 +264,7 @@ int			get_attached_processnb(t_ipc *ipc);
 void 		syscall_perror(char *syscall_name);
 
 /* handle board */
-t_vec get_board_vec(uint32_t idx);
+t_vec		get_board_vec(uint32_t idx);
 uint32_t	get_tile_board_val(uint32_t *array, t_vec vec);
 uint32_t	get_board_index(t_vec vec);
 void		display_uint16_array(uint32_t *array);
@@ -267,6 +274,6 @@ void 		set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value);
 int			init_player(t_player *player, int argc, char **argv);
 void 		player_routine(t_ipc *ipc, t_player *player);
 /* random position */
-t_vec get_random_point(uint32_t *array, t_vec player_pos);
+t_vec		get_random_point(uint32_t *array, t_vec player_pos);
 
 # endif /* LEM_IPC_HEADER */ 
