@@ -83,7 +83,7 @@ typedef struct s_game
 	uint32_t	player_nb;		/* last team number store */
 	t_vec		mouse_pos;		/* mouse position, TODO can remove*/
 	int8_t		pause;			/* game pause bool */
-	int8_t sem_lock;			/* sem is locked by display handler*/
+	int8_t		sem_lock;		/* sem is locked by display handler*/
 }	t_game;
 
 /* Key */

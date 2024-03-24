@@ -253,16 +253,11 @@ int8_t init_mlx(t_game *game)
 
 	int btn_width = (int)RIGHTBAND_WIDTH;
 	int btn_height = (int)(TILE_SIZE * 2);
-	// game->pause_btn = mlx_new_image(game->mlx, btn_width, btn_height);
-	ft_printf_fd(2, PURPLE"Pause btn GIVEN before btn_width %d btn_height %d\n"RESET, btn_width, btn_height);
 	game->pause_btn = mlx_xpm_file_to_image(game->mlx, PAUSE_BTN_ASSET, &btn_width, &btn_height);
 	if (!game->pause_btn) {
 		ft_printf_fd(2, "mlx_xpm_file_to_image %s failed\n", PAUSE_BTN_ASSET);
+		return (ERROR_CASE);
 	}
-	game->pause_btn->width = (int)RIGHTBAND_WIDTH;
-	game->pause_btn->height = (int)(TILE_SIZE * 2);
-	// ft_printf_fd(2, GREEN"Pause btn GIVEN after btn_width %d btn_height %d\n"RESET, btn_width, btn_height);
-	// ft_printf_fd(2, CYAN"Pause btn GOT btn_width %d btn_height %d\n"RESET, game->pause_btn->width, ((t_img *)game->pause_btn)->height);
 
 
 	/* Extract controle packet */
@@ -303,7 +298,6 @@ int main(int argc, char **argv)
 }
 
 
-
 /* @brief Display team info lst */
 // static int	display_team_info(t_game *game, t_team *team, uint32_t pad_y, uint32_t str_sizemax)
 // {
@@ -324,3 +318,11 @@ int main(int argc, char **argv)
 // size_t len = sizeof(uint32_t) * (SCREEN_WIDTH * SCREEN_HEIGHT);
 // ft_printf_fd(2, RED"len : %u, sizeof %u\n"RESET, len, sizeof(game->img.data));
 // ft_bzero(game->img.data, len);
+
+/* Debug img load */
+// game->pause_btn = mlx_new_image(game->mlx, btn_width, btn_height);
+// ft_printf_fd(2, PURPLE"Pause btn GIVEN before btn_width %d btn_height %d\n"RESET, btn_width, btn_height);
+// game->pause_btn->width = (int)RIGHTBAND_WIDTH;
+// game->pause_btn->height = (int)(TILE_SIZE * 2);
+// ft_printf_fd(2, GREEN"Pause btn GIVEN after btn_width %d btn_height %d\n"RESET, btn_width, btn_height);
+// ft_printf_fd(2, CYAN"Pause btn GOT btn_width %d btn_height %d\n"RESET, game->pause_btn->width, ((t_img *)game->pause_btn)->height);
