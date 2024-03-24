@@ -118,13 +118,13 @@ int skip_x(char *str) {
 /* TO_REWORK read new dataset */
 void display_righband(t_game *game, t_pdata *pdata)
 {
-	uint32_t y = (TILE_SIZE * 2) + 20U;
+	uint32_t y = 20U;
 	char *player_remain = ft_ultoa(get_attached_processnb(game->ipc) - 1U);
 	
 	/* reset right band */
-	mlx_put_image_to_window(game->mlx, game->win, game->right_band.image, SCREEN_WIDTH - RIGHTBAND_WIDTH, (y - 20U));
+	mlx_put_image_to_window(game->mlx, game->win, game->right_band.image, SCREEN_WIDTH - RIGHTBAND_WIDTH, 0);
 
-	mlx_put_image_to_window(game->mlx, game->win, game->pause_btn, (int)(SCREEN_WIDTH - RIGHTBAND_WIDTH), 0);
+	mlx_put_image_to_window(game->mlx, game->win, game->pause_btn, (int)(SCREEN_WIDTH - RIGHTBAND_WIDTH), SCREEN_HEIGHT - (TILE_SIZE * 2));
 	mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, PLAYER_REMAIN);
 	if (player_remain) {
 		mlx_string_put(game->mlx, game->win, START_STR_X + skip_x(PLAYER_REMAIN), y, RED_INT, player_remain);
@@ -163,6 +163,8 @@ static void draw_board(t_game *game)
 	}
 }
 
+# define PAUSE_BTN_IDX 11U
+
 /* Main display function called in mlx loop hook */
 int main_display(void *vgame)
 {
@@ -176,12 +178,14 @@ int main_display(void *vgame)
 		game->sem_lock = 1;
 	}
 	/* Check for game pause handle click */
-	if (game->mouse_pos.y == 0 && game->mouse_pos.x == UINT32_MAX) {
-		game->pause = !(game->pause);
+	if (game->mouse_pos.x == UINT32_MAX && game->mouse_pos.y != UINT32_MAX) {
+		ft_printf_fd(2, YELLOW"Click on btn %u\n"RESET, game->mouse_pos.y);
+		if (game->mouse_pos.y == PAUSE_BTN_IDX) {
+			game->pause = !(game->pause);
+		}
 		game->mouse_pos.y = UINT32_MAX;
 		// ft_printf_fd(2, CYAN"Game pause %d\n"RESET, game->pause);
 	} else if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
-		// ft_printf_fd(2, YELLOW"Click on [%u][%u]\n"RESET, game->mouse_pos.y, game->mouse_pos.x);
 		game->selected = get_player_node(game->player_data, game->mouse_pos);
 		game->mouse_pos = create_vector(UINT32_MAX, UINT32_MAX);
 	}
