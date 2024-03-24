@@ -3,7 +3,6 @@
 FIRST="first_pid.txt"
 SECOND="second_pid.txt"
 
-# this clear all lemipc pid when sourced
 source ./rsc/sh/handle_sigint.sh
 
 

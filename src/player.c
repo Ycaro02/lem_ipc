@@ -78,8 +78,8 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	set_tile_board_val(ipc->ptr, point, player->team_id);
 	player->pos = point;
 	/* Update info to default value */
-	player->target = get_board_pos(OUT_OF_BOARD);
-	player->ally_pos = get_board_pos(OUT_OF_BOARD);
+	player->target = get_board_vec(OUT_OF_BOARD);
+	player->ally_pos = get_board_vec(OUT_OF_BOARD);
 
  	/* Init display handler bool to know if we need to send data to display program */
 	player->display = display_handler_state(ipc);

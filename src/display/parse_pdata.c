@@ -103,7 +103,7 @@ void receive_player_data(t_game *game)
 		pdata[count].sdata = ret;
 		if (count != PDATA_START) {
 			if (count >= PDATA_POS) {
-				pdata[count].vdata = get_board_pos(pdata[count].sdata);
+				pdata[count].vdata = get_board_vec(pdata[count].sdata);
 			} 
 		}
 		++count;

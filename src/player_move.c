@@ -158,7 +158,7 @@ static void follower_logic(t_ipc *ipc, t_player *player)
 {
 	t_vec		save_pos = create_vector(player->pos.y, player->pos.x);
 	uint32_t	to_rush = extract_msg(ipc, player->team_id);
-	t_vec		rush_vec = get_board_pos(to_rush);
+	t_vec		rush_vec = get_board_vec(to_rush);
 
 	if (to_rush != UINT32_MAX) {
 		// ft_printf_fd(2, PURPLE"Follower |%u| [%u][%u] receive [%u][%u] continue track\n"RESET,  player->team_id, player->pos.y, player->pos.x, rush_vec.y, rush_vec.x);
@@ -197,7 +197,7 @@ void player_waiting(t_ipc *ipc, t_player *player)
 	/* Try to get team message store position in uint32 */
 	uint32_t	to_rush = extract_msg(ipc, player->team_id);
 	/* Transform this postion to vector pos */
-	t_vec		rush_vec = get_board_pos(to_rush);
+	t_vec		rush_vec = get_board_vec(to_rush);
 	/* Bool check msg, check if message is'nt my own position  */
 	int8_t		correct_msg = to_rush == UINT32_MAX ? 0 : (vector_cmp(rush_vec, player->pos) == 0);
 	/* Bool is closest ally to be follower or not */

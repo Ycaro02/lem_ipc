@@ -1,10 +1,12 @@
 # include "../include/lem_ipc.h"
 
-
-t_vec get_board_pos(uint32_t idx)
-{
-	t_vec vec = create_vector(idx / BOARD_W, idx % BOARD_W);
-	return (vec);
+/**
+ * @brief get board vector position
+ * @param index
+ * @return vector
+*/
+t_vec get_board_vec(uint32_t idx) {
+	return (create_vector(idx / BOARD_W, idx % BOARD_W));
 }
 
 /**
@@ -15,6 +17,7 @@ t_vec get_board_pos(uint32_t idx)
 uint32_t get_board_index (t_vec vec)
 {
 	uint32_t idx = (vec.y * BOARD_W) + vec.x;
+	
 	if (idx >= BOARD_SIZE) {
 		return (OUT_OF_BOARD);
 	}
@@ -29,7 +32,8 @@ uint32_t get_board_index (t_vec vec)
 */
 void set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value)
 {
-	int idx = get_board_index(vec);
+	int	idx = get_board_index(vec);
+
 	if (idx == OUT_OF_BOARD) {
 		ft_printf_fd(2, RED"Get_board_index error: invalid index: [%d]\n"RESET, idx);
 		return ;
@@ -37,29 +41,18 @@ void set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value)
 	array[idx] = value;
 }
 
+/**
+ *	@brief get tile board value
+ *	@param array (board)
+ *	@param position vector
+ *	@return value
+*/
 uint32_t get_tile_board_val(uint32_t *array, t_vec vec)
 {
-	int idx = get_board_index(vec);
+	int	idx = get_board_index(vec);
+
 	if (idx == OUT_OF_BOARD) {
 		return (OUT_OF_BOARD);
 	}
 	return (array[idx]);
-}
-
-/* @brief display board in stdout */
-void display_uint16_array(uint32_t *array)
-{
-	ft_printf_fd(1, "\n\nDisplay board\n");
-	uint32_t i = 0, j = 0;
-	(void)array;
-
-	for (i = 0; i < BOARD_H; i++) {
-		for (j = 0; j < BOARD_W; j++) {
-			uint32_t idx = i * BOARD_W + j;
-			// ft_printf_fd(2, "For idx = %u, vec = [%u][%u]\n", idx, get_board_pos(idx).y, get_board_pos(idx).x);
-			ft_printf_fd(1, YELLOW"["RESET""CYAN"%u"RESET""YELLOW"] "RESET, array[idx]);
-		}
-		ft_printf_fd(1, "\n");
-	}
-	ft_printf_fd(1, "\n");
 }

@@ -257,7 +257,7 @@ int			get_attached_processnb(t_ipc *ipc);
 void 		syscall_perror(char *syscall_name);
 
 /* handle board */
-t_vec get_board_pos(uint32_t idx);
+t_vec get_board_vec(uint32_t idx);
 uint32_t	get_tile_board_val(uint32_t *array, t_vec vec);
 uint32_t	get_board_index(t_vec vec);
 void		display_uint16_array(uint32_t *array);
