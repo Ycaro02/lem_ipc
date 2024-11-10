@@ -86,6 +86,7 @@ clear:
 
 run: $(NAME)
 	@$(LEMIPC_RUN) 0
+# @sudo $(LEMIPC_RUN) 0
 
 runv: $(NAME)
 	@$(LEMIPC_RUN) 1

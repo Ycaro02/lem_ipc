@@ -26,15 +26,6 @@
 // # define BOARD_PWIDTH (TILE_SIZE * BOARD_W)
 # define COLOR_MAX 26U
 
-/* Tile size in pixel */
-# define TILE_SIZE 28U
-// # define TILE_SIZE 20U
-
-
-/* Right band tile number */
-# define RIGHTBAND_TILE_NB 5U
-
-
 /* Right band width in pixel */
 # define RIGHTBAND_WIDTH (TILE_SIZE * RIGHTBAND_TILE_NB)
 

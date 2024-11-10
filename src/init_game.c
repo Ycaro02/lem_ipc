@@ -124,6 +124,19 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	if (ipc->shmid == -1 || ipc->msgid == -1 || attach_shared_memory(ipc) == -1) {
 		return (-1);
 	}
+	struct msqid_ds buf = {};
+
+	if (msgctl(ipc->msgid, IPC_STAT, &buf) == -1) {
+        perror("msgctl IPC_STAT");
+        exit(1);
+    }
+    buf.msg_qbytes = MSG_QUEUE_SIZE;
+    // buf.msg_qbytes = 16384;
+    if (msgctl(ipc->msgid, IPC_SET, &buf) == -1) {
+        perror("msgctl IPC_SET");
+        exit(1);
+    }
+
 
 	// display msg_len
 	// ft_printf_fd(1, YELLOW"Msg len: "RESET""CYAN"%u\n"RESET, get_msg_len(ipc));

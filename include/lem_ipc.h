@@ -37,13 +37,26 @@
 /* Return of getpagesize function casted in size_t 4096 */
 # define PAGE_SIZE              (size_t)getpagesize()
 
-/* Map height */
-// # define BOARD_H 30U
-# define BOARD_H 24U
-
-/* Map width */
-// # define BOARD_W 65U
+/* Normal size */
+# define BOARD_H 30U
 # define BOARD_W 40U
+# define TILE_SIZE 28U
+# define RIGHTBAND_TILE_NB 5U
+# define MSG_QUEUE_SIZE 16384
+
+/* Map height */
+/* Map width */
+/* Tile size in pixel */
+/* Right band tile number */
+
+/* Little size */
+// # define BOARD_H 60U
+// # define BOARD_W 100U
+// # define TILE_SIZE 10U
+// # define RIGHTBAND_TILE_NB (15U)
+// # define MSG_QUEUE_SIZE 16384 * 10
+
+// 24 * 40 = 960
 
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)

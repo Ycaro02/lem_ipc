@@ -5,7 +5,7 @@ LEMIPC="./lemipc"
 OUT_VALGRIND_DISPLAY="valgrind_display.log"
 VALGRIND_DISPLAY="valgrind --leak-check=full --track-fds=yes --log-file=${OUT_VALGRIND_DISPLAY}"
 LEMIPC_DISPLAY="./lemipc_display"
-SLEEP_VAL=0.02
+SLEEP_VAL=0.001
 
 VALGRIND="valgrind --leak-check=full --track-fds=yes"
 
@@ -39,13 +39,14 @@ display_valgrind_log() {
 
 
 run_test() {
-	
+	local nb_player=${1}
+	local nb_team=${2}
 	./rsc/mk/ascii.sh "tester"
 	# rm_pid_log ${PID_LOG}
 
-	for i in {0..100}
+	for ((i=0; i<${nb_player}; i++));
 	do
-		local team_id=$(((i % 20) + 1))
+		local team_id=$(((i % ${nb_team}) + 1))
 		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
 		if [ ${i} -eq 3 ]; then
 			display_color_msg ${YELLOW} "Lauch display handler ${LEMIPC_DISPLAY} ..."
@@ -53,7 +54,7 @@ run_test() {
 			DISPLAY_PID=$!
 		fi
 		${LEMIPC} ${team_id} &
-		sleep ${SLEEP_VAL}
+		#sleep ${SLEEP_VAL}
 	done
 
 	# wait all children pid
@@ -65,4 +66,7 @@ run_test() {
 }
 
 handle_opt "$@"
-run_test
+run_test 200 4
+# run_test 600 4
+# run_test 800 10
+# run_test 2000 10

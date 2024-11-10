@@ -169,7 +169,9 @@ static void draw_board(t_game *game)
 	}
 }
 
-# define PAUSE_BTN_IDX 11U
+// # define PAUSE_BTN_IDX 11U
+
+#define PAUSE_BTN_IDX (SCREEN_HEIGHT / (TILE_SIZE * 2) - 1)
 
 /* Main display function called in mlx loop hook */
 int main_display(void *vgame)
@@ -185,7 +187,8 @@ int main_display(void *vgame)
 	}
 	/* Check for game pause handle click */
 	if (game->mouse_pos.x == UINT32_MAX && game->mouse_pos.y != UINT32_MAX) {
-		ft_printf_fd(2, YELLOW"Click on btn %u\n"RESET, game->mouse_pos.y);
+		ft_printf_fd(2, YELLOW"Click on btn %u, x: %u, y: %u\n"RESET, game->mouse_pos.y, game->mouse_pos.x, game->mouse_pos.y);
+		ft_printf_fd(2, YELLOW"PAUSE_BTN_IDX %u\n"RESET, PAUSE_BTN_IDX);
 		if (game->mouse_pos.y == PAUSE_BTN_IDX) {
 			game->pause = !(game->pause);
 		}
