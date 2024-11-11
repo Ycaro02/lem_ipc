@@ -1,6 +1,33 @@
 # include "../../include/display.h"
 
 
+static char *ft_utoa(uint32_t n)
+{
+	int count;
+	char *dst;
+	uint64_t tmp;
+
+	dst = NULL;
+	count = 0;
+	tmp = n;
+	while (tmp != 0)
+	{
+		tmp /= 10;
+		count++;
+	}
+	dst = ft_calloc(sizeof(char), count + 1);
+	if (dst == NULL)
+		return (NULL);
+	count--;
+	while (count >= 0)
+	{
+		dst[count] = (n % 10) + 48;
+		n /= 10;
+		count--;
+	}
+	return (dst);
+}
+
 /**
  *  @brief Check if team exist
  *  @param team linked list of team
@@ -68,10 +95,10 @@ static t_team *build_team_node(uint32_t team_id)
     }
     team->tid = team_id;
     team->tsize = 1;
-    team->strid = ft_itoa(team_id);
-    team->strsize = ft_itoa(team->tsize);
+    team->strid = ft_utoa(team_id);
+    team->strsize = ft_utoa(team->tsize);
     team->kill = 0;
-	team->kill_str = ft_itoa(team->kill);
+	team->kill_str = ft_utoa(team->kill);
 	team->color = get_new_color(team_id);
     return (team);
 }

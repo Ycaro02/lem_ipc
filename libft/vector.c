@@ -14,38 +14,38 @@ void display_lst_vec(t_list *lst)
 
 /* @brief create a vector */
 t_vec create_vector(uint32_t y, uint32_t x) {
-        t_vec vec;
-        vec.x = x;
-        vec.y = y;
-        return (vec);
+	t_vec vec;
+	vec.x = x;
+	vec.y = y;
+	return (vec);
 }
 
 /* @brief add vector */
 t_vec        add_vector(t_vec a, t_vec b) {
-        a.x += b.x;
-        a.y += b.y;
-        return (a);
+	a.x += b.x;
+	a.y += b.y;
+	return (a);
 }
 
 /* @brief sub vector */
 t_vec        sub_vector(t_vec a, t_vec b) {
-        a.x -= b.x;
-        a.y -= b.y;
-        return (a);
+	a.x -= b.x;
+	a.y -= b.y;
+	return (a);
 }
 
 /* @brief mult vector */
 t_vec        mult_vec(t_vec a, t_vec b) {
-        a.x *= b.x;
-        a.y *= b.y;
-        return (a);
+	a.x *= b.x;
+	a.y *= b.y;
+	return (a);
 }
 
 /* @brief div vector */
 t_vec        div_vector(t_vec a, t_vec b) {
-        a.x /= b.x;
-        a.y /= b.y;
-        return (a);
+	a.x /= b.x;
+	a.y /= b.y;
+	return (a);
 }
 
 /**
@@ -53,9 +53,9 @@ t_vec        div_vector(t_vec a, t_vec b) {
  * @return 1 if equal, 0 if not
 */
 int          vector_cmp(t_vec a, t_vec b) {
-        if (a.y == b.y && a.x == b.x)
-                return (1);
-        return (0);
+	if (a.y == b.y && a.x == b.x)
+			return (1);
+	return (0);
 }
 
 

@@ -229,9 +229,6 @@ int main_display(void *vgame)
 	
 	/* Display old team list to remove/rework to read new data list */
 	display_righband(game, game->selected);
-	/* 1/10 sec */
-	// usleep(100000);
-	// usleep(10000);
 	return (0);
 }
 

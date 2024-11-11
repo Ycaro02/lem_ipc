@@ -93,13 +93,13 @@ int8_t send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data)
 		 if (errno == EAGAIN) {
 			// ft_printf_fd(2, RED"Message queue is full Clean it\n"RESET);
 			clear_msg_queue(ipc, 0);
-			return (0);
+			return (FALSE);
 		}
 		// ft_printf_fd(2, RED"Error msgsend from %d\n", msg_id, RESET);
 		// syscall_perror("msgsnd");
 		return (-1);
 	}
-	return (0);
+	return (TRUE);
 }
 
 

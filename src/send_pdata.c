@@ -18,9 +18,14 @@ void display_packet(uint32_t *data)
 void send_display_controle_packet(t_ipc *ipc)
 {
 	uint32_t	data[PDATA_LEN] = BUILD_CTRL_PACKET((uint32_t)0);
+	int8_t		ret = TRUE;
 
 	for (int i = 0; i < PDATA_LEN; ++i) {
-		send_msg(ipc, CONTROLE_DISPLAY_CHAN, data[i]);
+		ret = send_msg(ipc, CONTROLE_DISPLAY_CHAN, data[i]);
+		if (ret == FALSE) {
+			break ;
+			send_display_controle_packet(ipc); // need to resend controle packet cause it was interupt by full message queue
+		}
 	}
 }
 
@@ -64,10 +69,15 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 	/* Hard build packet maybe do it cleaner in macro/function */
 	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally, p_sup};
 
+	int8_t ret = TRUE;
+
 	// display_packet(data);
 	if (player->display) {
 		for (int i = 0; i < PDATA_LEN; ++i) {
-			send_msg(ipc, DISPLAY_HANDLER_ID, data[i]);
+			ret = send_msg(ipc, DISPLAY_HANDLER_ID, data[i]);
+			if (ret == FALSE) {
+				break ;
+			}
 		}
 	}
 }

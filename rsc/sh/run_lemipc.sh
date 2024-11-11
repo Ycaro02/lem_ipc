@@ -69,6 +69,6 @@ handle_opt "$@"
 # run_test 10 4
 # run_test 200 4
 # run_test 500 4
-run_test 1000 4
-# run_test 2000 4
+# run_test 1000 4
+run_test 2000 4
 # run_test 5000 26

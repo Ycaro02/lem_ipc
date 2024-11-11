@@ -158,13 +158,13 @@ void player_routine(t_ipc *ipc, t_player *player)
 
 		/* Move */
 		if (!vector_cmp(player->next_pos, player->pos)) {
-			
-			
 			send_pdata_display(ipc, player, P_UPDATE_POS);
 			
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
+			
 			player->pos = create_vector(player->next_pos.y, player->next_pos.x);
+			
 			/* Set team id value in new player position */
 			set_tile_board_val(ipc->ptr, player->pos, player->team_id);
 		}
