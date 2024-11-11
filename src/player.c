@@ -117,10 +117,11 @@ static void find_next_move(t_ipc *ipc, t_player *player, int8_t player_alone)
 		clear_msg_queue(ipc, player->team_id);
 		player->state = S_WAITING;
 	} else if (!player_alone) {
-		if (player->state == S_WAITING)
+		if (player->state == S_WAITING) {
 			player_waiting(ipc, player);
-		else
+		} else {
 			player_tracker_follower(ipc, player);
+		}
 	} else { /* if player is alone or no enemy found*/
 		clear_msg_queue(ipc, player->team_id);
 		player->state = S_WAITING;
@@ -145,9 +146,9 @@ void player_routine(t_ipc *ipc, t_player *player)
 		player->display = display_handler_state(ipc);
 
 		/* Player scan his environement to find nearest ally (update player->ally_pos if found) */
-		int8_t player_alone = find_player_in_range(ipc, player, (int)BOARD_W, ALLY_FLAG) == 0;
+		int8_t player_alone = find_player_in_range(ipc, player, BOARD_W, ALLY_FLAG) == 0;
 		/* Player scan his environement to find nearest enemy (update player->target if found) */
-		int8_t enemy_found = find_player_in_range(ipc, player, (int)BOARD_W, ENEMY_FLAG);
+		int8_t enemy_found = find_player_in_range(ipc, player, BOARD_W, ENEMY_FLAG);
 
 		/* Check break loop condition (death/win) */		
 		if (check_break_loop(ipc, player, enemy_found))
@@ -157,7 +158,10 @@ void player_routine(t_ipc *ipc, t_player *player)
 
 		/* Move */
 		if (!vector_cmp(player->next_pos, player->pos)) {
+			
+			
 			send_pdata_display(ipc, player, P_UPDATE_POS);
+			
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			player->pos = create_vector(player->next_pos.y, player->next_pos.x);

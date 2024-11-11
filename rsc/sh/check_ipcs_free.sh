@@ -18,13 +18,9 @@ all_check() {
 free_ipcs() {
 	IPCS_OPT="$1"
 	MSG="$2"
-	local ipcs_id=$(ipcs ${IPCS_OPT} | grep -v dest | grep 666 | cut -d ' ' -f 2 | tr '\n' ' ')
-	# echo  DATA ${ipcs_id}
+	local ipcs_id=$(ipcs ${IPCS_OPT} | grep -v dest | grep 666 | awk ' {print $2} ' | tr '\n' ' ')
 	if [ "${ipcs_id}" != "" ]; then
-		# ID2=$(ipcs ${IPCS_OPT} | grep -v dest | grep 666 | cut -d ' ' -f 2 | tr '\n' ' ' | cut -d ' ' -f 1)
-		ID=$(ipcs ${IPCS_OPT} | grep -v dest | grep 666 | cut -d ' ' -f 2 | tr '\n' ' ' | awk '{print $1}')
-		# echo id = ${ID}
-		# echo id 2 = ${ID2}
+		ID=$(ipcs ${IPCS_OPT} | grep -v dest | grep 666 | awk ' {print $2} ' | tr '\n' ' ' | awk '{print $1}')
 		display_color_msg ${YELLOW} "Clear ${ipcs_id} ${MSG} leak found."
 		ipcrm ${IPCS_OPT} ${ID}
 		free_ipcs ${IPCS_OPT} ${MSG}

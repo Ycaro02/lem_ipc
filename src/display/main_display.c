@@ -101,7 +101,7 @@ static int	display_team_info(t_game *game, t_team *team, uint32_t pad_y, uint32_
 	mlx_string_put(game->mlx, game->win, x, y, team->color.color, "NB : ");
 	x += skip_x("NB : ");
 	mlx_string_put(game->mlx, game->win, x, y, GREEN_INT, team->strsize); 
-	x += ((str_sizemax - 1) * CHAR_TOPIXEL);
+	x += ((str_sizemax) * CHAR_TOPIXEL);
 	mlx_string_put(game->mlx, game->win, x, y, team->color.color, "K : ");
 	x += skip_x("K : ");
 	mlx_string_put(game->mlx, game->win, x, y, GREEN_INT, team->kill_str); 

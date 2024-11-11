@@ -38,10 +38,11 @@
 # define PAGE_SIZE              (size_t)getpagesize()
 
 /* Normal size */
-# define BOARD_H 30U
-# define BOARD_W 40U
-# define TILE_SIZE 28U
-# define RIGHTBAND_TILE_NB 5U
+// # define BOARD_H 30U
+// # define BOARD_W 40U
+// # define TILE_SIZE 28U
+// # define RIGHTBAND_TILE_NB 5U
+
 # define MSG_QUEUE_SIZE 16384
 
 /* Map height */
@@ -50,11 +51,10 @@
 /* Right band tile number */
 
 /* Little size */
-// # define BOARD_H 60U
-// # define BOARD_W 100U
-// # define TILE_SIZE 10U
-// # define RIGHTBAND_TILE_NB (15U)
-// # define MSG_QUEUE_SIZE 16384 * 10
+# define BOARD_H 100U
+# define BOARD_W 100U
+# define TILE_SIZE 10U
+# define RIGHTBAND_TILE_NB (20U)
 
 // 24 * 40 = 960
 
@@ -242,7 +242,7 @@ void		player_tracker_follower(t_ipc *ipc, t_player *player);
 t_vec		find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id);
 void		player_waiting(t_ipc *ipc, t_player *player);
 uint32_t	get_heuristic_cost(t_vec start, t_vec end);
-int8_t		find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag);
+int8_t		find_player_in_range(t_ipc *ipc, t_player *player, uint32_t range_max, int8_t flag);
 
 /* send pdata */
 void		send_display_controle_packet(t_ipc *ipc);

@@ -15,11 +15,18 @@ uint32_t get_heuristic_cost(t_vec start, t_vec end)
 	return (cost);
 }
 
+t_vec find_empty_tile_arround(t_ipc *ipc, t_vec current) {
+	t_vec 		possible_move[DIR_MAX] = ARROUND_VEC_ARRAY(current);
 
-// static int8_t is_suicide_tile(uint32_t *board, t_vec point, uint32_t team_id)
-// {
-// 	return (check_death(board, point, team_id));
-// }
+	for (int i = 0; i < DIR_MAX; i++) {
+		if (possible_move[i].x < BOARD_W && possible_move[i].y < BOARD_H && get_board_index(possible_move[i]) < BOARD_SIZE) {
+			if (get_tile_board_val(ipc->ptr, possible_move[i]) == TILE_EMPTY) {
+				return (possible_move[i]);
+			}
+		}
+	}
+	return (current);
+}
 
 /**
  * @brief Find the best possible move
@@ -122,6 +129,8 @@ int8_t test_closest_tile(t_ipc *ipc, t_player *player, t_vec change, int8_t flag
 	return (0);
 }
 
+
+
 /**
  * @brief Find enemy in range
  * @param ipc The ipc structure
@@ -130,20 +139,20 @@ int8_t test_closest_tile(t_ipc *ipc, t_player *player, t_vec change, int8_t flag
  * @param flag The flag to check ally or enemy
  * @return 1 and set player->targer/closest ally if target/ally found, otherwise return 0
 */
-int8_t find_player_in_range(t_ipc *ipc, t_player *player, int range_max, int8_t flag)
+int8_t find_player_in_range(t_ipc *ipc, t_player *player, uint32_t range_max, int8_t flag)
 {
 	// uint32_t	tile_state = TILE_EMPTY;
 	// t_vec		pos = player->pos;
 	int8_t ret = 0;
 
 
-	for (int x_change = 1; x_change <= range_max; ++x_change) {
-		for (int y_change = 1; y_change <= x_change; ++y_change) {
+	for (uint32_t x_change = 1; x_change <= range_max; ++x_change) {
+		for (uint32_t y_change = 1; y_change <= x_change; ++y_change) {
 			ret = test_closest_tile(ipc, player, create_vector(y_change, x_change), flag);
 			if (ret == 1)
 				return (ret) ;
 			if (y_change > 	1){
-				for (int sub_x = 1; sub_x <= y_change; ++sub_x){
+				for (uint32_t sub_x = 1; sub_x <= y_change; ++sub_x){
 					ret = test_closest_tile(ipc, player, create_vector(y_change, sub_x), flag);
 					if (ret == 1)
 						return (ret);
@@ -164,7 +173,7 @@ static void follower_logic(t_ipc *ipc, t_player *player)
 		// ft_printf_fd(2, PURPLE"Follower |%u| [%u][%u] receive [%u][%u] continue track\n"RESET,  player->team_id, player->pos.y, player->pos.x, rush_vec.y, rush_vec.x);
 		player->pos = create_vector(rush_vec.y, rush_vec.x); /* silumate ally position */
 		/* get closest enemy of this position */
-		if (find_player_in_range(ipc, player, (int) BOARD_W, ENEMY_FLAG)) {
+		if (find_player_in_range(ipc, player, BOARD_W, ENEMY_FLAG)) {
 			player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
 			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 			// ft_printf_fd(2, PURPLE"After simulation next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
@@ -200,8 +209,9 @@ void player_waiting(t_ipc *ipc, t_player *player)
 	t_vec		rush_vec = get_board_vec(to_rush);
 	/* Bool check msg, check if message is'nt my own position  */
 	int8_t		correct_msg = to_rush == UINT32_MAX ? 0 : (vector_cmp(rush_vec, player->pos) == 0);
+	
 	/* Bool is closest ally to be follower or not */
-	int8_t		is_closest_ally = (vector_cmp(player->ally_pos, rush_vec) == 1);	
+	// int8_t		is_closest_ally = (vector_cmp(player->ally_pos, rush_vec) == 1);	
 
  	/* If no message receive but enemy found */
 	if (!correct_msg) {
@@ -209,11 +219,13 @@ void player_waiting(t_ipc *ipc, t_player *player)
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 		
 		send_msg(ipc, player->team_id, get_board_index(player->next_pos));
-	} else if (is_closest_ally) { /* If message receive and msg from the closest ally */
+	// } else if (is_closest_ally) { /* If message receive and msg from the closest ally */
+	} else { /* If message receive and msg from the closest ally */
 		player->state = S_FOLLOWER;
 		player->target = create_vector(rush_vec.y, rush_vec.x);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 	} 
+
 }
 
 // ft_printf_fd(2, GREEN"Player in team [%u] enter in TRACKER state, go to nearest enemy, send msg\n"RESET, player->team_id);

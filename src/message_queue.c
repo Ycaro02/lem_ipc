@@ -86,12 +86,12 @@ int8_t send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data)
 	t_msgbuf msg = {};
 
 	fill_msgbuff(&msg, msg_id, data);
-	// ft_printf_fd(1, YELLOW"Sending message to team %d value: %u\n"RESET, msg_id, data);
+	// ft_printf_fd(1, YELLOW"Sending message to team %u value: %u\n"RESET, msg_id, data);
 	// ft_printf_fd(1, YELLOW"msg.text [%d|%d|%d|%d]\nAfter cast: [%u] \n"RESET, msg.mtext[0], msg.mtext[1], msg.mtext[2], msg.mtext[3], (*(uint32_t *)msg.mtext));
 	errno = 0;
-	if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), 0) == -1) {
+	if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), IPC_NOWAIT) == -1) {
 		 if (errno == EAGAIN) {
-			// ft_printf_fd(2, RED"Message queue is full\n"RESET);
+			// ft_printf_fd(2, RED"Message queue is full Clean it\n"RESET);
 			clear_msg_queue(ipc, 0);
 			return (0);
 		}
