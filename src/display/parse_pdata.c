@@ -52,7 +52,7 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	ft_printf_fd(1, "Player msgtype |%s|, team %u posV [%u|%u] posS [%u]\n", type_msg, pdata[PDATA_TID].sdata, pos.y, pos.x, pdata[PDATA_POS].sdata);
 	if (type == P_CREATE) {
 		add_pdata_node(game, pdata);
-		team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, JOIN_TEAM);
+		team_handling(game, pdata[PDATA_TID].sdata, JOIN_TEAM);
 		return ;
 	}
 
@@ -61,7 +61,7 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 		int8_t is_selected_node = 0;
 		uint32_t kill_by = get_board_index(pdata[PDATA_SUPP].vdata);
 
-		team_handling(&game->team_data, game->ipc->ptr, kill_by, UPDATE_KILL);
+		team_handling(game, kill_by, UPDATE_KILL);
 		// ft_printf_fd(2, RED"Player node delete kill by %u\n"RESET, kill_by);
 		if (!target_node) {
 			// ft_printf_fd(2, RED"Player node not found in DELETE case nothing todo (update kill counter maybe)\n"RESET);
@@ -72,7 +72,7 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 			is_selected_node = 1;
 		}
 		ft_lst_remove_if(&game->player_data, target_node, free, is_same_node);
-		team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, REMOVE_TEAM);
+		team_handling(game, pdata[PDATA_TID].sdata, REMOVE_TEAM);
 		// team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, REMOVE_TEAM);
 
 		if (is_selected_node) {

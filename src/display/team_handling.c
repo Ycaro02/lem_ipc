@@ -138,39 +138,39 @@ static int get_max_kill(void *next, void *current) {
 	return (((t_team *)next)->kill <= ((t_team *)current)->kill);
 }
 
-void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd)
+void team_handling(t_game *game, uint32_t team_id, int8_t cmd)
 {
     t_team      *team = NULL;
-    int8_t      inc_teamsize = team_exist(lst, team_id);
-    (void)array;
+    int8_t      inc_teamsize = team_exist(&game->team_data, team_id);
 
     if (cmd == JOIN_TEAM) {
         if (inc_teamsize) {
 			// ft_printf_fd(1, "Team %u increment\n", team_id);
-            handle_team_size(lst, team_id, 1);
+            handle_team_size(&game->team_data, team_id, 1);
             return ;
         }
         // ft_printf_fd(1, "Team %u does not exist create it\n", team_id);
         team = build_team_node(team_id);
         if (team) {
-            ft_lstadd_back(lst, ft_lstnew(team));
+            ft_lstadd_back(&game->team_data, ft_lstnew(team));
         }
         return ;
     } 
     
-    team = get_team_node(lst, team_id);
+    team = get_team_node(&game->team_data, team_id);
     if (cmd == REMOVE_TEAM && team) {
-        handle_team_size(lst, team_id, 0);
-        team = get_team_node(lst, team_id);
+        handle_team_size(&game->team_data, team_id, 0);
+        team = get_team_node(&game->team_data, team_id);
         if (team->tsize == 0) {
-            ft_lst_remove_if(lst, team, free_team, is_same_node);
+			game->kill_from_remove_team += team->kill;
+            ft_lst_remove_if(&game->team_data, team, free_team, is_same_node);
         }
     } else if (cmd == UPDATE_KILL && team) {
-        handle_team_kill(lst, team_id);
+        handle_team_kill(&game->team_data, team_id);
         /* get team killer node and increment this->kill */
         // team->kill++;
     }
-	list_sort(lst, get_max_kill);
+	list_sort(&game->team_data, get_max_kill);
 
 }
 

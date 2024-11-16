@@ -48,7 +48,7 @@
 # define START_STR_X (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U)
 
 
-# define PAUSE_BTN_ASSET "rsc/assets/pause_btn.xpm"
+// # define PAUSE_BTN_ASSET "rsc/assets/pause_btn.xpm"
 
 
 /* Team color struct */
@@ -71,7 +71,7 @@ typedef struct s_game
 {
 	t_xvar		*mlx;			/* mlx handler */
 	void		*win;			/* mlx window */
-	t_img		*pause_btn;		/* pause btn image */
+	// t_img		*pause_btn;		/* pause btn image */
 	t_img		img;			/* mlx image, represent all screen execpt right band */
 	t_img		right_band;		/* right band image */
 	t_ipc		*ipc;			/* ipc handler */
@@ -79,16 +79,21 @@ typedef struct s_game
 	t_list		*player_data;	/* player data list */
 	t_pdata		*player_selected;		/* player data to display */
 	uint32_t	player_nb;		/* last team number store */
-	t_vec		mouse_pos;		/* mouse position, TODO can remove*/
+	t_vec		mouse_pos;		/* mouse position, can remove*/
+
+	uint32_t	kill_from_remove_team;	/* kill from remove team */ 
+
 	int8_t		pause;			/* game pause bool */
 	int8_t		sem_lock;		/* sem is locked by display handler*/
 	int8_t		state;			/* display handler state */
+	int8_t		space_state;		/* team size */
 }	t_game;
 
 /* Key */
 typedef enum e_keyboard_key
 {
 	LEFT_CLICK = 1,			/* Left click value */
+	SPACE = 32,				/* Space key value */
 	ESC = 65307,			/* Escape key value */
 }	t_keyboard_key;
 
@@ -96,7 +101,7 @@ typedef enum e_keyboard_key
 t_teamcolor get_new_color(uint32_t team_id); 
 
 /* team handling */
-void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd);
+void team_handling(t_game *game, uint32_t team_id, int8_t cmd);
 void free_team(void *team);
 
 /*lst utils in parsepdata*/

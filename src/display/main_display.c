@@ -60,7 +60,7 @@ int destroy_windows(t_game *game)
 {
 	mlx_destroy_image(game->mlx, game->img.image);
 	mlx_destroy_image(game->mlx, game->right_band.image);
-	mlx_destroy_image(game->mlx, game->pause_btn);
+	// mlx_destroy_image(game->mlx, game->pause_btn);
 	mlx_destroy_window(game->mlx, game->win);
 	mlx_destroy_display(game->mlx);
 	if (game->player_data) {
@@ -88,21 +88,32 @@ int skip_x(char *str) {
 	return (ft_strlen(str) * CHAR_TOPIXEL);
 }
 
-static uint32_t compute_total_kill(t_list *player_lst)
+static uint32_t compute_total_kill(t_list *team_lst)
 {
 	uint32_t total_kill = 0;
-	for (t_list *current = player_lst; current; current = current->next) {
+	for (t_list *current = team_lst; current; current = current->next) {
 		total_kill += ((t_team *)current->content)->kill;
 	}
+
 	return (total_kill);
 }
 
-static void display_total_kill(t_game *game, uint32_t y, uint32_t total_kill)
+static uint32_t compute_total_team_size(t_list *team_lst)
+{
+	uint32_t total_size = 0;
+	for (t_list *current = team_lst; current; current = current->next) {
+		total_size += ((t_team *)current->content)->tsize;
+	}
+
+	return (total_size);
+}
+
+static void display_another_info(t_game *game, char *str, uint32_t y, uint32_t total_kill)
 {
 	uint32_t start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
 	uint32_t x = start_x;
-	mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, "Total kill : ");
-	x += skip_x("Total kill : ");
+	mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, str);
+	x += skip_x(str);
 
 	char *total_kill_str = ft_itoa(total_kill);
 	mlx_string_put(game->mlx, game->win, x, y, RED_INT, total_kill_str);
@@ -141,7 +152,7 @@ void display_righband(t_game *game, t_pdata *pdata)
 	mlx_put_image_to_window(game->mlx, game->win, game->right_band.image, SCREEN_WIDTH - RIGHTBAND_WIDTH, 0);
 
 	/* Display btn */
-	mlx_put_image_to_window(game->mlx, game->win, game->pause_btn, (int)(SCREEN_WIDTH - RIGHTBAND_WIDTH), SCREEN_HEIGHT - (TILE_SIZE * 2));
+	// mlx_put_image_to_window(game->mlx, game->win, game->pause_btn, (int)(SCREEN_WIDTH - RIGHTBAND_WIDTH), SCREEN_HEIGHT - (TILE_SIZE * 2));
 
 	mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, PLAYER_REMAIN);
 	if (player_remain) {
@@ -159,7 +170,11 @@ void display_righband(t_game *game, t_pdata *pdata)
 	}
 
 	y += (PAD_YTEAM * 2);
-	display_total_kill(game, y, compute_total_kill(game->team_data));
+	display_another_info(game, "Total Kill : ", y, compute_total_kill(game->team_data) + game->kill_from_remove_team);
+	y += PAD_YTEAM;
+	display_another_info(game, "Total Team Size : ", y, compute_total_team_size(game->team_data));
+	/* Display player data */
+
 
 	if (pdata) {
 		display_pdata_node(game, pdata, y + PAD_YTEAM);
@@ -169,8 +184,16 @@ void display_righband(t_game *game, t_pdata *pdata)
 /* @brief key press handler */
 int	key_hooks_press(int keycode, t_game *game)
 {
-	if (keycode == ESC)
+	if (keycode == ESC) {
 		destroy_windows(game); /* maybe need to check sem value and lock it to detash mem */
+	} 
+	else if (keycode == SPACE) {
+		game->space_state = !game->space_state;
+		// ft_printf_fd(2, CYAN"Change space state %d\n"RESET, game->space_state);
+	}
+	// else {
+	// 	ft_printf_fd(2, "Keycode %d\n", keycode);
+	// }
 	return (0);
 }
 
@@ -223,18 +246,21 @@ int main_display(void *vgame)
 		game->sem_lock = 1;
 	}
 	/* Check for game pause handle click */
-	if (game->mouse_pos.x == UINT32_MAX && game->mouse_pos.y != UINT32_MAX) {
-		ft_printf_fd(2, YELLOW"Click on btn %u, x: %u, y: %u\n"RESET, game->mouse_pos.y, game->mouse_pos.x, game->mouse_pos.y);
-		ft_printf_fd(2, YELLOW"PAUSE_BTN_IDX %u\n"RESET, PAUSE_BTN_IDX);
-		if (game->mouse_pos.y == PAUSE_BTN_IDX) {
-			game->pause = !(game->pause);
-		}
-		game->mouse_pos.y = UINT32_MAX;
-		// ft_printf_fd(2, CYAN"Game pause %d\n"RESET, game->pause);
-	} else if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
+	// if (game->mouse_pos.x == UINT32_MAX && game->mouse_pos.y != UINT32_MAX) {
+	// 	ft_printf_fd(2, YELLOW"Click on btn %u, x: %u, y: %u\n"RESET, game->mouse_pos.y, game->mouse_pos.x, game->mouse_pos.y);
+	// 	ft_printf_fd(2, YELLOW"PAUSE_BTN_IDX %u\n"RESET, PAUSE_BTN_IDX);
+	// 	if (game->mouse_pos.y == PAUSE_BTN_IDX) {
+	// 		game->pause = !(game->pause);
+	// 	}
+	// 	game->mouse_pos.y = UINT32_MAX;
+	// 	// ft_printf_fd(2, CYAN"Game pause %d\n"RESET, game->pause);
+	// } else 
+	if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
 		game->player_selected = get_player_node(game->player_data, game->mouse_pos);
 		game->mouse_pos = create_vector(UINT32_MAX, UINT32_MAX);
 	}
+
+	game->pause = game->space_state;
 
 	/* Update player number */
 	game->player_nb = get_attached_processnb(game->ipc);
@@ -305,13 +331,13 @@ int8_t init_mlx(t_game *game)
 	}
 
 
-	int btn_width = (int)RIGHTBAND_WIDTH;
-	int btn_height = (int)(TILE_SIZE * 2);
-	game->pause_btn = mlx_xpm_file_to_image(game->mlx, PAUSE_BTN_ASSET, &btn_width, &btn_height);
-	if (!game->pause_btn) {
-		ft_printf_fd(2, "mlx_xpm_file_to_image %s failed\n", PAUSE_BTN_ASSET);
-		return (ERROR_CASE);
-	}
+	// int btn_width = (int)RIGHTBAND_WIDTH;
+	// int btn_height = (int)(TILE_SIZE * 2);
+	// game->pause_btn = mlx_xpm_file_to_image(game->mlx, PAUSE_BTN_ASSET, &btn_width, &btn_height);
+	// if (!game->pause_btn) {
+	// 	ft_printf_fd(2, "mlx_xpm_file_to_image %s failed\n", PAUSE_BTN_ASSET);
+	// 	return (ERROR_CASE);
+	// }
 
 
 	/* Extract controle packet */
@@ -325,6 +351,7 @@ int8_t init_mlx(t_game *game)
 	mlx_hook(game->win, 2, 1L, key_hooks_press, game);
 	mlx_hook(game->win, DestroyNotify, StructureNotifyMask, destroy_windows, game);
 	mlx_mouse_hook(game->win, check_mouse, game);
+	// mlx_key_hook(game->win, key_hooks_press, game);
 	// mlx_loop_hook(game->mlx, display_board_stdout, game);
 	mlx_loop_hook(game->mlx, main_display, game);
 	mlx_loop(game->mlx);
