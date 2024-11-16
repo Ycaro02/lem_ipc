@@ -67,7 +67,8 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 			// ft_printf_fd(2, RED"Player node not found in DELETE case nothing todo (update kill counter maybe)\n"RESET);
 			return ;
 		}
-		if (game->selected == target_node) {
+
+		if (game->player_selected == target_node) {
 			is_selected_node = 1;
 		}
 		ft_lst_remove_if(&game->player_data, target_node, free, is_same_node);
@@ -75,7 +76,7 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 		// team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, REMOVE_TEAM);
 
 		if (is_selected_node) {
-			game->selected = NULL;
+			game->player_selected = NULL;
 		}
 		return ;
 	}
@@ -83,13 +84,13 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	if (type == P_UPDATE_POS) {
 		pdata[PDATA_POS].vdata = pdata[PDATA_SUPP].vdata;		/* update PPOS */
 	}
-	if (target_node) {
+	if (target_node) { /* if target node found just update it */
 		ft_memcpy((void *)target_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
 	} 
-	else {
-		add_pdata_node(game, pdata);
-		team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, JOIN_TEAM);
-	}
+	// else { /* if is update and target node not found in update case, create it */
+	// 	add_pdata_node(game, pdata);
+	// 	team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, JOIN_TEAM);
+	// }
 
 }
 
@@ -102,6 +103,8 @@ void receive_player_data(t_game *game)
 	t_pdata		pdata[PDATA_LEN] = INIT_PDATA_PACKET;
 	uint32_t	ret = UINT32_MAX;
 	uint8_t		count = 1; /* count = 1 cause if we call this we already receive the first 0 data start */
+
+	pdata[PDATA_START].sdata = 0;
 
 	do {
 		ret = extract_msg(game->ipc, DISPLAY_HANDLER_CHAN);
@@ -117,18 +120,20 @@ void receive_player_data(t_game *game)
 			count = PDATA_START;
 		}
 	} while (ret != UINT32_MAX);
+	ft_printf_fd(1, GREEN"All Player data received-> queue size %u\n"RESET, message_queue_size_get(game->ipc->msgid));
 }
 
 int8_t extract_controle_packet(t_game *game)
 {
-	uint32_t data[PDATA_LEN] = {0};
+	uint32_t data[PDATA_LEN] = {UINT32_MAX};
 	uint32_t i = 0;
 	int8_t ret = 0;
 
 	sem_lock(game->ipc->semid);
 	for (i = 0; i < PDATA_LEN; ++i) {
 		data[i] = extract_msg(game->ipc, CONTROLE_DISPLAY_CHAN);
-		if (data[i] != 0) {
+		// if (data[i] != 0) {
+		if (data[i] != CTRL_DH_WAITING_TO_CONNECT && data[i] != CTRL_DH_PRIORITY) {
 			break;
 		}
 	}
@@ -136,8 +141,8 @@ int8_t extract_controle_packet(t_game *game)
 		ft_printf_fd(2, RED"Display handler packet not found, display error\n"RESET);
 	} 
 	else if (i == PDATA_LEN) {
-		ft_printf_fd(2, GREEN"Display handler packet found\n"RESET);
-		clear_msg_queue(game->ipc, UINT32_MAX);
+		// ft_printf_fd(2, GREEN"Display handler packet found\n"RESET);
+		// clear_msg_queue(game->ipc, CONTROLE_DISPLAY_CHAN);
 		ret = 1;
 	}
 	// ft_printf_fd(2, CYAN"In display handler i val = %d, ret val %u\n"RESET, i, ret);

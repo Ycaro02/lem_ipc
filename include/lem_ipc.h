@@ -34,6 +34,18 @@
 # define CLIENT_CASE 1
 # define SERVER_CASE 0
 
+
+typedef enum e_display_handler_state {
+	DH_DISCONNECTED=0,
+	DH_CONNECTED,
+	DH_PRIORITY,
+} t_display_handler_state;
+
+typedef enum e_ctrl_packet_val {
+	CTRL_DH_WAITING_TO_CONNECT=0,	/* Player waiting for display handler connection */
+	CTRL_DH_PRIORITY,
+} t_ctrl_packet_val;
+
 /* Return of getpagesize function casted in size_t 4096 */
 # define PAGE_SIZE              (size_t)getpagesize()
 
@@ -61,6 +73,8 @@
 #define PLAYER_WAIT_TIME 100000
 // #define PLAYER_WAIT_TIME 10000
 
+#define MSG_QUEUE_LIMIT_SIZE 10000
+
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
 
@@ -68,7 +82,8 @@
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
 /* Display handler id */
-# define DISPLAY_HANDLER_CHAN UINT32_MAX
+# define DISPLAY_HANDLER_CHAN	UINT32_MAX
+# define DISPLAY_HANDLER_ID		UINT32_MAX
 
 /* Display controle chanel, ned to remove this value to accepted team val */
 # define CONTROLE_DISPLAY_CHAN (uint32_t)(DISPLAY_HANDLER_CHAN - 1U)
@@ -140,6 +155,7 @@ typedef struct s_ipc {
 	int			shmid;		/* Shared memory id */
 	int			semid;		/* Semaphore id */
 	int			msgid;		/* Message queue id */
+	int8_t		display;	/* Display handler conected */
 } t_ipc;
 
 /* Player structure */
@@ -151,19 +167,18 @@ typedef struct s_player {
 	uint32_t	team_id;	/* Team id */
 	uint32_t	kill_by;	/* Kill by team id */
 	int8_t		state;		/* Player state */
-	int8_t		display;	/* Display handler conected */
 } t_player;
 
 
 /* Player data packet init */
 # define INIT_PDATA_PACKET { \
-	{"player data start", {0}}, \
-	{"player data state", {0}}, \
-	{"player data team id", {0}}, \
-	{"player data pos", {0}}, \
-	{"player data target", {0}}, \
-	{"player data closest ally", {0}}, \
-	{"player data supp", {0}} \
+	{"player data start", {UINT32_MAX}}, \
+	{"player data state", {UINT32_MAX}}, \
+	{"player data team id", {UINT32_MAX}}, \
+	{"player data pos", {UINT32_MAX}}, \
+	{"player data target", {UINT32_MAX}}, \
+	{"player data closest ally", {UINT32_MAX}}, \
+	{"player data supp", {UINT32_MAX}} \
 }
 
 
@@ -236,6 +251,7 @@ enum e_msg_type {
 /* Int global for sigint handle game status */
 extern int g_game_run;
 
+
 /* main */
 uint32_t	check_death(uint32_t *board, t_vec point, uint32_t team_id);
 
@@ -247,18 +263,19 @@ uint32_t	get_heuristic_cost(t_vec start, t_vec end);
 int8_t		find_player_in_range(t_ipc *ipc, t_player *player, uint32_t range_max, int8_t flag);
 
 /* send pdata */
-void		send_display_controle_packet(t_ipc *ipc);
+void		send_display_controle_packet(t_ipc *ipc, uint32_t displayer_state, uint32_t from_id);
 int8_t		display_handler_state(t_ipc *ipc);
 void		send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type);
 
-/* Display controle packet */
-void		send_display_controle_packet(t_ipc *ipc);
+// display handlker waiing
+void		wait_for_display_handler_priority(t_ipc *ipc);
+void wait_for_display_handler_connect(t_ipc *ipc);
 
 /* message queue */
 int			get_msg_queue(key_t key, int flag);
 int8_t		remove_msg_queue(t_ipc *ipc);
 uint32_t 	extract_msg(t_ipc *ipc, uint32_t msg_id);
-int8_t		send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data);
+int8_t		send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data, uint32_t from_id);
 int8_t		clear_msg_queue(t_ipc *ipc, long chan_id);
 uint32_t	message_queue_size_get(int msgid);
 /* init semaphore */

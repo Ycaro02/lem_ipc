@@ -118,27 +118,31 @@ static void fill_msgbuff(t_msgbuf *msg, uint32_t team_id, uint32_t data)
 
 
 /**
- *	@brief Send a message to the message queue
- *	@param ipc The ipc structure
- *	@param player The player structure
- *	@return 0 on success, -1 on error
-*/
-int8_t send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data)
+ * @brief Send a message to the message queue
+ * @param ipc The ipc structure
+ * @param msg_id The message id (channel id)
+ * @param data The data to send
+ * @param from_id The team id from the sender
+ * @return 1 on success, -1 on error
+ */
+int8_t send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data, uint32_t from_id)
 {
 	t_msgbuf msg = {};
 
+	(void)from_id;
+
 	fill_msgbuff(&msg, msg_id, data);
-	// ft_printf_fd(1, YELLOW"Sending message to team %u value: %u\n"RESET, msg_id, data);
-	// ft_printf_fd(1, YELLOW"msg.text [%d|%d|%d|%d]\nAfter cast: [%u] \n"RESET, msg.mtext[0], msg.mtext[1], msg.mtext[2], msg.mtext[3], (*(uint32_t *)msg.mtext));
 	errno = 0;
 	if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), IPC_NOWAIT) == -1) {
-		 if (errno == EAGAIN) {
+		//  if (errno == EAGAIN) { /* message queue full */
+		 if (errno == EAGAIN) { /* message queue full */
 			// ft_printf_fd(2, RED"Message queue is full Clean it\n"RESET);
-			clear_msg_queue(ipc, 0);
+			if (!ipc->display) {
+				clear_msg_queue(ipc, 0);
+			}
 			return (FALSE);
 		}
-		// ft_printf_fd(2, RED"Error msgsend from %d\n", msg_id, RESET);
-		// syscall_perror("msgsnd");
+		ft_printf_fd(2, RED"Error msgsnd, errno %d\n"RESET, errno);
 		return (-1);
 	}
 	return (TRUE);

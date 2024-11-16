@@ -77,11 +77,12 @@ typedef struct s_game
 	t_ipc		*ipc;			/* ipc handler */
 	t_list		*team_data;		/* team data list */
 	t_list		*player_data;	/* player data list */
-	t_pdata		*selected;		/* player data to display */
+	t_pdata		*player_selected;		/* player data to display */
 	uint32_t	player_nb;		/* last team number store */
 	t_vec		mouse_pos;		/* mouse position, TODO can remove*/
 	int8_t		pause;			/* game pause bool */
 	int8_t		sem_lock;		/* sem is locked by display handler*/
+	int8_t		state;			/* display handler state */
 }	t_game;
 
 /* Key */
@@ -109,7 +110,7 @@ int check_mouse(int keycode, int x, int y, t_game *game);
 void	receive_player_data(t_game *game);
 void	*get_player_node(t_list *lst, t_vec target);
 int8_t	extract_controle_packet(t_game *game);
-
+void 	extract_priority_packet(t_game *game);
 /* display pdata */
 void	display_pdata_lst(t_list *player_lst);
 void	display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y);

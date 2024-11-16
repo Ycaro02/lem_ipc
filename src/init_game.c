@@ -138,19 +138,11 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
     }
 
 
-	// display msg_len
-	// ft_printf_fd(1, YELLOW"Msg len: "RESET""CYAN"%u\n"RESET, get_msg_len(ipc));
-	// ft_printf_fd(1, YELLOW"Uint32 max: "RESET""CYAN"%u\n"RESET, UINT32_MAX);
-	// set_msg_len(ipc, sizeof(uint32_t));
-	// ft_printf_fd(1, YELLOW"Semaphore value Before first send: "RESET""CYAN"%d\n"RESET, semctl(ipc->semid, 0, GETVAL));
-	// send_msg(ipc, &(t_player){.team_id = 1}, 42);
-	// send_msg(ipc, &(t_player){.team_id = 2}, 9);
-	ft_printf_fd(1, PURPLE"Server started waiting client 5sec ...\n"RESET);
-	sleep(5); /* wait for client to connect */
+	ft_printf_fd(1, PURPLE"Server started waiting client 8sec ...\n"RESET);
+	sleep(8); /* wait for client to connect */
 	ft_printf_fd(1, CYAN"Server send controle display packet\n"RESET);
-	send_display_controle_packet(ipc);
-
-
+	// here we send 0 to from_id cause it's the server, and player id are not define yet
+	send_display_controle_packet(ipc, CTRL_DH_WAITING_TO_CONNECT, 0);
 
 
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */

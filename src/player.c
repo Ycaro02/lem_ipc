@@ -65,6 +65,9 @@ uint32_t check_death(uint32_t *board, t_vec point, uint32_t team_id)
 uint32_t check_player_death(t_ipc *ipc, t_player *player)
 {
 	player->kill_by = check_death(ipc->ptr, player->pos, player->team_id);
+	if (player->kill_by != ALIVE) {
+		ft_printf_fd(1, RED"Player %u is dead killed by %u\n"RESET, player->team_id, player->kill_by);
+	}
 	return (player->kill_by);
 }
 
@@ -83,9 +86,12 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	player->ally_pos = get_board_vec(OUT_OF_BOARD);
 
  	/* Init display handler bool to know if we need to send data to display program */
-	player->display = display_handler_state(ipc);
-
+	// ipc->display = display_handler_state(ipc);
 	player->state = S_WAITING;
+
+	// if (!ipc->display) {
+	wait_for_display_handler_connect(ipc);
+	// }
 
 	/* Send create packet to display */
 	send_pdata_display(ipc, player, P_CREATE);
@@ -99,7 +105,6 @@ static int8_t check_break_loop(t_ipc *ipc, t_player *player, int8_t enemy_found)
 	if (check_player_death(ipc, player) != ALIVE) {
 		/* Send data to display */
 		send_pdata_display(ipc, player, P_DELETE);
-		// clear_msg_queue(ipc, player->team_id);
 		g_game_run = 0;
 		return (1);
 	} else if (!enemy_found) { /* Check win condition */
@@ -118,7 +123,6 @@ static void find_next_move(t_ipc *ipc, t_player *player, int8_t player_alone)
 
 	if (rush_ally) {
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
-		// clear_msg_queue(ipc, player->team_id);
 		player->state = S_WAITING;
 	} else if (!player_alone) {
 		if (player->state == S_WAITING) {
@@ -127,7 +131,6 @@ static void find_next_move(t_ipc *ipc, t_player *player, int8_t player_alone)
 			player_tracker_follower(ipc, player);
 		}
 	} else { /* if player is alone or no enemy found*/
-		// clear_msg_queue(ipc, 0);
 		player->state = S_WAITING;
 		player->target = get_random_point(ipc->ptr, player->pos);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
@@ -147,7 +150,14 @@ void player_routine(t_ipc *ipc, t_player *player)
 	while (g_game_run) {
 		sem_lock(ipc->semid);
 		/* Check if display handler is active */
-		player->display = display_handler_state(ipc);
+		ipc->display = display_handler_state(ipc);
+
+		if (message_queue_size_get(ipc->msgid) >= MSG_QUEUE_SIZE) {
+			ft_printf_fd(1, PURPLE"Start routine continue queue size -> %u\n", message_queue_size_get(ipc->msgid));
+			sem_unlock(ipc->semid);
+			usleep(100000);
+			continue ;
+		}
 
 		/* Player scan his environement to find nearest ally (update player->ally_pos if found) */
 		int8_t player_alone = find_player_in_range(ipc, player, BOARD_W, ALLY_FLAG) == 0;
@@ -165,7 +175,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 		if (!vector_cmp(player->next_pos, player->pos)) {
 			send_pdata_display(ipc, player, P_UPDATE_POS);
 			
-			ft_printf_fd(1, GREEN"Player "YELLOW"ID[%u] "CYAN"from [%u][%u] -> "PURPLE"[%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x, player->next_pos.y, player->next_pos.x);
+			// ft_printf_fd(1, GREEN"Player "YELLOW"ID[%u] "CYAN"from [%u][%u] -> "PURPLE"[%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x, player->next_pos.y, player->next_pos.x);
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			

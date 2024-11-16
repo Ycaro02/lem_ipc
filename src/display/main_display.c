@@ -74,7 +74,7 @@ int destroy_windows(t_game *game)
 		sem_lock(game->ipc->semid);
 	}
 	ft_printf_fd(2, CYAN"Display exit, resend controle packet\n"RESET); 
-	send_display_controle_packet(game->ipc);
+	send_display_controle_packet(game->ipc, CTRL_DH_WAITING_TO_CONNECT, DISPLAY_HANDLER_ID);
 	detach_shared_memory(game->ipc);
 	sem_unlock(game->ipc->semid);
 	free(game->mlx);
@@ -86,6 +86,27 @@ int destroy_windows(t_game *game)
 /* @brief skip x utils, to know how much pixel we need to skip after string */
 int skip_x(char *str) {
 	return (ft_strlen(str) * CHAR_TOPIXEL);
+}
+
+static uint32_t compute_total_kill(t_list *player_lst)
+{
+	uint32_t total_kill = 0;
+	for (t_list *current = player_lst; current; current = current->next) {
+		total_kill += ((t_team *)current->content)->kill;
+	}
+	return (total_kill);
+}
+
+static void display_total_kill(t_game *game, uint32_t y, uint32_t total_kill)
+{
+	uint32_t start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
+	uint32_t x = start_x;
+	mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, "Total kill : ");
+	x += skip_x("Total kill : ");
+
+	char *total_kill_str = ft_itoa(total_kill);
+	mlx_string_put(game->mlx, game->win, x, y, RED_INT, total_kill_str);
+	free(total_kill_str);
 }
 
 /* @brief Display team info lst */
@@ -137,6 +158,9 @@ void display_righband(t_game *game, t_pdata *pdata)
 		}
 	}
 
+	y += (PAD_YTEAM * 2);
+	display_total_kill(game, y, compute_total_kill(game->team_data));
+
 	if (pdata) {
 		display_pdata_node(game, pdata, y + PAD_YTEAM);
 	}
@@ -173,6 +197,18 @@ static void draw_board(t_game *game)
 
 #define PAUSE_BTN_IDX (SCREEN_HEIGHT / (TILE_SIZE * 2) - 1)
 
+void extract_priority_packet(t_game *game){
+	uint32_t data[PDATA_LEN] = {UINT32_MAX};
+	uint32_t i = 0;
+	for (i = 0; i < PDATA_LEN; ++i) {
+		data[i] = extract_msg(game->ipc, CONTROLE_DISPLAY_CHAN);
+		if (data[i] != CTRL_DH_PRIORITY) {
+			break;
+		}
+	}
+}
+
+
 /* Main display function called in mlx loop hook */
 int main_display(void *vgame)
 {
@@ -182,6 +218,7 @@ int main_display(void *vgame)
 
 	/* If game is paused sem already lock */
 	if (!game->pause) {
+		ft_printf_fd(1, CYAN"Game not paused lock\n"RESET);
 		sem_lock(game->ipc->semid);
 		game->sem_lock = 1;
 	}
@@ -195,17 +232,21 @@ int main_display(void *vgame)
 		game->mouse_pos.y = UINT32_MAX;
 		// ft_printf_fd(2, CYAN"Game pause %d\n"RESET, game->pause);
 	} else if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
-		game->selected = get_player_node(game->player_data, game->mouse_pos);
+		game->player_selected = get_player_node(game->player_data, game->mouse_pos);
 		game->mouse_pos = create_vector(UINT32_MAX, UINT32_MAX);
 	}
 
 	/* Update player number */
 	game->player_nb = get_attached_processnb(game->ipc);
-	/* Update player data lst */
-	tmp = extract_msg(game->ipc, UINT32_MAX);
-	if (tmp != UINT32_MAX) {
+
+	/* Extract message from message queue */
+	tmp = extract_msg(game->ipc, DISPLAY_HANDLER_CHAN);
+	if (tmp != UINT32_MAX) { /* if we receive a message */
 		receive_player_data(game);
 	}
+
+	/* Extract priority packet */
+	extract_priority_packet(game);
 
 	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
 	if (game->player_nb <= 3) {
@@ -218,6 +259,7 @@ int main_display(void *vgame)
 	draw_board(game);
 	/* Unlock sem if game is not paused */
 	if (!game->pause) {
+		ft_printf_fd(1, PURPLE"Game not paused unlock\n"RESET);
 		sem_unlock(game->ipc->semid);
 		game->sem_lock = 0;
 	}
@@ -228,14 +270,16 @@ int main_display(void *vgame)
 
 	
 	/* Display old team list to remove/rework to read new data list */
-	display_righband(game, game->selected);
+	display_righband(game, game->player_selected);
+
+	// usleep(10000);
 	return (0);
 }
 
 /* @brief Init display */
 int8_t init_mlx(t_game *game) 
 {
-	int8_t	packet_extract = 0; 
+	// int8_t	packet_extract = 0; 
 	int		endian = 0;
 
 	game->mlx = mlx_init();
@@ -271,8 +315,8 @@ int8_t init_mlx(t_game *game)
 
 
 	/* Extract controle packet */
-	packet_extract = extract_controle_packet(game);
-	if (!packet_extract) {
+	game->state = extract_controle_packet(game);
+	if (!game->state) {
 		ft_printf_fd(2, RED"Display handler packet not found, exit\n"RESET);
 		return (ERROR_CASE);
 	}
