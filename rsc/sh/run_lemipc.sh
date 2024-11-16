@@ -50,10 +50,10 @@ run_test() {
 		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
 		if [ ${i} -eq 3 ]; then
 			display_color_msg ${YELLOW} "Lauch display handler ${LEMIPC_DISPLAY} ..."
-			${LEMIPC_DISPLAY} &
+			(${LEMIPC_DISPLAY} &) > display_logger.txt
 			DISPLAY_PID=$!
 		fi
-		${LEMIPC} ${team_id} &
+		(${LEMIPC} ${team_id} &) >> logger.txt
 		#sleep ${SLEEP_VAL}
 	done
 
@@ -65,10 +65,12 @@ run_test() {
 	# ./rsc/sh/check_ipcs_free.sh
 }
 
+rm logger.txt
+
 handle_opt "$@"
 # run_test 10 4
 # run_test 200 4
 # run_test 500 4
-# run_test 1000 4
-run_test 2000 4
-# run_test 5000 26
+run_test 1000 4
+# run_test 2000 4
+# run_test 5000 20

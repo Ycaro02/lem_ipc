@@ -3,15 +3,16 @@
 
 void display_packet(uint32_t *data)
 {
-	ft_printf_fd(2, CYAN"\n-------------------------Send packet --------------------------------------\n"RESET);
-	ft_printf_fd(2, GREEN"start: |%u| "RESET, data[PDATA_START]);
-	ft_printf_fd(2, GREEN"state: |%u| "RESET, data[PDATA_STATE]);
-	ft_printf_fd(2, GREEN"tid: |%u| "RESET, data[PDATA_TID]);
-	ft_printf_fd(2, GREEN"pos: |%u| "RESET, data[PDATA_POS]);
-	ft_printf_fd(2, GREEN"target: |%u| "RESET, data[PDATA_TARGET]);
-	ft_printf_fd(2, GREEN"ally: |%u|"RESET, data[PDATA_ALLY]);
-	ft_printf_fd(2, GREEN"supp: |%u|"RESET, data[PDATA_SUPP]);
-	ft_printf_fd(2, CYAN"\n-------------------------Packet end---------------------------------------\n"RESET);
+	ft_printf_fd(1, CYAN"\n-------------------------Send packet --------------------------------------\n"RESET);
+	ft_printf_fd(1, GREEN"start: |%u| "RESET, data[PDATA_START]);
+	ft_printf_fd(1, GREEN"state/type: |%u| "RESET, data[PDATA_STATE]);
+	ft_printf_fd(1, GREEN"tid: |%u| "RESET, data[PDATA_TID]);
+	ft_printf_fd(1, GREEN"pos: |%u| "RESET, data[PDATA_POS]);
+	ft_printf_fd(1, GREEN"target: |%u| "RESET, data[PDATA_TARGET]);
+	ft_printf_fd(1, GREEN"ally: |%u|"RESET, data[PDATA_ALLY]);
+	ft_printf_fd(1, GREEN"supp: |%u|\n"RESET, data[PDATA_SUPP]);
+	ft_printf_fd(1, YELLOW"Type: |%u| state:|%u|"RESET, GET_MSG_TYPE(data[PDATA_STATE]), GET_MSG_STATE(data[PDATA_STATE]));
+	ft_printf_fd(1, CYAN"\n-------------------------Packet end---------------------------------------\n"RESET);
 
 }
 
@@ -61,6 +62,8 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 	uint32_t p_state = (uint32_t)(player->state | msg_type);
 	uint32_t p_sup = 0;
 
+	// ft_printf_fd(1, YELLOW"Call send_pdata_display with %d\n"RESET, msg_type);
+
 	if (msg_type == P_UPDATE_POS) {
 		p_sup = get_board_index(player->next_pos);
 	} else if (msg_type == P_DELETE) {
@@ -71,10 +74,18 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 
 	int8_t ret = TRUE;
 
+	/*
+		Before trying to send pdata to display handler we need to check if the queue can support his size
+		If not we need to give the display handler time to process the queue and clear it
+		For this we need to unlock the semaphore and wait the display handler clear the queue
+			But for that we need to prevent other player to just lock and block the display handler
+	*/
+
+
 	// display_packet(data);
 	if (player->display) {
 		for (int i = 0; i < PDATA_LEN; ++i) {
-			ret = send_msg(ipc, DISPLAY_HANDLER_ID, data[i]);
+			ret = send_msg(ipc, DISPLAY_HANDLER_CHAN, data[i]);
 			if (ret == FALSE) {
 				break ;
 			}

@@ -1,5 +1,39 @@
 # include "../include/lem_ipc.h"
 
+void display_msg_queue_size(int msgid)
+{
+	struct msqid_ds buf = {};
+
+	errno = 0;
+	if (msgctl(msgid, IPC_STAT, &buf) == -1) {
+		syscall_perror("msgctl");
+		return ;
+	}
+	// display message queue nb msg
+	ft_printf_fd(1, YELLOW"Current Number of message in queue: %u -> "RESET, buf.msg_qnum);
+	// display message queue size in bytes
+	ft_printf_fd(1, YELLOW"size in bytes: %u\n"RESET, buf.__msg_cbytes);
+	// display message queue max size in bytes
+	// ft_printf_fd(1, YELLOW"Message queue max size in bytes: %u\n"RESET, buf.msg_qbytes);
+}
+
+/**
+ *	@brief Get the current message queue size
+ *	@param msgid The message queue id
+ *	@return The message queue size, 0 on error
+*/
+uint32_t message_queue_size_get(int msgid)
+{
+	struct msqid_ds buf = {};
+
+	errno = 0;
+	if (msgctl(msgid, IPC_STAT, &buf) == -1) {
+		syscall_perror("msgctl");
+		return (0);
+	}
+	return (buf.__msg_cbytes);
+}
+
 /**
  *	@brief Get message queue id
  *	@param key The key reference the message queue
@@ -38,22 +72,30 @@ int8_t remove_msg_queue(t_ipc *ipc)
 /**
  *	@brief Clear the message queue
  *	@param ipc The ipc structure
- *	@param team_id The channel id to clear
+ *	@param chan_id The channel id to clear
  *	@return 0 on success, -1 on error
 */
-int8_t clear_msg_queue(t_ipc *ipc, long team_id)
+int8_t clear_msg_queue(t_ipc *ipc, long chan_id)
 {
 	t_msgbuf msg = {};
+	int8_t ret = 0;
+	ssize_t msg_ret = 0;
 
 	errno = 0;
-	// ft_printf_fd(1, YELLOW"Clearing message queue from team %u\n"RESET, team_id);
-	while (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), team_id, IPC_NOWAIT) != -1) {
-		if (errno != ENOMSG) {
-			// syscall_perror("msgrcv");
-			return (-1);
+	ft_printf_fd(1, GREEN"Clearing message queue CHAN %u\n"RESET, chan_id);
+	display_msg_queue_size(ipc->msgid);
+	// while (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), 0, IPC_NOWAIT) != -1) {
+	while (1) {
+		msg_ret = msgrcv(ipc->msgid, &msg, sizeof(uint32_t), chan_id, IPC_NOWAIT);
+		if (msg_ret == -1 && errno == ENOMSG) {
+			ret = -1;
+			break ;
 		}
+		errno = 0;
 	}
-	return (0);
+	ft_printf_fd(1, CYAN"Message queue clear: "RESET, chan_id);
+	display_msg_queue_size(ipc->msgid);
+	return (ret);
 
 }
 

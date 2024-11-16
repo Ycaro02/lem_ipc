@@ -146,11 +146,11 @@ void team_handling(t_list **lst, uint32_t *array, uint32_t team_id, int8_t cmd)
 
     if (cmd == JOIN_TEAM) {
         if (inc_teamsize) {
-            // ft_printf_fd(2, "Team %u exist\n", team_id);
+			// ft_printf_fd(1, "Team %u increment\n", team_id);
             handle_team_size(lst, team_id, 1);
             return ;
         }
-        // ft_printf_fd(2, "Team %u does not exist\n", team_id);
+        // ft_printf_fd(1, "Team %u does not exist create it\n", team_id);
         team = build_team_node(team_id);
         if (team) {
             ft_lstadd_back(lst, ft_lstnew(team));

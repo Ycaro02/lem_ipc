@@ -8,8 +8,6 @@ static char *get_player_strtype(uint8_t type)
 		return ("CREATE");
 	} else if (type == P_DELETE) {
 		return ("DELETE");
-	} else if (type == P_UPDATE) {
-		return ("UPDATE");
 	}
 	return ("UNKNOWN");
 }

@@ -77,6 +77,7 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	point = get_random_point(ipc->ptr, player->pos);
 	set_tile_board_val(ipc->ptr, point, player->team_id);
 	player->pos = point;
+	player->next_pos = point;
 	/* Update info to default value */
 	player->target = get_board_vec(OUT_OF_BOARD);
 	player->ally_pos = get_board_vec(OUT_OF_BOARD);
@@ -84,8 +85,11 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
  	/* Init display handler bool to know if we need to send data to display program */
 	player->display = display_handler_state(ipc);
 
+	player->state = S_WAITING;
+
 	/* Send create packet to display */
 	send_pdata_display(ipc, player, P_CREATE);
+	// ft_printf_fd(1, GREEN"Player %u start at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);
 	sem_unlock(ipc->semid);
 }
 
@@ -95,11 +99,11 @@ static int8_t check_break_loop(t_ipc *ipc, t_player *player, int8_t enemy_found)
 	if (check_player_death(ipc, player) != ALIVE) {
 		/* Send data to display */
 		send_pdata_display(ipc, player, P_DELETE);
-		clear_msg_queue(ipc, player->team_id);
+		// clear_msg_queue(ipc, player->team_id);
 		g_game_run = 0;
 		return (1);
 	} else if (!enemy_found) { /* Check win condition */
-		// ft_printf_fd(2, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
+		ft_printf_fd(1, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
 		send_pdata_display(ipc, player, P_DELETE);
 		g_game_run = 0;
 		return (1);
@@ -114,7 +118,7 @@ static void find_next_move(t_ipc *ipc, t_player *player, int8_t player_alone)
 
 	if (rush_ally) {
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
-		clear_msg_queue(ipc, player->team_id);
+		// clear_msg_queue(ipc, player->team_id);
 		player->state = S_WAITING;
 	} else if (!player_alone) {
 		if (player->state == S_WAITING) {
@@ -123,7 +127,7 @@ static void find_next_move(t_ipc *ipc, t_player *player, int8_t player_alone)
 			player_tracker_follower(ipc, player);
 		}
 	} else { /* if player is alone or no enemy found*/
-		clear_msg_queue(ipc, player->team_id);
+		// clear_msg_queue(ipc, 0);
 		player->state = S_WAITING;
 		player->target = get_random_point(ipc->ptr, player->pos);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
@@ -153,6 +157,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 		/* Check break loop condition (death/win) */		
 		if (check_break_loop(ipc, player, enemy_found))
 			break ;
+		
 		/* Player logic AI */
 		find_next_move(ipc, player, player_alone);
 
@@ -160,6 +165,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 		if (!vector_cmp(player->next_pos, player->pos)) {
 			send_pdata_display(ipc, player, P_UPDATE_POS);
 			
+			ft_printf_fd(1, GREEN"Player "YELLOW"ID[%u] "CYAN"from [%u][%u] -> "PURPLE"[%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x, player->next_pos.y, player->next_pos.x);
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			
@@ -169,7 +175,7 @@ void player_routine(t_ipc *ipc, t_player *player)
 			set_tile_board_val(ipc->ptr, player->pos, player->team_id);
 		}
 		sem_unlock(ipc->semid);
-		usleep(100000);
+		usleep(PLAYER_WAIT_TIME);
 		// usleep(10000);
 	}
 }

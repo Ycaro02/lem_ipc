@@ -46,6 +46,10 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	uint8_t 	type = GET_MSG_TYPE(type_state);
 	// uint8_t 	state = GET_MSG_STATE(type_state);
 	
+
+	t_vec pos = pdata[PDATA_POS].vdata;
+	char *type_msg = (type == P_CREATE) ? "CREATE" : (type == P_UPDATE_POS) ? "UPDATE" : (type == P_DELETE) ? "DELETE" : "UNKNOWN";
+	ft_printf_fd(1, "Player msgtype |%s|, team %u posV [%u|%u] posS [%u]\n", type_msg, pdata[PDATA_TID].sdata, pos.y, pos.x, pdata[PDATA_POS].sdata);
 	if (type == P_CREATE) {
 		add_pdata_node(game, pdata);
 		team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, JOIN_TEAM);
@@ -81,7 +85,8 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 	}
 	if (target_node) {
 		ft_memcpy((void *)target_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
-	} else {
+	} 
+	else {
 		add_pdata_node(game, pdata);
 		team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, JOIN_TEAM);
 	}
@@ -99,7 +104,7 @@ void receive_player_data(t_game *game)
 	uint8_t		count = 1; /* count = 1 cause if we call this we already receive the first 0 data start */
 
 	do {
-		ret = extract_msg(game->ipc, DISPLAY_HANDLER_ID);
+		ret = extract_msg(game->ipc, DISPLAY_HANDLER_CHAN);
 		pdata[count].sdata = ret;
 		if (count != PDATA_START) {
 			if (count >= PDATA_POS) {
@@ -107,7 +112,7 @@ void receive_player_data(t_game *game)
 			} 
 		}
 		++count;
-		if (count >= PDATA_LEN) {
+		if (count == PDATA_LEN) {
 			handle_player_data(game, pdata);
 			count = PDATA_START;
 		}

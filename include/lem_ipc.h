@@ -58,6 +58,9 @@
 
 // 24 * 40 = 960
 
+#define PLAYER_WAIT_TIME 100000
+// #define PLAYER_WAIT_TIME 10000
+
 /* Board size */
 # define BOARD_SIZE (BOARD_H * BOARD_W)
 
@@ -65,10 +68,10 @@
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
 
 /* Display handler id */
-# define DISPLAY_HANDLER_ID UINT32_MAX
+# define DISPLAY_HANDLER_CHAN UINT32_MAX
 
 /* Display controle chanel, ned to remove this value to accepted team val */
-# define CONTROLE_DISPLAY_CHAN (uint32_t)(UINT32_MAX - 1U)
+# define CONTROLE_DISPLAY_CHAN (uint32_t)(DISPLAY_HANDLER_CHAN - 1U)
 
 /* Team id max, UINT32_MAX used for error value/display_handler ID, and UINT32_MAX - 1 for controle display channel */
 # define TEAM_ID_MAX (CONTROLE_DISPLAY_CHAN - 1U)
@@ -169,7 +172,7 @@ typedef struct s_player {
 
 
 /* Message type extract */
-# define GET_MSG_TYPE(state) (state & 0b01111000)
+# define GET_MSG_TYPE(state) (state & 0b11111000)
 
 /* Message player state extract */
 # define GET_MSG_STATE(state) (state & 0b00000111)
@@ -225,9 +228,8 @@ enum e_player_state {
 /* Message type */
 enum e_msg_type {
 	P_CREATE=(1U << 3),		/* Create player */
-	P_UPDATE=(1U << 4),		/* Update player */
-	P_UPDATE_POS=(1U << 5), /* Update player position */
-	P_DELETE=(1U << 6),		/* Delete player */
+	P_UPDATE_POS=(1U << 4), /* Update player position */
+	P_DELETE=(1U << 5),		/* Delete player */
 };
 
 
@@ -257,7 +259,8 @@ int			get_msg_queue(key_t key, int flag);
 int8_t		remove_msg_queue(t_ipc *ipc);
 uint32_t 	extract_msg(t_ipc *ipc, uint32_t msg_id);
 int8_t		send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data);
-int8_t		clear_msg_queue(t_ipc *ipc, long team_id);
+int8_t		clear_msg_queue(t_ipc *ipc, long chan_id);
+uint32_t	message_queue_size_get(int msgid);
 /* init semaphore */
 int			init_game(t_ipc *ipc, char *path, int8_t allow);
 

@@ -37,6 +37,11 @@
 		"list": "c",
 		"unordered_map": "c",
 		"vector": "c",
-		"system_error": "c"
+		"system_error": "c",
+		"mlx.h": "c",
+		"fcntl.h": "c",
+		"linked_list.h": "c",
+		"unistd.h": "c",
+		"vector.h": "c"
 	}
 }

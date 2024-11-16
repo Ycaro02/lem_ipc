@@ -179,10 +179,13 @@ static void follower_logic(t_ipc *ipc, t_player *player)
 			// ft_printf_fd(2, PURPLE"After simulation next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
 		}
 		player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
-		return ;
 	} else {
 		player->state = S_WAITING;
 	}
+	if (save_pos.x != player->pos.x || save_pos.y != player->pos.y) {
+		ft_printf_fd(2, RED"error: save pos and polayer pos diff\n"RESET);
+	}
+	// ft_printf_fd(2, PURPLE"Player in team [%u] save:[%u][%u] now: [%u][%u]\n"RESET, player->team_id, save_pos.y, save_pos.x, player->pos.y, player->pos.x);
 }
 
 /* Need to check for message queue full and clear it */
