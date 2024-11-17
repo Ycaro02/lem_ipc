@@ -22,7 +22,7 @@ void display_msg_queue_size(int msgid)
  *	@param msgid The message queue id
  *	@return The message queue size, 0 on error
 */
-uint32_t message_queue_size_get(int msgid)
+u32 message_queue_size_get(int msgid)
 {
 	struct msqid_ds buf = {};
 
@@ -58,7 +58,7 @@ int get_msg_queue(key_t key, int flag)
  *	@param ipc The ipc structure
  *	@return 0 on success, -1 on error
 */
-int8_t remove_msg_queue(t_ipc *ipc)
+s8 remove_msg_queue(t_ipc *ipc)
 {
 
 	errno = 0;
@@ -75,18 +75,18 @@ int8_t remove_msg_queue(t_ipc *ipc)
  *	@param chan_id The channel id to clear
  *	@return 0 on success, -1 on error
 */
-int8_t clear_msg_queue(t_ipc *ipc, long chan_id)
+s8 clear_msg_queue(t_ipc *ipc, long chan_id)
 {
 	t_msgbuf msg = {};
-	int8_t ret = 0;
+	s8 ret = 0;
 	ssize_t msg_ret = 0;
 
 	errno = 0;
 	ft_printf_fd(1, GREEN"Clearing message queue CHAN %u\n"RESET, chan_id);
 	display_msg_queue_size(ipc->msgid);
-	// while (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), 0, IPC_NOWAIT) != -1) {
+	// while (msgrcv(ipc->msgid, &msg, sizeof(u32), 0, IPC_NOWAIT) != -1) {
 	while (1) {
-		msg_ret = msgrcv(ipc->msgid, &msg, sizeof(uint32_t), chan_id, IPC_NOWAIT);
+		msg_ret = msgrcv(ipc->msgid, &msg, sizeof(u32), chan_id, IPC_NOWAIT);
 		if (msg_ret == -1 && errno == ENOMSG) {
 			ret = -1;
 			break ;
@@ -105,7 +105,7 @@ int8_t clear_msg_queue(t_ipc *ipc, long chan_id)
  *	@param team_id The team id
  *	@param data The data to send
 */
-static void fill_msgbuff(t_msgbuf *msg, uint32_t team_id, uint32_t data)
+static void fill_msgbuff(t_msgbuf *msg, u32 team_id, u32 data)
 {
 	char *ptr = (char *)&data;
 
@@ -125,7 +125,7 @@ static void fill_msgbuff(t_msgbuf *msg, uint32_t team_id, uint32_t data)
  * @param from_id The team id from the sender
  * @return 1 on success, -1 on error
  */
-int8_t send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data, uint32_t from_id)
+s8 send_msg(t_ipc *ipc, u32 msg_id, u32 data, u32 from_id)
 {
 	t_msgbuf msg = {};
 
@@ -133,7 +133,7 @@ int8_t send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data, uint32_t from_id)
 
 	fill_msgbuff(&msg, msg_id, data);
 	errno = 0;
-	if (msgsnd(ipc->msgid, &msg, sizeof(uint32_t), IPC_NOWAIT) == -1) {
+	if (msgsnd(ipc->msgid, &msg, sizeof(u32), IPC_NOWAIT) == -1) {
 		//  if (errno == EAGAIN) { /* message queue full */
 		 if (errno == EAGAIN) { /* message queue full */
 			// ft_printf_fd(2, RED"Message queue is full Clean it\n"RESET);
@@ -155,13 +155,13 @@ int8_t send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data, uint32_t from_id)
  *	@param msg_id The message id
  *	@return The message value, UINT32_MAX on error
 */
-uint32_t extract_msg(t_ipc *ipc, uint32_t msg_id)
+u32 extract_msg(t_ipc *ipc, u32 msg_id)
 {
 	t_msgbuf msg = {};
 	// int cpy_flag = 040000;
 	errno = 0;
 	// ft_printf_fd(1, GREEN"Extracting message from team %d, val flag %d\n"RESET, msg_id, IPC_NOWAIT);
-	if (msgrcv(ipc->msgid, &msg, sizeof(uint32_t), msg_id, IPC_NOWAIT) == -1) {
+	if (msgrcv(ipc->msgid, &msg, sizeof(u32), msg_id, IPC_NOWAIT) == -1) {
 		if (errno == ENOMSG) {
 			// ft_printf_fd(2, YELLOW"No msg rcv from %d\n", msg_id, RESET);
 			return (UINT32_MAX);
@@ -170,7 +170,7 @@ uint32_t extract_msg(t_ipc *ipc, uint32_t msg_id)
 		syscall_perror("msgrcv");
 		return (UINT32_MAX);
 	}
-	// ft_printf_fd(1, PURPLE"Received message from team %d value: %u\n"RESET, msg_id, (*(uint32_t *)msg.mtext));
-	return (*(uint32_t *)msg.mtext);
+	// ft_printf_fd(1, PURPLE"Received message from team %d value: %u\n"RESET, msg_id, (*(u32 *)msg.mtext));
+	return (*(u32 *)msg.mtext);
 }
 

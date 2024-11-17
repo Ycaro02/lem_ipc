@@ -30,17 +30,20 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 /* Explicitit define value for shared rsc handler return */
-# define ERROR_CASE -1
-# define CLIENT_CASE 1
-# define SERVER_CASE 0
+typedef enum e_rsc_handler_ret {
+	ERROR_CASE=-1,
+	CLIENT_CASE=1,
+	SERVER_CASE=0,
+} t_rsc_handler_ret;
 
-
+/* Display handler state */
 typedef enum e_display_handler_state {
 	DH_DISCONNECTED=0,
 	DH_CONNECTED,
 	DH_PRIORITY,
 } t_display_handler_state;
 
+/* Control packet value */
 typedef enum e_ctrl_packet_val {
 	CTRL_DH_WAITING_TO_CONNECT=0,	/* Player waiting for display handler connection */
 	CTRL_DH_PRIORITY,
@@ -80,19 +83,20 @@ typedef enum e_ctrl_packet_val {
 
 /* Out of board index */
 # define OUT_OF_BOARD (BOARD_SIZE + 1)
+# define GAME_PLAYING_STATE_IDX OUT_OF_BOARD
 
 /* Display handler id */
 # define DISPLAY_HANDLER_CHAN	UINT32_MAX
 # define DISPLAY_HANDLER_ID		UINT32_MAX
 
 /* Display controle chanel, ned to remove this value to accepted team val */
-# define CONTROLE_DISPLAY_CHAN (uint32_t)(DISPLAY_HANDLER_CHAN - 1U)
+# define CONTROLE_DISPLAY_CHAN (u32)(DISPLAY_HANDLER_CHAN - 1U)
 
 /* Team id max, UINT32_MAX used for error value/display_handler ID, and UINT32_MAX - 1 for controle display channel */
 # define TEAM_ID_MAX (CONTROLE_DISPLAY_CHAN - 1U)
 
 /* Shared memory data size needed */
-# define SHM_DATA_SIZE (sizeof(uint32_t) * BOARD_SIZE) /* (4 * (30 * 60)) */
+# define SHM_DATA_SIZE (sizeof(u32) * BOARD_SIZE + 1) /* (4 * (BOARD_SIZE)) */
 
 /* Modulo data size % page size */
 # define MOD_PAGESIZE (size_t) (SHM_DATA_SIZE % PAGE_SIZE)
@@ -138,7 +142,7 @@ typedef enum e_ctrl_packet_val {
 
 /* Heuristic structure */
 typedef struct s_heuristic {
-	uint32_t	cost;
+	u32	cost;
 	t_vec		pos;
 } t_heuristic;
 
@@ -150,12 +154,12 @@ typedef struct s_msgbuf {
 
 /* IPCs structure */
 typedef struct s_ipc {
-	uint32_t	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
+	u32	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
 	key_t		key;		/* Key result ftok */
 	int			shmid;		/* Shared memory id */
 	int			semid;		/* Semaphore id */
 	int			msgid;		/* Message queue id */
-	int8_t		display;	/* Display handler conected */
+	s8		display;	/* Display handler conected */
 } t_ipc;
 
 /* Player structure */
@@ -164,9 +168,9 @@ typedef struct s_player {
 	t_vec		next_pos; 	/* Next position */
 	t_vec		target;		/* Target position */
 	t_vec		ally_pos;	/* Closest Ally position */
-	uint32_t	team_id;	/* Team id */
-	uint32_t	kill_by;	/* Kill by team id */
-	int8_t		state;		/* Player state */
+	u32	team_id;	/* Team id */
+	u32	kill_by;	/* Kill by team id */
+	s8		state;		/* Player state */
 } t_player;
 
 
@@ -216,7 +220,7 @@ typedef struct s_player {
 typedef struct s_player_data {
 	char			*name;	/* Data name field */
 	union {
-		uint32_t	sdata;	/* Data simple value */
+		u32	sdata;	/* Data simple value */
 		t_vec		vdata;	/* Data vector value */
 	}; 
 } t_pdata;
@@ -253,19 +257,19 @@ extern int g_game_run;
 
 
 /* main */
-uint32_t	check_death(uint32_t *board, t_vec point, uint32_t team_id);
+u32	check_death(u32 *board, t_vec point, u32 team_id);
 
 /* player move */
 void		player_tracker_follower(t_ipc *ipc, t_player *player);
-t_vec		find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id);
+t_vec		find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, u32 team_id);
 void		player_waiting(t_ipc *ipc, t_player *player);
-uint32_t	get_heuristic_cost(t_vec start, t_vec end);
-int8_t		find_player_in_range(t_ipc *ipc, t_player *player, uint32_t range_max, int8_t flag);
+u32	get_heuristic_cost(t_vec start, t_vec end);
+s8		find_player_in_range(t_ipc *ipc, t_player *player, u32 range_max, s8 flag);
 
 /* send pdata */
-void		send_display_controle_packet(t_ipc *ipc, uint32_t displayer_state, uint32_t from_id);
-int8_t		display_handler_state(t_ipc *ipc);
-void		send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type);
+void		send_display_controle_packet(t_ipc *ipc, u32 displayer_state, u32 from_id);
+s8		display_handler_state(t_ipc *ipc);
+void		send_pdata_display(t_ipc *ipc, t_player *player, u8 msg_type);
 
 // display handlker waiing
 void		wait_for_display_handler_priority(t_ipc *ipc);
@@ -273,13 +277,13 @@ void wait_for_display_handler_connect(t_ipc *ipc);
 
 /* message queue */
 int			get_msg_queue(key_t key, int flag);
-int8_t		remove_msg_queue(t_ipc *ipc);
-uint32_t 	extract_msg(t_ipc *ipc, uint32_t msg_id);
-int8_t		send_msg(t_ipc *ipc, uint32_t msg_id, uint32_t data, uint32_t from_id);
-int8_t		clear_msg_queue(t_ipc *ipc, long chan_id);
-uint32_t	message_queue_size_get(int msgid);
+s8		remove_msg_queue(t_ipc *ipc);
+u32 	extract_msg(t_ipc *ipc, u32 msg_id);
+s8		send_msg(t_ipc *ipc, u32 msg_id, u32 data, u32 from_id);
+s8		clear_msg_queue(t_ipc *ipc, long chan_id);
+u32	message_queue_size_get(int msgid);
 /* init semaphore */
-int			init_game(t_ipc *ipc, char *path, int8_t allow);
+int			init_game(t_ipc *ipc, char *path, s8 allow);
 
 /* sem handling */
 int 		destroy_semaphore_set(int semid);
@@ -297,16 +301,16 @@ int			get_attached_processnb(t_ipc *ipc);
 void 		syscall_perror(char *syscall_name);
 
 /* handle board */
-t_vec		get_board_vec(uint32_t idx);
-uint32_t	get_tile_board_val(uint32_t *array, t_vec vec);
-uint32_t	get_board_index(t_vec vec);
-void		display_uint16_array(uint32_t *array);
-void 		set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value);
+t_vec		get_board_vec(u32 idx);
+u32	get_tile_board_val(u32 *array, t_vec vec);
+u32	get_board_index(t_vec vec);
+void 		set_tile_board_val(u32 *array, t_vec vec, u32 value);
 
 /* player */
 int			init_player(t_player *player, int argc, char **argv);
 void 		player_routine(t_ipc *ipc, t_player *player);
 /* random position */
-t_vec		get_random_point(uint32_t *array, t_vec player_pos);
-
+t_vec		get_random_point(u32 *array, t_vec player_pos);
+u32 		get_playing_state(u32 *array);
+void 		set_playing_state(u32 *array, u32 state);
 # endif /* LEM_IPC_HEADER */ 

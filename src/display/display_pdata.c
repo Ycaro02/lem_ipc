@@ -2,7 +2,7 @@
 
 
 /* @brief extract msg type from pdata first field */
-static char *get_player_strtype(uint8_t type)
+static char *get_player_strtype(u8 type)
 {
 	if (type == P_CREATE) {
 		return ("CREATE");
@@ -13,7 +13,7 @@ static char *get_player_strtype(uint8_t type)
 }
 
 /* @brief extract state from pdata first field */
-static char *get_player_strstate(uint8_t state)
+static char *get_player_strstate(u8 state)
 {
 	if (state == S_WAITING) {
 		return ("WAITING");
@@ -48,9 +48,9 @@ static char *get_vector_string(t_vec vec)
  * @param str: first string to display
  * @param vdata: vector data to display
  * @param y: current y position to display
- * @return uint32_t: new y position
+ * @return u32: new y position
 */
-static uint32_t put_vectostr(t_game *game, char *str, t_vec vdata, uint32_t y)
+static u32 put_vectostr(t_game *game, char *str, t_vec vdata, u32 y)
 {
 	char *vec_str = get_vector_string(vdata);
 	char *tmp_str = ft_strjoin_free(str, vec_str, 's');
@@ -67,9 +67,9 @@ static uint32_t put_vectostr(t_game *game, char *str, t_vec vdata, uint32_t y)
  * @param state: state string to display (if NULL display data, else display state string)
  * @param data: data to display (uint value and can be convert to string with ultoa call)
  * @param y: current y position to display
- * @return uint32_t: new y position
+ * @return u32: new y position
 */
-static uint32_t put_uint_tostr(t_game *game, char *str, char *state, uint32_t data, uint32_t y)
+static u32 put_uint_tostr(t_game *game, char *str, char *state, u32 data, u32 y)
 {
 	char *tmp_str = NULL;
 	if (state) {
@@ -111,7 +111,7 @@ void display_pdata_lst(t_list *player_lst)
  *	@param pdata: pdata node to display
  *	@param y: current y position to display in pixel
 */
-void display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y)
+void display_pdata_node(t_game *game, t_pdata *pdata, u32 y)
 {
 	char *str_state = get_player_strstate(GET_MSG_STATE(pdata[PDATA_STATE].sdata));
 

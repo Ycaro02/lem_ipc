@@ -6,9 +6,9 @@
  * @param end The end position
  * @return The heuristic cost
 */
-uint32_t get_heuristic_cost(t_vec start, t_vec end)
+u32 get_heuristic_cost(t_vec start, t_vec end)
 {
-	uint32_t cost = 0;
+	u32 cost = 0;
 
 	cost = abs_diff(start.x, end.x) + abs_diff(start.y, end.y);
 	// ft_printf_fd(2, YELLOW"cost for %u %u to %u %u = %u\n"RESET, start.x, start.y, end.x, end.y, cost);
@@ -35,12 +35,12 @@ t_vec find_empty_tile_arround(t_ipc *ipc, t_vec current) {
  * @param end The end position
  * @return The best heuristic
 */
-t_vec find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t team_id)
+t_vec find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, u32 team_id)
 {
 	t_vec 		possible_move[DIR_MAX] = ARROUND_VEC_ARRAY(current);
 	t_vec 		enemy[DIR_MAX] = ARROUND_VEC_ARRAY(end);
     t_heuristic best_heuristic = {UINT32_MAX, create_vector(current.y, current.x)};
-    uint32_t	test = UINT32_MAX;
+    u32	test = UINT32_MAX;
 
 	(void)team_id; //(suicidetile)
     /* loop on player possible move */
@@ -69,9 +69,9 @@ t_vec find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, uint32_t 
  * @return 1 and set player->targer if enemy found, otherwise return 0
 */
 
-int8_t is_wanted_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y, int8_t flag)
+s8 is_wanted_tile(t_ipc *ipc, t_player *player, u32 x, u32 y, s8 flag)
 {
-	uint32_t	tile_state = TILE_EMPTY;
+	u32	tile_state = TILE_EMPTY;
 	// (void)flag;
 	// (void)player;
 	// if (x < BOARD_W && y < BOARD_H && get_board_index(create_vector(y, x)) < BOARD_SIZE)
@@ -98,9 +98,9 @@ int8_t is_wanted_tile(t_ipc *ipc, t_player *player, uint32_t x, uint32_t y, int8
  *	@param flag The flag to check
  *	@return 1 if the tile is correct, otherwise 0
 */
-int8_t test_closest_tile(t_ipc *ipc, t_player *player, t_vec change, int8_t flag)
+s8 test_closest_tile(t_ipc *ipc, t_player *player, t_vec change, s8 flag)
 {
-	uint32_t 	add_y, add_x, sub_y, sub_x;
+	u32 	add_y, add_x, sub_y, sub_x;
 	t_vec		pos = player->pos;
 
 
@@ -139,20 +139,20 @@ int8_t test_closest_tile(t_ipc *ipc, t_player *player, t_vec change, int8_t flag
  * @param flag The flag to check ally or enemy
  * @return 1 and set player->targer/closest ally if target/ally found, otherwise return 0
 */
-int8_t find_player_in_range(t_ipc *ipc, t_player *player, uint32_t range_max, int8_t flag)
+s8 find_player_in_range(t_ipc *ipc, t_player *player, u32 range_max, s8 flag)
 {
-	// uint32_t	tile_state = TILE_EMPTY;
+	// u32	tile_state = TILE_EMPTY;
 	// t_vec		pos = player->pos;
-	int8_t ret = 0;
+	s8 ret = 0;
 
 
-	for (uint32_t x_change = 1; x_change <= range_max; ++x_change) {
-		for (uint32_t y_change = 1; y_change <= x_change; ++y_change) {
+	for (u32 x_change = 1; x_change <= range_max; ++x_change) {
+		for (u32 y_change = 1; y_change <= x_change; ++y_change) {
 			ret = test_closest_tile(ipc, player, create_vector(y_change, x_change), flag);
 			if (ret == 1)
 				return (ret) ;
 			if (y_change > 	1){
-				for (uint32_t sub_x = 1; sub_x <= y_change; ++sub_x){
+				for (u32 sub_x = 1; sub_x <= y_change; ++sub_x){
 					ret = test_closest_tile(ipc, player, create_vector(y_change, sub_x), flag);
 					if (ret == 1)
 						return (ret);
@@ -166,7 +166,7 @@ int8_t find_player_in_range(t_ipc *ipc, t_player *player, uint32_t range_max, in
 static void follower_logic(t_ipc *ipc, t_player *player)
 {
 	t_vec		save_pos = create_vector(player->pos.y, player->pos.x);
-	uint32_t	to_rush = extract_msg(ipc, player->team_id);
+	u32	to_rush = extract_msg(ipc, player->team_id);
 	t_vec		rush_vec = get_board_vec(to_rush);
 
 	if (to_rush != UINT32_MAX) {
@@ -207,14 +207,14 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 void player_waiting(t_ipc *ipc, t_player *player)
 {
 	/* Try to get team message store position in uint32 */
-	uint32_t	to_rush = extract_msg(ipc, player->team_id);
+	u32	to_rush = extract_msg(ipc, player->team_id);
 	/* Transform this postion to vector pos */
 	t_vec		rush_vec = get_board_vec(to_rush);
 	/* Bool check msg, check if message is'nt my own position  */
-	int8_t		correct_msg = to_rush == UINT32_MAX ? 0 : (vector_cmp(rush_vec, player->pos) == 0);
+	s8		correct_msg = to_rush == UINT32_MAX ? 0 : (vector_cmp(rush_vec, player->pos) == 0);
 	
 	/* Bool is closest ally to be follower or not */
-	// int8_t		is_closest_ally = (vector_cmp(player->ally_pos, rush_vec) == 1);	
+	// s8		is_closest_ally = (vector_cmp(player->ally_pos, rush_vec) == 1);	
 
  	/* If no message receive but enemy found */
 	if (!correct_msg) {
@@ -288,9 +288,9 @@ TRACKER logic
 */
 
 
-// t_vec find_enemy_inrange(t_ipc *ipc, t_vec pos, uint32_t team_id)
+// t_vec find_enemy_inrange(t_ipc *ipc, t_vec pos, u32 team_id)
 // {
-// 	uint32_t	tile_state = TILE_EMPTY;
+// 	u32	tile_state = TILE_EMPTY;
 // 	t_vec		arround[] = ARROUND_VEC3_ARRAY(pos);
 
 // 	for (int i = 0; i < 48; i++) {
@@ -311,13 +311,13 @@ TRACKER logic
 // 	return (pos);
 // }
 
-// int8_t scan_board_arround(t_ipc *ipc, t_player *player, uint32_t range_max)
+// s8 scan_board_arround(t_ipc *ipc, t_player *player, u32 range_max)
 // {
-// 	uint32_t	tile_state = TILE_EMPTY;
+// 	u32	tile_state = TILE_EMPTY;
 
 // 	(void)tile_state;
 // 	(void)range_max;
-// 	// for (uint32_t range = 1; range <= range_max; range++) {
+// 	// for (u32 range = 1; range <= range_max; range++) {
 // 	player->target = find_enemy_inrange(ipc, player->pos, player->team_id);
 // 	if (!vector_cmp(player->target, player->pos)) {
 // 		return (1);

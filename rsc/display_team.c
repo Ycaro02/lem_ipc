@@ -2,11 +2,11 @@
 
 
 // /* @brief Get maximum size in team lst, maybe to remove */
-// static uint32_t	get_max_strsize(t_list *list)
+// static u32	get_max_strsize(t_list *list)
 // {
 // 	t_list		*tmp = list;
-// 	uint32_t	max = 0;
-// 	uint32_t	tmp_val = 0;
+// 	u32	max = 0;
+// 	u32	tmp_val = 0;
 
 // 	while (tmp) {
 // 		tmp_val = ft_strlen(((t_team *)tmp->content)->strsize);
@@ -26,14 +26,14 @@
  *  @param team_id team id
  *  @return 1 if team added 0 otherwise
 */
-int8_t add_team(t_list **team, uint32_t team_id)
+s8 add_team(t_list **team, u32 team_id)
 {
     t_team *new_team = malloc(sizeof(t_team));
 
     if (new_team == NULL) {
         return (0);
     }
-	uint32_t lst_size = 0;
+	u32 lst_size = 0;
 	if (team && *team) {
 		lst_size = ft_lstsize(*team);
 	}
@@ -48,7 +48,7 @@ int8_t add_team(t_list **team, uint32_t team_id)
 }
 
 
-void increment_team_size(t_list **team, uint32_t team_id)
+void increment_team_size(t_list **team, u32 team_id)
 {
 	t_list *current = *team;
 
@@ -78,9 +78,9 @@ int get_min_id(void *next, void *current)
 }
 
 
-int8_t build_list_number_team(t_list **lst, uint32_t *array)
+s8 build_list_number_team(t_list **lst, u32 *array)
 {
-	uint32_t i = 0;
+	u32 i = 0;
 	for (i = 0; i < BOARD_SIZE; i++) {
 		if (array[i] != TILE_EMPTY)  {
 			if (!team_exist(lst, array[i])) {

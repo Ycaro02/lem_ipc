@@ -1,7 +1,7 @@
 # include "../include/lem_ipc.h"
 
 
-void display_packet(uint32_t *data)
+void display_packet(u32 *data)
 {
 	ft_printf_fd(1, CYAN"\n-------------------------Send packet --------------------------------------\n"RESET);
 	ft_printf_fd(1, GREEN"start: |%u| "RESET, data[PDATA_START]);
@@ -16,10 +16,10 @@ void display_packet(uint32_t *data)
 
 }
 
-void send_display_controle_packet(t_ipc *ipc, uint32_t displayer_state, uint32_t from_id)
+void send_display_controle_packet(t_ipc *ipc, u32 displayer_state, u32 from_id)
 {
-	uint32_t	data[PDATA_LEN] = BUILD_CTRL_PACKET(displayer_state);
-	int8_t		ret = TRUE;
+	u32	data[PDATA_LEN] = BUILD_CTRL_PACKET(displayer_state);
+	s8		ret = TRUE;
 
 	for (int i = 0; i < PDATA_LEN; ++i) {
 		ret = send_msg(ipc, CONTROLE_DISPLAY_CHAN, data[i], from_id);
@@ -33,11 +33,11 @@ void send_display_controle_packet(t_ipc *ipc, uint32_t displayer_state, uint32_t
 	}
 }
 
-int8_t display_handler_state(t_ipc *ipc)
+s8 display_handler_state(t_ipc *ipc)
 {
-	uint32_t	data[PDATA_LEN] = BUILD_CTRL_PACKET((uint32_t)UINT32_MAX);
+	u32	data[PDATA_LEN] = BUILD_CTRL_PACKET((u32)UINT32_MAX);
 	int			i;
-	int8_t		ret = DH_DISCONNECTED;
+	s8		ret = DH_DISCONNECTED;
 
 	for (i = 0; i < PDATA_LEN; ++i) {
 		data[i] = extract_msg(ipc, CONTROLE_DISPLAY_CHAN);
@@ -72,11 +72,11 @@ void wait_for_display_handler_connect(t_ipc *ipc)
 
 void wait_for_display_handler_priority(t_ipc *ipc)
 {
-	uint32_t queue_size = MSG_QUEUE_LIMIT_SIZE;
+	u32 queue_size = MSG_QUEUE_LIMIT_SIZE;
 
 	/* Set display handler to priority if is not already */
 	if (ipc->display == DH_CONNECTED) {
-		ft_printf_fd(1, RED"Set display handle priority\n"RESET);
+		// ft_printf_fd(1, RED"Set display handle priority\n"RESET);
 		send_display_controle_packet(ipc, CTRL_DH_PRIORITY, 0);
 	}
 	// ft_printf_fd(1, RED"Message queue is full, wait for display handler to process it\n"RESET);
@@ -84,7 +84,7 @@ void wait_for_display_handler_priority(t_ipc *ipc)
 	while (1) {
 		sem_lock(ipc->semid);
 		queue_size = message_queue_size_get(ipc->msgid);
-		ft_printf_fd(1, YELLOW"Wait for queue processed, size -> %u\n"RESET, queue_size);
+		// ft_printf_fd(1, YELLOW"Wait for queue processed, size -> %u\n"RESET, queue_size);
 		if (queue_size < MSG_QUEUE_LIMIT_SIZE) {
 			break ;
 		}
@@ -93,17 +93,17 @@ void wait_for_display_handler_priority(t_ipc *ipc)
 	}
 	// sem_lock(ipc->semid);
 	// extract_priority_packet(ipc);
-	ft_printf_fd(1, GREEN"Message queue processed, size -> %u\n"RESET, queue_size);
+	// ft_printf_fd(1, GREEN"Message queue processed, size -> %u\n"RESET, queue_size);
 }
 
-void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
+void send_pdata_display(t_ipc *ipc, t_player *player, u8 msg_type)
 {
-	uint32_t p_pos = get_board_index(player->pos);
-	uint32_t p_target = get_board_index(player->target);
-	uint32_t p_ally = get_board_index(player->ally_pos);
-	uint32_t p_tid = player->team_id;
-	uint32_t p_state = (uint32_t)(player->state | msg_type);
-	uint32_t p_sup = 0;
+	u32 p_pos = get_board_index(player->pos);
+	u32 p_target = get_board_index(player->target);
+	u32 p_ally = get_board_index(player->ally_pos);
+	u32 p_tid = player->team_id;
+	u32 p_state = (u32)(player->state | msg_type);
+	u32 p_sup = 0;
 
 	// ft_printf_fd(1, YELLOW"Call send_pdata_display with %d\n"RESET, msg_type);
 
@@ -113,9 +113,9 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 		p_sup = player->kill_by;
 	}
 	/* Hard build packet maybe do it cleaner in macro/function */
-	uint32_t data[PDATA_LEN] = {(uint32_t) 0, p_state , p_tid, p_pos, p_target, p_ally, p_sup};
+	u32 data[PDATA_LEN] = {(u32) 0, p_state , p_tid, p_pos, p_target, p_ally, p_sup};
 
-	int8_t ret = TRUE;
+	s8 ret = TRUE;
 
 	/*
 		Before trying to send pdata to display handler we need to check if the queue can support his size
@@ -128,10 +128,6 @@ void send_pdata_display(t_ipc *ipc, t_player *player, uint8_t msg_type)
 	if (ipc->display) {
 		if (message_queue_size_get(ipc->msgid) >= MSG_QUEUE_LIMIT_SIZE) {
 			wait_for_display_handler_priority(ipc);
-		}
-
-		if (msg_type == P_CREATE) {
-			ft_printf_fd(1, "Player Send [%u|%u] |CREATE|\n", player->pos.y, player->pos.x);
 		}
 
 		for (int i = 0; i < PDATA_LEN; ++i) {

@@ -19,7 +19,7 @@
 # define JOIN_TEAM 1
 # define UPDATE_KILL 2 
 
-# define BEST_TEAM 5
+# define MAX_TEAM_DISPLAY 5
 
 // # define TOPBAND_HEIGHT (TILE_SIZE * 2)
 
@@ -58,35 +58,31 @@ typedef struct s_teamcolor {
 } t_teamcolor;
 
 typedef struct s_team {
-	uint32_t	tid;		/* Team Id */
+	u32			tid;		/* Team Id */
 	char		*strid;		/* Team Id String */
-	uint32_t	tsize;		/* Team Size */
+	u32			tsize;		/* Team Size */
 	char		*strsize;	/* Team Size String */
-	uint32_t	kill;		/* Team Kill */
+	u32			kill;		/* Team Kill */
 	char		*kill_str;	/* Team Kill String */
-	t_teamcolor	color;		/* Team color ? */
+	t_teamcolor	color;		/* Team color  */
 } t_team;
 
 typedef struct s_game
 {
 	t_xvar		*mlx;			/* mlx handler */
 	void		*win;			/* mlx window */
-	// t_img		*pause_btn;		/* pause btn image */
-	t_img		img;			/* mlx image, represent all screen execpt right band */
-	t_img		right_band;		/* right band image */
-	t_ipc		*ipc;			/* ipc handler */
-	t_list		*team_data;		/* team data list */
-	t_list		*player_data;	/* player data list */
-	t_pdata		*player_selected;		/* player data to display */
-	uint32_t	player_nb;		/* last team number store */
-	t_vec		mouse_pos;		/* mouse position, can remove*/
-
-	uint32_t	kill_from_remove_team;	/* kill from remove team */ 
-
-	int8_t		pause;			/* game pause bool */
-	int8_t		sem_lock;		/* sem is locked by display handler*/
-	int8_t		state;			/* display handler state */
-	int8_t		space_state;		/* team size */
+	t_img		img;				/* mlx image, represent all screen execpt right band */
+	t_img		right_band;			/* right band image */
+	t_ipc		*ipc;				/* ipc handler */
+	t_list		*team_data;			/* team data list */
+	t_list		*player_data;		/* player data list */
+	t_pdata		*player_selected;	/* player data to display */
+	t_vec		mouse_pos;			/* mouse position, can remove*/
+	u32			player_nb;			/* last team number store */
+	u32			kill_from_remove_team;	/* kill from remove team */ 
+	int			ressource_state;		/* ressource */
+	s8			pause;			/* game pause bool */
+	s8			space_state;	/* team size */
 }	t_game;
 
 /* Key */
@@ -98,10 +94,10 @@ typedef enum e_keyboard_key
 }	t_keyboard_key;
 
 /* main */
-t_teamcolor get_new_color(uint32_t team_id); 
+t_teamcolor get_new_color(u32 team_id); 
 
 /* team handling */
-void team_handling(t_game *game, uint32_t team_id, int8_t cmd);
+void team_handling(t_game *game, u32 team_id, s8 cmd);
 void free_team(void *team);
 
 /*lst utils in parsepdata*/
@@ -114,15 +110,15 @@ int check_mouse(int keycode, int x, int y, t_game *game);
 /* parse pdata */
 void	receive_player_data(t_game *game);
 void	*get_player_node(t_list *lst, t_vec target);
-int8_t	extract_controle_packet(t_game *game);
+s8	extract_controle_packet(t_game *game);
 void 	extract_priority_packet(t_game *game);
 /* display pdata */
 void	display_pdata_lst(t_list *player_lst);
-void	display_pdata_node(t_game *game, t_pdata *pdata, uint32_t y);
+void	display_pdata_node(t_game *game, t_pdata *pdata, u32 y);
 
 /* display team */
 // void		free_team(void *team);
-// int8_t 		build_list_number_team(t_list **lst, uint32_t *array);
+// s8 		build_list_number_team(t_list **lst, u32 *array);
 
 
 #endif /* DISPLAY_LEMIPC_H */ 

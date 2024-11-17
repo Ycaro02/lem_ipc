@@ -5,7 +5,7 @@
  * @param index
  * @return vector
 */
-t_vec get_board_vec(uint32_t idx) {
+t_vec get_board_vec(u32 idx) {
 	return (create_vector(idx / BOARD_W, idx % BOARD_W));
 }
 
@@ -14,9 +14,9 @@ t_vec get_board_vec(uint32_t idx) {
  * @param vector
  * @return index
 */
-uint32_t get_board_index (t_vec vec)
+u32 get_board_index (t_vec vec)
 {
-	uint32_t idx = (vec.y * BOARD_W) + vec.x;
+	u32 idx = (vec.y * BOARD_W) + vec.x;
 	
 	if (idx >= BOARD_SIZE) {
 		return (OUT_OF_BOARD);
@@ -30,7 +30,7 @@ uint32_t get_board_index (t_vec vec)
  * @param position vector
  * @param value to set
 */
-void set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value)
+void set_tile_board_val(u32 *array, t_vec vec, u32 value)
 {
 	int	idx = get_board_index(vec);
 
@@ -47,7 +47,7 @@ void set_tile_board_val(uint32_t *array, t_vec vec, uint32_t value)
  *	@param position vector
  *	@return value
 */
-uint32_t get_tile_board_val(uint32_t *array, t_vec vec)
+u32 get_tile_board_val(u32 *array, t_vec vec)
 {
 	int	idx = get_board_index(vec);
 
@@ -55,4 +55,12 @@ uint32_t get_tile_board_val(uint32_t *array, t_vec vec)
 		return (OUT_OF_BOARD);
 	}
 	return (array[idx]);
+}
+
+u32 get_playing_state(u32 *array) {
+	return (array[GAME_PLAYING_STATE_IDX]);
+}
+
+void set_playing_state(u32 *array, u32 state) {
+	array[GAME_PLAYING_STATE_IDX] = state;
 }

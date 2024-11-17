@@ -42,56 +42,40 @@ static void add_pdata_node(t_game *game, t_pdata *pdata)
 */
 static void handle_player_data(t_game *game, t_pdata *pdata)
 {
-	uint32_t	type_state = pdata[PDATA_STATE].sdata;
-	uint8_t 	type = GET_MSG_TYPE(type_state);
-	// uint8_t 	state = GET_MSG_STATE(type_state);
-	
+	t_pdata	*player_node = NULL;
+	u8		type = GET_MSG_TYPE(pdata[PDATA_STATE].sdata);
 
-	t_vec pos = pdata[PDATA_POS].vdata;
-	char *type_msg = (type == P_CREATE) ? "CREATE" : (type == P_UPDATE_POS) ? "UPDATE" : (type == P_DELETE) ? "DELETE" : "UNKNOWN";
-	ft_printf_fd(1, "Player msgtype |%s|, team %u posV [%u|%u] posS [%u]\n", type_msg, pdata[PDATA_TID].sdata, pos.y, pos.x, pdata[PDATA_POS].sdata);
+	// u8 	state = GET_MSG_STATE(type_state);
+	// t_vec pos = pdata[PDATA_POS].vdata;
+	// char *type_msg = (type == P_CREATE) ? "CREATE" : (type == P_UPDATE_POS) ? "UPDATE" : (type == P_DELETE) ? "DELETE" : "UNKNOWN";
+	// ft_printf_fd(1, "Player msgtype |%s|, team %u posV [%u|%u] posS [%u]\n", type_msg, pdata[PDATA_TID].sdata, pos.y, pos.x, pdata[PDATA_POS].sdata);
+
 	if (type == P_CREATE) {
 		add_pdata_node(game, pdata);
 		team_handling(game, pdata[PDATA_TID].sdata, JOIN_TEAM);
 		return ;
 	}
 
-	t_pdata *target_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
+	player_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
 	if (type == P_DELETE) {
-		int8_t is_selected_node = 0;
-		uint32_t kill_by = get_board_index(pdata[PDATA_SUPP].vdata);
 
-		team_handling(game, kill_by, UPDATE_KILL);
-		// ft_printf_fd(2, RED"Player node delete kill by %u\n"RESET, kill_by);
-		if (!target_node) {
-			// ft_printf_fd(2, RED"Player node not found in DELETE case nothing todo (update kill counter maybe)\n"RESET);
+		team_handling(game, get_board_index(pdata[PDATA_SUPP].vdata), UPDATE_KILL);
+		if (!player_node) {
 			return ;
-		}
-
-		if (game->player_selected == target_node) {
-			is_selected_node = 1;
-		}
-		ft_lst_remove_if(&game->player_data, target_node, free, is_same_node);
-		team_handling(game, pdata[PDATA_TID].sdata, REMOVE_TEAM);
-		// team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, REMOVE_TEAM);
-
-		if (is_selected_node) {
+		} else if (game->player_selected == player_node) {
 			game->player_selected = NULL;
 		}
+		ft_lst_remove_if(&game->player_data, player_node, free, is_same_node);
+		team_handling(game, pdata[PDATA_TID].sdata, REMOVE_TEAM);
 		return ;
 	}
 	/* Update case here, just update pdata_pos for update_pos case*/
 	if (type == P_UPDATE_POS) {
 		pdata[PDATA_POS].vdata = pdata[PDATA_SUPP].vdata;		/* update PPOS */
 	}
-	if (target_node) { /* if target node found just update it */
-		ft_memcpy((void *)target_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+	if (player_node) { /* if target found just update it */
+		ft_memcpy((void *)player_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
 	} 
-	// else { /* if is update and target node not found in update case, create it */
-	// 	add_pdata_node(game, pdata);
-	// 	team_handling(&game->team_data, game->ipc->ptr, pdata[PDATA_TID].sdata, JOIN_TEAM);
-	// }
-
 }
 
 /**
@@ -101,8 +85,8 @@ static void handle_player_data(t_game *game, t_pdata *pdata)
 void receive_player_data(t_game *game)
 {
 	t_pdata		pdata[PDATA_LEN] = INIT_PDATA_PACKET;
-	uint32_t	ret = UINT32_MAX;
-	uint8_t		count = 1; /* count = 1 cause if we call this we already receive the first 0 data start */
+	u32	ret = UINT32_MAX;
+	u8		count = 1; /* count = 1 cause if we call this we already receive the first 0 data start */
 
 	pdata[PDATA_START].sdata = 0;
 
@@ -120,14 +104,14 @@ void receive_player_data(t_game *game)
 			count = PDATA_START;
 		}
 	} while (ret != UINT32_MAX);
-	ft_printf_fd(1, GREEN"All Player data received-> queue size %u\n"RESET, message_queue_size_get(game->ipc->msgid));
+	// ft_printf_fd(1, GREEN"All Player data received-> queue size %u\n"RESET, message_queue_size_get(game->ipc->msgid));
 }
 
-int8_t extract_controle_packet(t_game *game)
+s8 extract_controle_packet(t_game *game)
 {
-	uint32_t data[PDATA_LEN] = {UINT32_MAX};
-	uint32_t i = 0;
-	int8_t ret = 0;
+	u32 data[PDATA_LEN] = {UINT32_MAX};
+	u32 i = 0;
+	s8 ret = 0;
 
 	sem_lock(game->ipc->semid);
 	for (i = 0; i < PDATA_LEN; ++i) {

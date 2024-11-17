@@ -3,7 +3,7 @@
 /* @brief Initialize player */
 int init_player(t_player *player, int argc, char **argv)
 {
-	uint64_t id_check;
+	u64 id_check;
 
 	if (argc != 2) {
 		ft_printf_fd(2, "Usage: %s <TEAM_ID>\n", argv[0]);
@@ -14,7 +14,7 @@ int init_player(t_player *player, int argc, char **argv)
 		ft_printf_fd(2, "Invalid team id\n");
 		return (-1);
 	}
-	player->team_id = (uint32_t)id_check;
+	player->team_id = (u32)id_check;
 	return (0);
 }
 
@@ -35,7 +35,7 @@ static int init_signal_handler(void)
 	return (0);
 }
 
-uint32_t check_double_value(uint32_t *array, uint32_t team_id)
+u32 check_double_value(u32 *array, u32 team_id)
 {
 	for (int i = 0; i < DIR_MAX; i++) {
 		for (int j = 0; j < DIR_MAX; j++) {
@@ -48,10 +48,10 @@ uint32_t check_double_value(uint32_t *array, uint32_t team_id)
 	return (ALIVE);
 }
 
-uint32_t check_death(uint32_t *board, t_vec point, uint32_t team_id)
+u32 check_death(u32 *board, t_vec point, u32 team_id)
 {
 	t_vec	arround[DIR_MAX] = ARROUND_VEC_ARRAY(point);
-	uint32_t arround_val[DIR_MAX] = {0};
+	u32 arround_val[DIR_MAX] = {0};
 	for (int i = 0; i < DIR_MAX; i++) {
 		if (get_board_index(arround[i]) >= BOARD_SIZE) {
 			continue;
@@ -62,12 +62,12 @@ uint32_t check_death(uint32_t *board, t_vec point, uint32_t team_id)
 }
 
 /* Check if player is dead */
-uint32_t check_player_death(t_ipc *ipc, t_player *player)
+u32 check_player_death(t_ipc *ipc, t_player *player)
 {
 	player->kill_by = check_death(ipc->ptr, player->pos, player->team_id);
-	if (player->kill_by != ALIVE) {
-		ft_printf_fd(1, RED"Player %u is dead killed by %u\n"RESET, player->team_id, player->kill_by);
-	}
+	// if (player->kill_by != ALIVE) {
+		// ft_printf_fd(1, RED"Player %u is dead killed by %u\n"RESET, player->team_id, player->kill_by);
+	// }
 	return (player->kill_by);
 }
 
@@ -99,7 +99,7 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	sem_unlock(ipc->semid);
 }
 
-static int8_t check_break_loop(t_ipc *ipc, t_player *player, int8_t enemy_found)
+static s8 check_break_loop(t_ipc *ipc, t_player *player, s8 enemy_found)
 {
 	/* Check if player is dead */
 	if (check_player_death(ipc, player) != ALIVE) {
@@ -108,7 +108,7 @@ static int8_t check_break_loop(t_ipc *ipc, t_player *player, int8_t enemy_found)
 		g_game_run = 0;
 		return (1);
 	} else if (!enemy_found) { /* Check win condition */
-		ft_printf_fd(1, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
+		// ft_printf_fd(1, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
 		send_pdata_display(ipc, player, P_DELETE);
 		g_game_run = 0;
 		return (1);
@@ -116,10 +116,10 @@ static int8_t check_break_loop(t_ipc *ipc, t_player *player, int8_t enemy_found)
 	return (0);
 }
 
-static void find_next_move(t_ipc *ipc, t_player *player, int8_t player_alone)
+static void find_next_move(t_ipc *ipc, t_player *player, s8 player_alone)
 {
 	/* Rush ally bool 1 for rush 0 for no */
-	int8_t rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
+	s8 rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
 
 	if (rush_ally) {
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
@@ -152,17 +152,18 @@ void player_routine(t_ipc *ipc, t_player *player)
 		/* Check if display handler is active */
 		ipc->display = display_handler_state(ipc);
 
-		if (message_queue_size_get(ipc->msgid) >= MSG_QUEUE_SIZE) {
-			ft_printf_fd(1, PURPLE"Start routine continue queue size -> %u\n", message_queue_size_get(ipc->msgid));
+		u32 playing_state = get_playing_state(ipc->ptr);
+
+		if (ipc->display == DH_PRIORITY || playing_state == FALSE) {
 			sem_unlock(ipc->semid);
 			usleep(100000);
-			continue ;
+			continue; /* wait for display handler to finish process */
 		}
 
 		/* Player scan his environement to find nearest ally (update player->ally_pos if found) */
-		int8_t player_alone = find_player_in_range(ipc, player, BOARD_W, ALLY_FLAG) == 0;
+		s8 player_alone = find_player_in_range(ipc, player, BOARD_W, ALLY_FLAG) == 0;
 		/* Player scan his environement to find nearest enemy (update player->target if found) */
-		int8_t enemy_found = find_player_in_range(ipc, player, BOARD_W, ENEMY_FLAG);
+		s8 enemy_found = find_player_in_range(ipc, player, BOARD_W, ENEMY_FLAG);
 
 		/* Check break loop condition (death/win) */		
 		if (check_break_loop(ipc, player, enemy_found))
@@ -186,17 +187,5 @@ void player_routine(t_ipc *ipc, t_player *player)
 		}
 		sem_unlock(ipc->semid);
 		usleep(PLAYER_WAIT_TIME);
-		// usleep(10000);
 	}
 }
-
-// if (player_alone) {
-// 	ft_printf_fd(2, RED"Player %u is alone\n"RESET, player->team_id);
-// } else  {
-// 	ft_printf_fd(2, YELLOW"Player %u [%u][%u] is not alone, ally pos [%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x , player->ally_pos.y, player->ally_pos.x);
-// 	rush_ally = get_heuristic_cost(player->pos, player->ally_pos) > 2;
-// }
-// ft_printf_fd(2, YELLOW"\nPlayer %u before at %u %u: --> "RESET, player->team_id, player->pos.y, player->pos.x);
-// ft_printf_fd(2, RED"Enemy found at %u %u\n"RESET, player->target.y, player->target.x);
-// ft_printf_fd(2, YELLOW"Player %u after at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);
-// ft_printf_fd(2, YELLOW"Heurisctic %u after at %u %u\n"RESET, player->team_id, hp.pos.y, hp.pos.x);

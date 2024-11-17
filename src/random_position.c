@@ -3,9 +3,9 @@
 /**
 * Get random number % max
 */
-uint32_t     gener_number(int max)
+u32     gener_number(int max)
 {
-	uint32_t nb = 0;
+	u32 nb = 0;
 
 	int fd = open("/dev/urandom", O_RDONLY); 
 	if (fd != -1)
@@ -17,7 +17,7 @@ uint32_t     gener_number(int max)
 			close(fd);
 		}
 		// ft_printf_fd(1, YELLOW"RANDOM buff = |%d|%d|%d|%d|\n"RESET, buff[0], buff[1], buff[2], buff[3]);
-		nb = (*(uint32_t *)buff) % max;
+		nb = (*(u32 *)buff) % max;
 		close(fd);
 	}
     return (nb);
@@ -27,13 +27,13 @@ uint32_t     gener_number(int max)
 /**
   * Get random board position
  */
-t_vec generate_random_board_point(uint32_t max)
+t_vec generate_random_board_point(u32 max)
 {
-    uint32_t idx = gener_number(max);
+    u32 idx = gener_number(max);
 	// ft_printf_fd(1, CYAN"idx generated: %d\n"RESET, idx);
 	// int idx = (board_size.y * BOARD_W) +  board_size.x;
-	uint32_t y = idx / BOARD_W;
-	uint32_t x = idx % BOARD_W;
+	u32 y = idx / BOARD_W;
+	u32 x = idx % BOARD_W;
 
 	t_vec pos = create_vector(y, x);
     return (pos);
@@ -42,7 +42,7 @@ t_vec generate_random_board_point(uint32_t max)
 /**
 * Get random reachable board position
 */
-t_vec get_random_point(uint32_t *array, t_vec player_pos)
+t_vec get_random_point(u32 *array, t_vec player_pos)
 {
     t_vec board_size = create_vector(BOARD_H, BOARD_W);
     t_vec new_point = generate_random_board_point(BOARD_H * BOARD_W);

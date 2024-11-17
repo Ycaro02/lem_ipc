@@ -6,7 +6,7 @@ int g_game_run;
 static int display_player_end(t_ipc ipc, t_player player)
 {
 	int		nb_process = get_attached_processnb(&ipc);
-	// int8_t	last_team = find_player_in_range(&ipc, &player, (int)BOARD_W, ENEMY_FLAG);
+	// s8	last_team = find_player_in_range(&ipc, &player, (int)BOARD_W, ENEMY_FLAG);
 	// char	*team = last_team == 0 ? FILL_GREEN"Last Team"RESET : FILL_RED"Not Last Team"RESET;
 	// char	*str_status = last_team == 0 ? "Won" : "Lost";
 	// char	*color = last_team == 0 ? FILL_GREEN : FILL_YELLOW;
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	t_ipc		ipc;
 	t_player	player;
 	int			ret = 0, nb_process = 0;
-	int8_t		display_handler = 0;
+	s8		display_handler = 0;
 
 
 	ft_bzero(&ipc, sizeof(t_ipc));

@@ -85,11 +85,11 @@ clear:
 	@$(DISPLAY_TEST) rm
 
 run: $(NAME)
-	@$(LEMIPC_RUN) 0
+	@$(LEMIPC_RUN) 2000 4
 # @sudo $(LEMIPC_RUN) 0
 
 runv: $(NAME)
-	@$(LEMIPC_RUN) 1
+	@$(LEMIPC_RUN) 100 4 1
 
 re:			fclean all
 

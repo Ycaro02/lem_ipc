@@ -1,11 +1,11 @@
 # include "../../include/display.h"
 
 
-static char *ft_utoa(uint32_t n)
+static char *ft_utoa(u32 n)
 {
 	int count;
 	char *dst;
-	uint64_t tmp;
+	u64 tmp;
 
 	dst = NULL;
 	count = 0;
@@ -34,7 +34,7 @@ static char *ft_utoa(uint32_t n)
  *  @param team_id team id
  *  @return 1 if team exist 0 otherwise
 */
-static int8_t team_exist(t_list **team, uint32_t team_id)
+static s8 team_exist(t_list **team, u32 team_id)
 {
     t_list *current = *team;
 
@@ -47,7 +47,7 @@ static int8_t team_exist(t_list **team, uint32_t team_id)
     return (0);
 }
 
-static void handle_team_size(t_list **team, uint32_t team_id, int8_t add)
+static void handle_team_size(t_list **team, u32 team_id, s8 add)
 {
 	t_list *current = *team;
 
@@ -69,7 +69,7 @@ static void handle_team_size(t_list **team, uint32_t team_id, int8_t add)
 }
 
 
-static void handle_team_kill(t_list **team, uint32_t team_id)
+static void handle_team_kill(t_list **team, u32 team_id)
 {
 	t_list *current = *team;
 
@@ -86,7 +86,7 @@ static void handle_team_kill(t_list **team, uint32_t team_id)
 	}
 }
 
-static t_team *build_team_node(uint32_t team_id)
+static t_team *build_team_node(u32 team_id)
 {
     t_team *team = ft_calloc(1, sizeof(t_team));
     
@@ -103,7 +103,7 @@ static t_team *build_team_node(uint32_t team_id)
     return (team);
 }
 
-static t_team *get_team_node(t_list **team, uint32_t team_id)
+static t_team *get_team_node(t_list **team, u32 team_id)
 {
     t_list *current = *team;
 
@@ -138,10 +138,10 @@ static int get_max_kill(void *next, void *current) {
 	return (((t_team *)next)->kill <= ((t_team *)current)->kill);
 }
 
-void team_handling(t_game *game, uint32_t team_id, int8_t cmd)
+void team_handling(t_game *game, u32 team_id, s8 cmd)
 {
     t_team      *team = NULL;
-    int8_t      inc_teamsize = team_exist(&game->team_data, team_id);
+    s8      inc_teamsize = team_exist(&game->team_data, team_id);
 
     if (cmd == JOIN_TEAM) {
         if (inc_teamsize) {

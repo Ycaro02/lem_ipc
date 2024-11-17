@@ -12,15 +12,15 @@ VALGRIND="valgrind --leak-check=full --track-fds=yes"
 
 
 handle_opt() {
-	if [ -z "${1}" ]; then
-		display_color_msg ${RED} "Usage: ${0} <VALGRIND_BOOLEAN_OPT>"
-		exit 1
-	fi
 
 	if [ "${1}" == "1" ]; then
+		display_color_msg ${YELLOW} "Valgrind option enabled."
 		LEMIPC="${VALGRIND} ${LEMIPC}"
+		echo "" > ${OUT_VALGRIND_DISPLAY}
 		LEMIPC_DISPLAY="${VALGRIND_DISPLAY} ${LEMIPC_DISPLAY}"
 		SLEEP_VAL=0.1
+	else
+		display_color_msg ${YELLOW} "Valgrind option disabled."
 	fi
 
 
@@ -44,33 +44,42 @@ run_test() {
 	./rsc/mk/ascii.sh "tester"
 	# rm_pid_log ${PID_LOG}
 
+	display_color_msg ${YELLOW} "Lauch display handler ${LEMIPC_DISPLAY} ..."
+	${LEMIPC_DISPLAY} &
+	DISPLAY_PID=$!
+
+	sleep 2
+
 	for ((i=0; i<${nb_player}; i++));
 	do
 		local team_id=$(((i % ${nb_team}) + 1))
 		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
-		if [ ${i} -eq 3 ]; then
-			display_color_msg ${YELLOW} "Lauch display handler ${LEMIPC_DISPLAY} ..."
-			(${LEMIPC_DISPLAY} &) > display_logger.txt
-			DISPLAY_PID=$!
-		fi
-		(${LEMIPC} ${team_id} &) >> logger.txt
-		#sleep ${SLEEP_VAL}
+		# (${LEMIPC} ${team_id} &) >> logger.txt
+		${LEMIPC} ${team_id} &
 	done
 
 	# wait all children pid
 	display_color_msg ${GREEN} "Waiting all children to finish ..."
 	wait $(jobs -p)
 	display_valgrind_log
-	# display_color_msg ${RED} "Killing all processes ..."
-	# ./rsc/sh/check_ipcs_free.sh
 }
 
 rm logger.txt
 
-handle_opt "$@"
+if [ $# -lt 2 ]; then
+	display_color_msg ${RED} "Usage: ${0} <NB_PLAYER> <NB_TEAM> (<VALGRIND_BOOLEAN_OPT>)"
+	exit 1
+fi
+
+NB_PLAYER=${1}
+NB_TEAM=${2}
+handle_opt ${3}
+
+run_test ${NB_PLAYER} ${NB_TEAM}
 # run_test 10 4
-run_test 200 4
+# run_test 200 4
 # run_test 500 4
 # run_test 1000 4
 # run_test 2000 4
-# run_test 5000 26
+# run_test 6000 4
+# run_test 6000 10

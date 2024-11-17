@@ -35,12 +35,14 @@ static int get_sem_set_id(key_t key)
 	return (shmid);
 }
 
+
+#define		RESET_LINE			"\r\033[K"
 /**
  * @brief Attach shared memory
  * @param ipc The ipc structure
  * @return 0 for server case (first launch), 1 for a child (basic client or display handler), -1 on error
 */
-static int shared_rsc_handler(t_ipc *ipc, int8_t allow)
+static int shared_rsc_handler(t_ipc *ipc, s8 allow)
 {
 	int flag = 0666;
 	
@@ -49,7 +51,11 @@ static int shared_rsc_handler(t_ipc *ipc, int8_t allow)
 	errno = 0;
 	ipc->semid = semget(ipc->key, 1, (flag | 0666));
 	if (allow == 0 && ipc->semid == -1) { /* if error and can't create sem (vizualizer case) */
-		syscall_perror("semget");
+		if (allow) {
+			syscall_perror("semget");
+		} else {
+			ft_printf_fd(2, RESET_LINE""YELLOW"Displayer waiting for IPC init ... "RESET);
+		}
 		return (ERROR_CASE);
 	} else if ((!allow && ipc->semid != -1 ) || (allow && ipc->semid == -1)) { /* if ressource already created */
 		ipc->semid = get_sem_set_id(ipc->key);
@@ -74,7 +80,7 @@ static int shared_rsc_handler(t_ipc *ipc, int8_t allow)
  *	@param path The file path
  *	@return 1 on success, 0 on error
 */
-static int8_t chek_path_exist(char *path)
+static s8 chek_path_exist(char *path)
 {
 	int fd = -1;
 	if (access(path, F_OK | R_OK | W_OK) == -1) {
@@ -96,7 +102,7 @@ static int8_t chek_path_exist(char *path)
  * @param ipc The ipc structure
  * @return The shared memory id, -1 on error
 */
-int init_game(t_ipc *ipc, char *path, int8_t allow)
+int init_game(t_ipc *ipc, char *path, s8 allow)
 {
 	/* Same here active protection when debug start is finish */
 
@@ -113,38 +119,46 @@ int init_game(t_ipc *ipc, char *path, int8_t allow)
 	if (ret != SERVER_CASE) { /* if not parent */
 		return (ret);
 	}
+
+	/* If we are here we are the SERVER (first client )*/
+
 	/* Set semaphore value to 0 (lock it) */
 	if (semctl(ipc->semid, 0, SETVAL, 0)) {
 		syscall_perror("semctl");
-		return (-1);
+		return (ERROR_CASE);
 	}
 	
 	ipc->shmid = get_shared_memory(ipc->key, IPC_CREAT | IPC_EXCL);
 	ipc->msgid = get_msg_queue(ipc->key, IPC_CREAT | IPC_EXCL);
 	if (ipc->shmid == -1 || ipc->msgid == -1 || attach_shared_memory(ipc) == -1) {
-		return (-1);
+		return (ERROR_CASE);
 	}
 	struct msqid_ds buf = {};
 
+	/* Get current msgqueue stats in buf */
 	if (msgctl(ipc->msgid, IPC_STAT, &buf) == -1) {
         perror("msgctl IPC_STAT");
         exit(1);
     }
+
+	/* Set the max number of bytes allowed in the queue */
     buf.msg_qbytes = MSG_QUEUE_SIZE;
-    // buf.msg_qbytes = 16384;
+
+	/* Set the new msgqueue stats */
     if (msgctl(ipc->msgid, IPC_SET, &buf) == -1) {
         perror("msgctl IPC_SET");
         exit(1);
     }
 
+	set_playing_state(ipc->ptr, FALSE);
 
-	ft_printf_fd(1, PURPLE"Server started waiting client 8sec ...\n"RESET);
-	sleep(8); /* wait for client to connect */
+	// ft_printf_fd(1, PURPLE"Server started waiting client 8sec ...\n"RESET);
+	sleep(1); /* wait for client to connect */
 	ft_printf_fd(1, CYAN"Server send controle display packet\n"RESET);
 	// here we send 0 to from_id cause it's the server, and player id are not define yet
 	send_display_controle_packet(ipc, CTRL_DH_WAITING_TO_CONNECT, 0);
 
 
-	sem_unlock(ipc->semid); /* put sem value to 1 to let other program conext to mem */
+	sem_unlock(ipc->semid); /* put sem value to 1 to let other program connect */
 	return (0);
 }
