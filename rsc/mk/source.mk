@@ -47,3 +47,11 @@ RUN_TESTER	= ./rsc/sh/run_tester.sh
 RM			=	rm -rf
 
 SRCS += $(MAIN_MANDATORY)
+
+CFLAGS			=	-Wall -Wextra -Werror
+
+ifeq ($(findstring litle, $(MAKECMDGOALS)), litle)
+CFLAGS = -Wall -Wextra -Werror -g3 -DLEMIPC_LITLE
+else ifeq ($(findstring verry_litle, $(MAKECMDGOALS)), verry_litle)
+CFLAGS = -Wall -Wextra -Werror -g3 -DLEMIPC_VERY_LITTLE
+endif

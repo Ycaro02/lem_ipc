@@ -4,7 +4,6 @@ include rsc/mk/source.mk
 DISPLAY_NAME	=	lemipc_display
 NAME			=	lemipc
 CC				=	gcc
-CFLAGS			=	-Wall -Wextra -Werror -O3 -g -D _GNU_SOURCE -D __USE_GNU
 
 ASCII_ART		=	./rsc/mk/ascii.sh
 ASCII_NAME		=	${NAME}
@@ -24,7 +23,7 @@ all:		$(NAME)
 	@$(CC) $(CFLAGS) -c $< -o $@
 
 $(NAME):	$(OBJ_DIR) $(OBJS) $(DISPLAY_NAME) $(LIST) $(LIBFT)
-	@printf "$(CYAN)Compiling ${NAME} ...$(RESET)\n"
+	@printf "$(CYAN)Compiling ${NAME} with $(CFLAGS) ...$(RESET)\n"
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBFT) $(LIST)
 	@printf "$(GREEN)Compiling $(NAME) done$(RESET)\n"
 
@@ -32,7 +31,6 @@ $(DISPLAY_NAME): $(LIBFT) $(LIST) ${MLX} $(DISPLAY_OBJS)
 	@printf "$(CYAN)Compiling ${DISPLAY_NAME} ...$(RESET)\n"
 	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST) ${MLX_FLAG}
 	@printf "$(GREEN)Compiling $(DISPLAY_NAME) done$(RESET)\n"
-
 
 ${MLX}:
 ifeq ($(shell [ -f ${MLX} ] && echo 0 || echo 1), 1)
@@ -62,6 +60,10 @@ $(OBJ_DIR):
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
 	@printf "$(YELLOW)Compiling $<$(RESET)\n"
 	@$(CC) -o $@ -c $< $(CFLAGS)
+
+litle: ${NAME}
+
+verry_litle: ${NAME}
 
 clean:
 ifeq ($(shell [ -d ${OBJ_DIR} ] && echo 0 || echo 1), 0)

@@ -52,38 +52,34 @@ typedef enum e_ctrl_packet_val {
 /* Return of getpagesize function casted in size_t 4096 */
 #define PAGE_SIZE              (size_t)getpagesize()
 
-
 /** 
 	* Following data are used to define the board size and the tile size
 	* Map height (nb_tile)
-	* Map width (nb_tile)
 	* Tile size in pixel
 	* Right band (nb_tile)
+	* Map width (nb_tile)
 */
 
-/* Big size: 3,600 tile */
-// #define BOARD_H 60U
-// #define TILE_SIZE 17U
-// #define RIGHTBAND_TILE_NB 12U
-
-// 60 * 60 = 3600
-
-/* Little size: 10,000 tile */
-// #define BOARD_H 100U
-// #define TILE_SIZE 10U
-// #define RIGHTBAND_TILE_NB (20U)
-
-// 100 * 100 = 10000
-
-/* Verry little size: 40,000 tile */
-#define BOARD_H 200U
-#define TILE_SIZE 4U
-#define RIGHTBAND_TILE_NB 50U
+#if defined(LEMIPC_LITLE)
+	/* Little size: 10,000 tile */
+	#define BOARD_H 100U
+	#define TILE_SIZE 10U
+	#define RIGHTBAND_TILE_NB (20U)
+#elif defined(LEMIPC_VERY_LITTLE)
+	/* Verry little size: 40,000 tile */
+	#define BOARD_H 200U
+	#define TILE_SIZE 4U
+	#define RIGHTBAND_TILE_NB 50U
+#else
+	/* Big size: 3,600 tile */
+	#define BOARD_H 60U
+	#define TILE_SIZE 17U
+	#define RIGHTBAND_TILE_NB 12U
+#endif
 
 #define BOARD_W BOARD_H
 
 #define PLAYER_WAIT_TIME 100000
-// #define PLAYER_WAIT_TIME 10000
 
 /* Size max of the message queue in bytes */
 #define MSG_QUEUE_SIZE 16384

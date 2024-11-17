@@ -2,9 +2,8 @@
 
 int		g_game_run; 
 
-t_teamcolor get_new_color(u32 team_id) 
-{
-	t_teamcolor team_color[] = {
+t_teamcolor get_new_color(u32 team_id)  {
+	static t_teamcolor team_color[] = {
 		{"Red", 0xFF0000},
 		{"Blue", 0x6699FF},
 		{"Yellow", 0xFFCC00},
@@ -33,20 +32,20 @@ t_teamcolor get_new_color(u32 team_id)
 		{"Grey Light", 0xCCCC99},
 	};
 	u32 idx = 0;
+
 	for (u32 i = 0; COLOR_MAX ; i++) {
-			if (i == (team_id - 1) % COLOR_MAX) {
-				idx = i;
-				break ;
-			}
+		if (i == (team_id - 1) % COLOR_MAX) {
+			idx = i;
+			break ;
 		}
+	}
 	// ft_printf_fd(2, CYAN"idx %d\n"RESET, idx);
 	return (team_color[idx]);
 }
 
 
 /* @brief Initialize display */
-int init_display(t_player *player, int argc, char **argv)
-{
+int init_display(t_player *player, int argc, char **argv) {
 	if (argc != 1) {
 		ft_printf_fd(2, "Usage: no args required %s\n", argv[0]);
 		return (-1);
@@ -56,32 +55,29 @@ int init_display(t_player *player, int argc, char **argv)
 }
 
 /* @brief Destroy windows/display */
-int destroy_windows(t_game *game)
-{
+int destroy_windows(t_game *game) {
 	mlx_destroy_image(game->mlx, game->img.image);
 	mlx_destroy_image(game->mlx, game->right_band.image);
 	// mlx_destroy_image(game->mlx, game->pause_btn);
 	mlx_destroy_window(game->mlx, game->win);
 	mlx_destroy_display(game->mlx);
+	
 	if (game->player_data) {
 		ft_lstclear(&game->player_data, free);
 	}
 	if (game->team_data) {
 		ft_lstclear(&game->team_data, free_team);
 	}
-	// if (!game->sem_lock) {
-	// 	ft_printf_fd(2, PURPLE"Display lock sem\n"RESET);
-	// 	sem_lock(game->ipc->semid);
-	// }
 
-	if (game->pause) { // if game is paused unlock it
-		set_playing_state(game->ipc->ptr, TRUE);
+	if (game->ressource_state != ERROR_CASE) {
+		if (game->pause) { // if game is paused unlock it
+			set_playing_state(game->ipc->ptr, TRUE);
+		}
+		ft_printf_fd(1, CYAN"Display exit, resend controle packet\n"RESET); 
+		send_display_controle_packet(game->ipc, CTRL_DH_WAITING_TO_CONNECT, DISPLAY_HANDLER_ID);
+		detach_shared_memory(game->ipc);
+		sem_unlock(game->ipc->semid);
 	}
-
-	ft_printf_fd(2, CYAN"Display exit, resend controle packet\n"RESET); 
-	send_display_controle_packet(game->ipc, CTRL_DH_WAITING_TO_CONNECT, DISPLAY_HANDLER_ID);
-	detach_shared_memory(game->ipc);
-	sem_unlock(game->ipc->semid);
 	free(game->mlx);
 	free(game);
 	exit(0);
@@ -93,8 +89,7 @@ int skip_x(char *str) {
 	return (ft_strlen(str) * CHAR_TOPIXEL);
 }
 
-static u32 compute_total_kill(t_list *team_lst)
-{
+static u32 compute_total_kill(t_list *team_lst) {
 	u32 total_kill = 0;
 	for (t_list *current = team_lst; current; current = current->next) {
 		total_kill += ((t_team *)current->content)->kill;
@@ -103,8 +98,7 @@ static u32 compute_total_kill(t_list *team_lst)
 	return (total_kill);
 }
 
-static u32 compute_total_team_size(t_list *team_lst)
-{
+static u32 compute_total_team_size(t_list *team_lst) {
 	u32 total_size = 0;
 	for (t_list *current = team_lst; current; current = current->next) {
 		total_size += ((t_team *)current->content)->tsize;
@@ -113,8 +107,7 @@ static u32 compute_total_team_size(t_list *team_lst)
 	return (total_size);
 }
 
-static void display_another_info(t_game *game, char *str, u32 y, u32 digit)
-{
+static void display_another_info(t_game *game, char *str, u32 y, u32 digit) {
 	u32 start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
 	u32 x = start_x;
 	mlx_string_put(game->mlx, game->win, x, y, YELLOW_INT, str);
@@ -126,11 +119,11 @@ static void display_another_info(t_game *game, char *str, u32 y, u32 digit)
 }
 
 /* @brief Display team info lst */
-static int	display_team_info(t_game *game, t_team *team, u32 pad_y, u32 str_sizemax)
-{
+static int	display_team_info(t_game *game, t_team *team, u32 pad_y, u32 str_sizemax) {
 	u32 start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
 	u32 y = 20U + pad_y;
 	u32 x = start_x;
+
 	mlx_string_put(game->mlx, game->win, x, y, team->color.color, "ID : ");
 	x += skip_x("ID : ");
 	mlx_string_put(game->mlx, game->win, x, y, GREEN_INT, team->strid); 
@@ -146,18 +139,18 @@ static int	display_team_info(t_game *game, t_team *team, u32 pad_y, u32 str_size
 }
 
 
+void reset_rightband(t_game *game) {
+	mlx_put_image_to_window(game->mlx, game->win, game->right_band.image, SCREEN_WIDTH - RIGHTBAND_WIDTH, 0);
+}
+
 /* TO_REWORK read new dataset */
-void display_righband(t_game *game, t_pdata *pdata)
-{
+void display_righband(t_game *game, t_pdata *pdata) {
 	u8 count = 0;
 	u32 y = 20U;
 	char *player_remain = ft_ultoa(get_attached_processnb(game->ipc) - 1U);
 	
-	/* reset right band */
-	mlx_put_image_to_window(game->mlx, game->win, game->right_band.image, SCREEN_WIDTH - RIGHTBAND_WIDTH, 0);
 
-	/* Display btn */
-	// mlx_put_image_to_window(game->mlx, game->win, game->pause_btn, (int)(SCREEN_WIDTH - RIGHTBAND_WIDTH), SCREEN_HEIGHT - (TILE_SIZE * 2));
+	reset_rightband(game);
 
 	mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, PLAYER_REMAIN);
 	if (player_remain) {
@@ -186,12 +179,10 @@ void display_righband(t_game *game, t_pdata *pdata)
 }
 
 /* @brief key press handler */
-int	key_hooks_press(int keycode, t_game *game)
-{
+int	key_hooks_press(int keycode, t_game *game) {
 	if (keycode == ESC) {
 		destroy_windows(game); /* maybe need to check sem value and lock it to detash mem */
-	} 
-	else if (keycode == SPACE) {
+	}  else if (keycode == SPACE) {
 		game->space_state = !game->space_state;
 	}
 	// else {
@@ -200,8 +191,7 @@ int	key_hooks_press(int keycode, t_game *game)
 	return (0);
 }
 
-static void draw_empty_board(t_game *game)
-{
+static void draw_empty_board(t_game *game) {
 	for (u32 y = 1; y < SCREEN_HEIGHT; ++y) {
 		for (u32 x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
 			if (x % TILE_SIZE != 0 && y % TILE_SIZE != 0) {
@@ -212,16 +202,16 @@ static void draw_empty_board(t_game *game)
 }
 
 /* @brief Draw board */
-static void draw_board(t_game *game)
-{
+static void draw_board(t_game *game) {
 	int color = 0;
+	u32 tile_state = 0;
 
 	for (u32 y = 1; y < SCREEN_HEIGHT; ++y) {
 		for (u32 x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
-			u32 x_compute =  ((x / TILE_SIZE) % BOARD_W);
-			u32 y_compute = ((y / TILE_SIZE) * BOARD_W);   
-			u32 idx = x_compute + y_compute;
-			u32 tile_state = game->ipc->ptr[idx];
+			// u32 x_compute =  ((x / TILE_SIZE) % BOARD_W);
+			// u32 y_compute = ((y / TILE_SIZE) * BOARD_W);   
+			// u32 idx = x_compute + y_compute;
+			tile_state = game->ipc->ptr[((x / TILE_SIZE) % BOARD_W) + ((y / TILE_SIZE) * BOARD_W)];
 			color = tile_state == TILE_EMPTY ? 0xFFFFFF : get_new_color(tile_state).color;
 			if (x % TILE_SIZE != 0 && y % TILE_SIZE != 0) {
 				((u32 *)game->img.data)[x + (y * (SCREEN_WIDTH - RIGHTBAND_WIDTH))] = color;
@@ -241,12 +231,34 @@ void extract_priority_packet(t_game *game){
 	}
 }
 
+t_game *get_game(void) {
+	static t_game *game = NULL;
+
+	if (!game) {
+		game = ft_calloc(sizeof(t_game), 1);
+	}
+	return (game);
+}
+
+// signal handler funct
+void sig_handler(int signum) {
+	t_game *game = get_game();
+
+	if (signum == SIGINT) {
+		destroy_windows(game);
+	}
+}
 
 /* Main display function called in mlx loop hook */
 int main_display(void *vgame) {
 	t_game		*game = vgame;
 	u32			tmp = 0;
 
+	/* Handle signal */
+	if (signal(SIGINT, sig_handler) == SIG_ERR) {
+		ft_printf_fd(2, "Can't catch SIGINT\n");
+		return (-1);
+	}
 
 	game->pause = game->space_state;
 
@@ -260,6 +272,7 @@ int main_display(void *vgame) {
 			/* Extract controle packet */
 			extract_controle_packet(game);
 		}
+		reset_rightband(game);
 	} else {
 		/* Lock sem */
 		sem_lock(game->ipc->semid);
@@ -356,7 +369,12 @@ int main(int argc, char **argv)
 {
 	t_ipc		ipc = {};
 	t_player	player = {};
-	t_game		*game = ft_calloc(sizeof(t_game), 1);
+	t_game		*game = get_game();
+
+	if (!game) {
+		ft_printf_fd(2, "Malloc failed\n");
+		return (1);
+	}
 
 	game->ipc = &ipc;
 	game->player_nb = 0;
