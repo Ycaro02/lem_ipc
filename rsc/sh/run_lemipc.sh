@@ -47,7 +47,6 @@ run_test() {
 	display_color_msg ${YELLOW} "Lauch display handler ${LEMIPC_DISPLAY} ..."
 	${LEMIPC_DISPLAY} &
 	DISPLAY_PID=$!
-
 	sleep 2
 
 	for ((i=0; i<${nb_player}; i++));
@@ -64,15 +63,14 @@ run_test() {
 	display_valgrind_log
 }
 
-rm logger.txt
-
 if [ $# -lt 2 ]; then
-	display_color_msg ${RED} "Usage: ${0} <NB_PLAYER> <NB_TEAM> (<VALGRIND_BOOLEAN_OPT>)"
-	exit 1
+	NB_PLAYER=50
+	NB_TEAM=4
+else 
+	NB_PLAYER=${1}
+	NB_TEAM=${2}
 fi
 
-NB_PLAYER=${1}
-NB_TEAM=${2}
 handle_opt ${3}
 
 run_test ${NB_PLAYER} ${NB_TEAM}

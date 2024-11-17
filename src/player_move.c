@@ -195,7 +195,7 @@ void player_tracker_follower(t_ipc *ipc, t_player *player)
 {
 
 	if (player->state == S_TRACKER) {
-		find_player_in_range(ipc, player, (int) BOARD_W, ENEMY_FLAG); /* get closest enemy of this position */
+		find_player_in_range(ipc, player, BOARD_W, ENEMY_FLAG); /* get closest enemy of this position */
 		// ft_printf_fd(2, GREEN"Tracker %u send his pos to ally [%u][%u] and rush [%u][%u]\n"RESET, player->team_id, player->next_pos.y, player->next_pos.x, player->target.y, player->target.x);
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
 		send_msg(ipc, player->team_id, get_board_index(player->next_pos), player->team_id);

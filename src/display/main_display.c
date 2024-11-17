@@ -113,15 +113,15 @@ static u32 compute_total_team_size(t_list *team_lst)
 	return (total_size);
 }
 
-static void display_another_info(t_game *game, char *str, u32 y, u32 total_kill)
+static void display_another_info(t_game *game, char *str, u32 y, u32 digit)
 {
 	u32 start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
 	u32 x = start_x;
-	mlx_string_put(game->mlx, game->win, x, y, CYAN_INT, str);
+	mlx_string_put(game->mlx, game->win, x, y, YELLOW_INT, str);
 	x += skip_x(str);
 
-	char *total_kill_str = ft_itoa(total_kill);
-	mlx_string_put(game->mlx, game->win, x, y, RED_INT, total_kill_str);
+	char *total_kill_str = ft_itoa(digit);
+	mlx_string_put(game->mlx, game->win, x, y, PINK_INT, total_kill_str);
 	free(total_kill_str);
 }
 
@@ -174,12 +174,11 @@ void display_righband(t_game *game, t_pdata *pdata)
 		}
 	}
 
+	/* Display player data */
 	y += (PAD_YTEAM * 2);
 	display_another_info(game, "Total Kill : ", y, compute_total_kill(game->team_data) + game->kill_from_remove_team);
 	y += PAD_YTEAM;
 	display_another_info(game, "Total Team Size : ", y, compute_total_team_size(game->team_data));
-	/* Display player data */
-
 
 	if (pdata) {
 		display_pdata_node(game, pdata, y + PAD_YTEAM);
@@ -244,8 +243,7 @@ void extract_priority_packet(t_game *game){
 
 
 /* Main display function called in mlx loop hook */
-int main_display(void *vgame)
-{
+int main_display(void *vgame) {
 	t_game		*game = vgame;
 	u32			tmp = 0;
 
@@ -303,6 +301,9 @@ int main_display(void *vgame)
 		display_righband(game, game->player_selected);
 	}
 	
+	display_another_info(game, "Game Paused : ", (BOARD_H * TILE_SIZE) - TILE_SIZE * 2, game->pause ? 1 : 0);
+
+
 	/* Display image (flush) */
 	mlx_put_image_to_window(game->mlx, game->win, game->img.image, 0, 0);
 

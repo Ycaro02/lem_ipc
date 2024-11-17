@@ -16,6 +16,8 @@ MLX_FLAG 		=	-Lmini_mlx -lmlx -lX11 -lXext -lm
 
 MLX = mini_mlx/libmlx.a
 
+ARGS = $(filter-out $@,$(MAKECMDGOALS))
+
 all:		$(NAME)
 
 %.o : %.c
@@ -85,11 +87,11 @@ clear:
 	@$(DISPLAY_TEST) rm
 
 run: $(NAME)
-	@$(LEMIPC_RUN) 2000 4
-# @sudo $(LEMIPC_RUN) 0
+	@${LEMIPC_RUN} ${ARGS}
 
-runv: $(NAME)
-	@$(LEMIPC_RUN) 100 4 1
+# Avoid take arg as target
+%:
+	@:
 
 re:			fclean all
 

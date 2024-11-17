@@ -50,86 +50,99 @@ typedef enum e_ctrl_packet_val {
 } t_ctrl_packet_val;
 
 /* Return of getpagesize function casted in size_t 4096 */
-# define PAGE_SIZE              (size_t)getpagesize()
+#define PAGE_SIZE              (size_t)getpagesize()
 
-/* Normal size */
-// # define BOARD_H 30U
-// # define BOARD_W 40U
-// # define TILE_SIZE 28U
-// # define RIGHTBAND_TILE_NB 5U
 
-# define MSG_QUEUE_SIZE 16384
+/** 
+	* Following data are used to define the board size and the tile size
+	* Map height (nb_tile)
+	* Map width (nb_tile)
+	* Tile size in pixel
+	* Right band (nb_tile)
+*/
 
-/* Map height */
-/* Map width */
-/* Tile size in pixel */
-/* Right band tile number */
+/* Big size: 3,600 tile */
+// #define BOARD_H 60U
+// #define TILE_SIZE 17U
+// #define RIGHTBAND_TILE_NB 12U
 
-/* Little size */
-# define BOARD_H 100U
-# define BOARD_W 100U
-# define TILE_SIZE 10U
-# define RIGHTBAND_TILE_NB (20U)
+// 60 * 60 = 3600
 
-// 24 * 40 = 960
+/* Little size: 10,000 tile */
+// #define BOARD_H 100U
+// #define TILE_SIZE 10U
+// #define RIGHTBAND_TILE_NB (20U)
+
+// 100 * 100 = 10000
+
+/* Verry little size: 40,000 tile */
+#define BOARD_H 200U
+#define TILE_SIZE 4U
+#define RIGHTBAND_TILE_NB 50U
+
+#define BOARD_W BOARD_H
 
 #define PLAYER_WAIT_TIME 100000
 // #define PLAYER_WAIT_TIME 10000
 
+/* Size max of the message queue in bytes */
+#define MSG_QUEUE_SIZE 16384
+
+/* Limit size of the message queue before set display handler priority and wait for him */
 #define MSG_QUEUE_LIMIT_SIZE 10000
 
 /* Board size */
-# define BOARD_SIZE (BOARD_H * BOARD_W)
+#define BOARD_SIZE (BOARD_H * BOARD_W)
 
 /* Out of board index */
-# define OUT_OF_BOARD (BOARD_SIZE + 1)
-# define GAME_PLAYING_STATE_IDX OUT_OF_BOARD
+#define OUT_OF_BOARD (BOARD_SIZE + 1)
+#define GAME_PLAYING_STATE_IDX OUT_OF_BOARD
 
 /* Display handler id */
-# define DISPLAY_HANDLER_CHAN	UINT32_MAX
-# define DISPLAY_HANDLER_ID		UINT32_MAX
+#define DISPLAY_HANDLER_CHAN	UINT32_MAX
+#define DISPLAY_HANDLER_ID		UINT32_MAX
 
 /* Display controle chanel, ned to remove this value to accepted team val */
-# define CONTROLE_DISPLAY_CHAN (u32)(DISPLAY_HANDLER_CHAN - 1U)
+#define CONTROLE_DISPLAY_CHAN (u32)(DISPLAY_HANDLER_CHAN - 1U)
 
 /* Team id max, UINT32_MAX used for error value/display_handler ID, and UINT32_MAX - 1 for controle display channel */
-# define TEAM_ID_MAX (CONTROLE_DISPLAY_CHAN - 1U)
+#define TEAM_ID_MAX (CONTROLE_DISPLAY_CHAN - 1U)
 
 /* Shared memory data size needed */
-# define SHM_DATA_SIZE (sizeof(u32) * BOARD_SIZE + 1) /* (4 * (BOARD_SIZE)) */
+#define SHM_DATA_SIZE (sizeof(u32) * BOARD_SIZE + 1) /* (4 * (BOARD_SIZE)) */
 
 /* Modulo data size % page size */
-# define MOD_PAGESIZE (size_t) (SHM_DATA_SIZE % PAGE_SIZE)
+#define MOD_PAGESIZE (size_t) (SHM_DATA_SIZE % PAGE_SIZE)
 
 /* Align data require on PAGE_SIZE (4096) */
-# define ALIGN_SHARED_MEM (size_t) (MOD_PAGESIZE != 0 ? (SHM_DATA_SIZE + PAGE_SIZE - MOD_PAGESIZE) : SHM_DATA_SIZE)
+#define ALIGN_SHARED_MEM (size_t) (MOD_PAGESIZE != 0 ? (SHM_DATA_SIZE + PAGE_SIZE - MOD_PAGESIZE) : SHM_DATA_SIZE)
 
 /* Tile empty value */
-# define TILE_EMPTY 0
+#define TILE_EMPTY 0
 
 /* Boolean value for init_game call */
-# define DISPLAY_HANDLER 0
-# define PLAYER 1
+#define DISPLAY_HANDLER 0
+#define PLAYER 1
 
 /* DIR MAX*/
-# define DIR_MAX 8
+#define DIR_MAX 8
 
 /* Ally flag for find_player_in_range */
-# define ALLY_FLAG 0
+#define ALLY_FLAG 0
 /* Enemy flag for find_player_in_range */
-# define ENEMY_FLAG 1
+#define ENEMY_FLAG 1
 
 /* Alive value to avoid magic number */
-# define ALIVE		0
+#define ALIVE		0
 
 /* File used in ftok call */
-# define IPC_NAME		"/tmp/lemipc_key"
+#define IPC_NAME		"/tmp/lemipc_key"
 
 /* Number used in ftok call */
-# define IPC_PROJ_ID	42
+#define IPC_PROJ_ID	42
 
 /* Brut vector arround array declaration */
-# define ARROUND_VEC_ARRAY(point) { \
+#define ARROUND_VEC_ARRAY(point) { \
 	{point.x, point.y - 1}, \
 	{point.x, point.y + 1}, \
 	{point.x - 1, point.y}, \
@@ -175,7 +188,7 @@ typedef struct s_player {
 
 
 /* Player data packet init */
-# define INIT_PDATA_PACKET { \
+#define INIT_PDATA_PACKET { \
 	{"player data start", {UINT32_MAX}}, \
 	{"player data state", {UINT32_MAX}}, \
 	{"player data team id", {UINT32_MAX}}, \
@@ -187,14 +200,13 @@ typedef struct s_player {
 
 
 /* Controle packet macro builder */
-# define BUILD_CTRL_PACKET(x) {x, x, x, x, x, x, x}
-
+#define BUILD_CTRL_PACKET(x) {x, x, x, x, x, x, x}
 
 /* Message type extract */
-# define GET_MSG_TYPE(state) (state & 0b11111000)
+#define GET_MSG_TYPE(state) (state & 0b11111000)
 
 /* Message player state extract */
-# define GET_MSG_STATE(state) (state & 0b00000111)
+#define GET_MSG_STATE(state) (state & 0b00000111)
 
 /* 
 	Message packets for display is build as follow:
