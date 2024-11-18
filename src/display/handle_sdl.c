@@ -1,5 +1,5 @@
-#include "include/handle_sdl.h"
-#include "libft/libft.h"
+#include "../../include/handle_sdl.h"
+#include "../../libft/libft.h"
 
 /**
  * @brief Create a window with SDL2
@@ -42,17 +42,17 @@ SDL_Window* create_sdl_windows(SDLHandle *h, const char* title) {
 }
 
 
-static TTF_Font *safe_load_font(SDLHandle *h, const char *path, s32 fontSize) {
-	TTF_Font *font = load_font(path, fontSize);
-	if (!font) {
-		SDL_DestroyRenderer(h->renderer);
-		SDL_DestroyWindow(h->window);
-		free(h);
-		ft_printf_fd(2, "%s: load_font %s failed\n", __func__, path);
-		return (NULL);
-	}
-	return (font);
-}
+// static TTF_Font *safe_load_font(SDLHandle *h, const char *path, s32 fontSize) {
+// 	TTF_Font *font = load_font(path, fontSize);
+// 	if (!font) {
+// 		SDL_DestroyRenderer(h->renderer);
+// 		SDL_DestroyWindow(h->window);
+// 		free(h);
+// 		ft_printf_fd(2, "%s: load_font %s failed\n", __func__, path);
+// 		return (NULL);
+// 	}
+// 	return (font);
+// }
 
 /**
  * @brief Create a SDLHandle
@@ -62,12 +62,17 @@ static TTF_Font *safe_load_font(SDLHandle *h, const char *path, s32 fontSize) {
  * @param board The chess board
  * @return The SDLHandle pointer
 */
-SDLHandle *create_sdl_handle(const char* title) {
+SDLHandle *create_sdl_handle(const char* title, u32 y, u32 x) {
 	SDLHandle *handle = ft_calloc(sizeof(SDLHandle),1);
 	if (!handle) {
 		ft_printf_fd(2, "%s : malloc failed\n", __func__);
 		return (NULL);
-	} else if (!(handle->window = create_sdl_windows(handle, title))) {
+	} 
+	
+	handle->window_size.x = x;
+	handle->window_size.y = y;
+
+	if (!(handle->window = create_sdl_windows(handle, title))) {
 		free(handle);
 		return (NULL);
 	} else if (!(handle->renderer = SDL_GetRenderer(handle->window))) {

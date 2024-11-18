@@ -364,12 +364,49 @@ s8 init_mlx(Game *game)
 
 }
 
+#include "../../include/handle_sdl.h"
+
+s8 is_key_pressed(SDL_Event event, s32 key) {
+	return (event.type == SDL_KEYDOWN && event.key.keysym.sym == key);
+}
+
+s8 is_left_click_down(SDL_Event event) {
+	return (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT);
+}
+
+
+s32 event_handler(SDLHandle *h) {
+	SDL_Event event;
+
+	while (SDL_PollEvent(&event)) {
+		if (event.type == SDL_QUIT || is_key_pressed(event, SDLK_ESCAPE)) {
+			window_close(h->window, h->renderer);
+			free(h);
+			exit(1); // toremove
+		} else if (is_key_pressed(event, SDLK_SPACE)) {
+			ft_printf_fd(1, "Space\n");
+			// pause here
+		}
+		// need to implement detect click logic here
+	
+	}
+	return (TRUE);
+}
+
 /* @brief Main function for display handler */
 int main(int argc, char **argv) 
 {
+
+	// (void)argc, (void)argv;
+	// SDLHandle *h = create_sdl_handle("LemIPC", 200, 200);
+	// while (1) {
+	// 	window_clear(h->renderer);
+	// 	event_handler(h);
+	// }
+
 	IPC		ipc = {};
-	Player	player = {};
 	Game		*game = geGame();
+	Player	player = {};
 
 	if (!game) {
 		ft_printf_fd(2, "Malloc failed\n");
@@ -378,19 +415,11 @@ int main(int argc, char **argv)
 
 	game->ipc = &ipc;
 	game->player_nb = 0;
-
 	if (init_display(&player, argc, argv) != 0) {
 		goto display_error;
 	}
 
 	game->ressource_state = iniGame(&ipc, IPC_NAME, DISPLAY_HANDLER);
-
-	// while (game->ressource_state == ERROR_CASE) {
-	// 	game->ressource_state = iniGame(&ipc, IPC_NAME, DISPLAY_HANDLER);
-	// 	usleep(10000);
-	// }
-
-
 	if (init_mlx(game) == ERROR_CASE) {
 		goto display_error;
 	}	

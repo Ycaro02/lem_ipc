@@ -43,7 +43,7 @@ typedef struct s_sdl_handle {
 
 
 /* src/sdl_handle */
-SDLHandle	*create_sdl_handle(const char* title);
+SDLHandle	*create_sdl_handle(const char* title, u32 y, u32 x);
 void		window_clear(SDL_Renderer* renderer);
 void		window_close(SDL_Window* window, SDL_Renderer *renderer);
 void		draw_color_tile(SDLHandle *h, iVec2 tilePos, iVec2 scale, u32 color);

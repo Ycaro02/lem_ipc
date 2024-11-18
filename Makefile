@@ -18,6 +18,7 @@ MLX = mini_mlx/libmlx.a
 
 SDL_FLAG	= -L./rsc/lib/install/lib -rpath ./rsc/lib/install/lib -lSDL2 -lSDL2_ttf
 
+
 ARGS = $(filter-out $@,$(MAKECMDGOALS))
 
 all:		$(NAME)
@@ -32,7 +33,7 @@ $(NAME):	$(OBJ_DIR) $(OBJS) $(DISPLAY_NAME) $(LIST) $(LIBFT)
 
 $(DISPLAY_NAME): $(LIBFT) $(LIST) ${MLX} $(DISPLAY_OBJS) 
 	@printf "$(CYAN)Compiling ${DISPLAY_NAME} ...$(RESET)\n"
-	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST) ${MLX_FLAG}
+	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST) ${MLX_FLAG} ${SDL_FLAG}
 	@printf "$(GREEN)Compiling $(DISPLAY_NAME) done$(RESET)\n"
 
 ${MLX}:
