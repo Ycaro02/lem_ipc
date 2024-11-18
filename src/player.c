@@ -1,7 +1,7 @@
 # include "../include/lem_ipc.h"
 
 /* @brief Initialize player */
-int init_player(t_player *player, int argc, char **argv)
+int iniPlayer(Player *player, int argc, char **argv)
 {
 	u64 id_check;
 
@@ -62,7 +62,7 @@ u32 check_death(u32 *board, t_vec point, u32 team_id)
 }
 
 /* Check if player is dead */
-u32 check_player_death(t_ipc *ipc, t_player *player)
+u32 check_player_death(IPC *ipc, Player *player)
 {
 	player->kill_by = check_death(ipc->ptr, player->pos, player->team_id);
 	// if (player->kill_by != ALIVE) {
@@ -71,7 +71,7 @@ u32 check_player_death(t_ipc *ipc, t_player *player)
 	return (player->kill_by);
 }
 
-static void put_player_on_board(t_ipc *ipc, t_player *player)
+static void puPlayer_on_board(IPC *ipc, Player *player)
 {
 	t_vec	 	point;
 
@@ -99,7 +99,7 @@ static void put_player_on_board(t_ipc *ipc, t_player *player)
 	sem_unlock(ipc->semid);
 }
 
-static s8 check_break_loop(t_ipc *ipc, t_player *player, s8 enemy_found)
+static s8 check_break_loop(IPC *ipc, Player *player, s8 enemy_found)
 {
 	/* Check if player is dead */
 	if (check_player_death(ipc, player) != ALIVE) {
@@ -116,10 +116,10 @@ static s8 check_break_loop(t_ipc *ipc, t_player *player, s8 enemy_found)
 	return (0);
 }
 
-static void find_next_move(t_ipc *ipc, t_player *player, s8 player_alone)
+static void find_next_move(IPC *ipc, Player *player, s8 player_alone)
 {
 	/* Rush ally bool 1 for rush 0 for no */
-	s8 rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
+	s8 rush_ally = player_alone == 1 ? 0 : (geHeuristic_cost(player->pos, player->ally_pos) > 2);
 
 	if (rush_ally) {
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
@@ -137,14 +137,14 @@ static void find_next_move(t_ipc *ipc, t_player *player, s8 player_alone)
 	}
 }
 
-void player_routine(t_ipc *ipc, t_player *player) 
+void player_routine(IPC *ipc, Player *player) 
 {
 	if (init_signal_handler() == -1) {
 		return ;
 	}
 
 	/* Set First player position randomly */
-	put_player_on_board(ipc, player);
+	puPlayer_on_board(ipc, player);
 
 	/* start routine */
 	while (g_game_run) {

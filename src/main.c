@@ -3,20 +3,20 @@
 /* Can be remove game run sattus */
 int g_game_run;
 
-static int display_player_end(t_ipc ipc, t_player player)
+static int display_player_end(IPC ipc, Player player)
 {
 	int		nb_process = get_attached_processnb(&ipc);
-	// s8	last_team = find_player_in_range(&ipc, &player, (int)BOARD_W, ENEMY_FLAG);
-	// char	*team = last_team == 0 ? FILL_GREEN"Last Team"RESET : FILL_RED"Not Last Team"RESET;
-	// char	*str_status = last_team == 0 ? "Won" : "Lost";
-	// char	*color = last_team == 0 ? FILL_GREEN : FILL_YELLOW;
+	// s8	lasTeam = find_player_in_range(&ipc, &player, (int)BOARD_W, ENEMY_FLAG);
+	// char	*team = lasTeam == 0 ? FILL_GREEN"Last Team"RESET : FILL_RED"Not Last Team"RESET;
+	// char	*str_status = lasTeam == 0 ? "Won" : "Lost";
+	// char	*color = lasTeam == 0 ? FILL_GREEN : FILL_YELLOW;
 
-	// ft_printf_fd(2, "%sLem-Ipc Client team nb [%d] %s on [%d][%d]\n"RESET"%s\n"FILL_YELLOW"Attached = |%d|\n"RESET, color, player.team_id, str_status, player.pos.y, player.pos.x, team, nb_process);
+	// ft_printf_fd(2, "%sLem-IPC Client team nb [%d] %s on [%d][%d]\n"RESET"%s\n"FILL_YELLOW"Attached = |%d|\n"RESET, color, player.team_id, str_status, player.pos.y, player.pos.x, team, nb_process);
 	set_tile_board_val(ipc.ptr, player.pos, TILE_EMPTY);
 	return (nb_process);
 }
 
-static int wait_display_handler(t_ipc *ipc)
+static int wait_display_handler(IPC *ipc)
 {
 	int nb_process = 2;
 	// ft_printf_fd(1, FILL_RED"Lem-ipc Server Want Down wait display handler nb process: %d\n"RESET, nb_process);
@@ -30,18 +30,18 @@ static int wait_display_handler(t_ipc *ipc)
 
 int main(int argc, char **argv) 
 {
-	t_ipc		ipc;
-	t_player	player;
+	IPC		ipc;
+	Player	player;
 	int			ret = 0, nb_process = 0;
 	s8		display_handler = 0;
 
 
-	ft_bzero(&ipc, sizeof(t_ipc));
-	ft_bzero(&player, sizeof(t_player));
+	ft_bzero(&ipc, sizeof(IPC));
+	ft_bzero(&player, sizeof(Player));
 	g_game_run = 1;
 
-	if (init_player(&player, argc, argv) != 0\
-		|| init_game(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
+	if (iniPlayer(&player, argc, argv) != 0\
+		|| iniGame(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
 		return (1);
 	}
 	player_routine(&ipc, &player);

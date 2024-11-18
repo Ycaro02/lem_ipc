@@ -42,7 +42,7 @@ static int get_sem_set_id(key_t key)
  * @param ipc The ipc structure
  * @return 0 for server case (first launch), 1 for a child (basic client or display handler), -1 on error
 */
-static int shared_rsc_handler(t_ipc *ipc, s8 allow)
+static int shared_rsc_handler(IPC *ipc, s8 allow)
 {
 	int flag = 0666;
 	
@@ -102,7 +102,7 @@ static s8 chek_path_exist(char *path)
  * @param ipc The ipc structure
  * @return The shared memory id, -1 on error
 */
-int init_game(t_ipc *ipc, char *path, s8 allow)
+int iniGame(IPC *ipc, char *path, s8 allow)
 {
 	/* Same here active protection when debug start is finish */
 

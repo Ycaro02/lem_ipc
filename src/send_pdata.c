@@ -16,7 +16,7 @@ void display_packet(u32 *data)
 
 }
 
-void send_display_controle_packet(t_ipc *ipc, u32 displayer_state, u32 from_id)
+void send_display_controle_packet(IPC *ipc, u32 displayer_state, u32 from_id)
 {
 	u32	data[PDATA_LEN] = BUILD_CTRL_PACKET(displayer_state);
 	s8		ret = TRUE;
@@ -33,7 +33,7 @@ void send_display_controle_packet(t_ipc *ipc, u32 displayer_state, u32 from_id)
 	}
 }
 
-s8 display_handler_state(t_ipc *ipc)
+s8 display_handler_state(IPC *ipc)
 {
 	u32	data[PDATA_LEN] = BUILD_CTRL_PACKET((u32)UINT32_MAX);
 	int			i;
@@ -60,7 +60,7 @@ s8 display_handler_state(t_ipc *ipc)
 	return (ret);
 }
 
-void wait_for_display_handler_connect(t_ipc *ipc) 
+void wait_for_display_handler_connect(IPC *ipc) 
 {
 	while (display_handler_state(ipc) == DH_DISCONNECTED) {
 		sem_unlock(ipc->semid);
@@ -70,7 +70,7 @@ void wait_for_display_handler_connect(t_ipc *ipc)
 	ipc->display = display_handler_state(ipc);
 }
 
-void wait_for_display_handler_priority(t_ipc *ipc)
+void wait_for_display_handler_priority(IPC *ipc)
 {
 	u32 queue_size = MSG_QUEUE_LIMIT_SIZE;
 
@@ -96,7 +96,7 @@ void wait_for_display_handler_priority(t_ipc *ipc)
 	// ft_printf_fd(1, GREEN"Message queue processed, size -> %u\n"RESET, queue_size);
 }
 
-void send_pdata_display(t_ipc *ipc, t_player *player, u8 msg_type)
+void send_pdata_display(IPC *ipc, Player *player, u8 msg_type)
 {
 	u32 p_pos = get_board_index(player->pos);
 	u32 p_target = get_board_index(player->target);

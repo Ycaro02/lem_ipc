@@ -5,7 +5,7 @@
  * @param team The team to update
  * @param add 1 to add, 0 to remove
 */
-static void handle_team_size(t_team *team, s8 add)
+static void handle_team_size(Team *team, s8 add)
 {
 	if (add) {
 		team->tsize += 1;
@@ -23,8 +23,8 @@ static void handle_team_size(t_team *team, s8 add)
  * @param node The node to check
  * @return 1 if the node is the same, otherwise 0
 */
-static void increment_team_kill(void *team_node){
-	t_team *team = (t_team *)team_node;
+static void incremenTeam_kill(void *team_node){
+	Team *team = (Team *)team_node;
 
 	team->kill += 1;
 	if (team->kill_str != NULL) {
@@ -38,8 +38,8 @@ static void increment_team_kill(void *team_node){
  * @param team_id The team id
  * @return The allocated team node
 */
-static t_team *build_team_node(u32 team_id) {
-    t_team *team = ft_calloc(1, sizeof(t_team));
+static Team *build_team_node(u32 team_id) {
+    Team *team = ft_calloc(1, sizeof(Team));
     
     if (!team) {
         return (NULL);
@@ -60,11 +60,11 @@ static t_team *build_team_node(u32 team_id) {
  * @param team_id The team id
  * @return The team node
 */
-static t_team *get_team_node(t_list **team, u32 team_id) {
+static Team *geTeam_node(t_list **team, u32 team_id) {
     t_list *current = *team;
 
     while (current != NULL) {
-        if (((t_team *)current->content)->tid == team_id) {
+        if (((Team *)current->content)->tid == team_id) {
             return (current->content);
         }
         current = current->next;
@@ -77,7 +77,7 @@ static t_team *get_team_node(t_list **team, u32 team_id) {
  * @param team The team node to free
 */
 void free_team(void *team) {
-	t_team *tmp = (t_team *)team;
+	Team *tmp = (Team *)team;
     
     if (tmp->strid) {
         free(tmp->strid);
@@ -94,13 +94,13 @@ void free_team(void *team) {
 }
 
 static int get_max_kill(void *next, void *current) {
-	return (((t_team *)next)->kill <= ((t_team *)current)->kill);
+	return (((Team *)next)->kill <= ((Team *)current)->kill);
 }
 
-void team_handling(t_game *game, u32 team_id, s8 cmd) {
-    t_team      *team = NULL;
+void team_handling(Game *game, u32 team_id, s8 cmd) {
+    Team      *team = NULL;
 
-    team = get_team_node(&game->team_data, team_id);
+    team = geTeam_node(&game->team_data, team_id);
     if (cmd == JOIN_TEAM) {
         if (team) {
             handle_team_size(team , 1);
@@ -120,7 +120,7 @@ void team_handling(t_game *game, u32 team_id, s8 cmd) {
             ft_lst_remove_if(&game->team_data, team, free_team, is_same_node);
         }
     } else if (team && cmd == UPDATE_KILL) {
-		increment_team_kill(team);
+		incremenTeam_kill(team);
     }
 
 	list_sort(&game->team_data, get_max_kill);

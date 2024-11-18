@@ -2,8 +2,8 @@
 
 int		g_game_run; 
 
-t_teamcolor get_new_color(u32 team_id)  {
-	static t_teamcolor team_color[] = {
+TeamColor get_new_color(u32 team_id)  {
+	static TeamColor team_color[] = {
 		{"Red", 0xFF0000},
 		{"Blue", 0x6699FF},
 		{"Yellow", 0xFFCC00},
@@ -45,7 +45,7 @@ t_teamcolor get_new_color(u32 team_id)  {
 
 
 /* @brief Initialize display */
-int init_display(t_player *player, int argc, char **argv) {
+int init_display(Player *player, int argc, char **argv) {
 	if (argc != 1) {
 		ft_printf_fd(2, "Usage: no args required %s\n", argv[0]);
 		return (-1);
@@ -55,7 +55,7 @@ int init_display(t_player *player, int argc, char **argv) {
 }
 
 /* @brief Destroy windows/display */
-int destroy_windows(t_game *game) {
+int destroy_windows(Game *game) {
 	mlx_destroy_image(game->mlx, game->img.image);
 	mlx_destroy_image(game->mlx, game->right_band.image);
 	// mlx_destroy_image(game->mlx, game->pause_btn);
@@ -92,7 +92,7 @@ int skip_x(char *str) {
 static u32 compute_total_kill(t_list *team_lst) {
 	u32 total_kill = 0;
 	for (t_list *current = team_lst; current; current = current->next) {
-		total_kill += ((t_team *)current->content)->kill;
+		total_kill += ((Team *)current->content)->kill;
 	}
 
 	return (total_kill);
@@ -101,13 +101,13 @@ static u32 compute_total_kill(t_list *team_lst) {
 static u32 compute_total_team_size(t_list *team_lst) {
 	u32 total_size = 0;
 	for (t_list *current = team_lst; current; current = current->next) {
-		total_size += ((t_team *)current->content)->tsize;
+		total_size += ((Team *)current->content)->tsize;
 	}
 
 	return (total_size);
 }
 
-static void display_another_info(t_game *game, char *str, u32 y, u32 digit) {
+static void display_another_info(Game *game, char *str, u32 y, u32 digit) {
 	u32 start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
 	u32 x = start_x;
 	mlx_string_put(game->mlx, game->win, x, y, YELLOW_INT, str);
@@ -119,7 +119,7 @@ static void display_another_info(t_game *game, char *str, u32 y, u32 digit) {
 }
 
 /* @brief Display team info lst */
-static int	display_team_info(t_game *game, t_team *team, u32 pad_y, u32 str_sizemax) {
+static int	display_team_info(Game *game, Team *team, u32 pad_y, u32 str_sizemax) {
 	u32 start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
 	u32 y = 20U + pad_y;
 	u32 x = start_x;
@@ -139,12 +139,12 @@ static int	display_team_info(t_game *game, t_team *team, u32 pad_y, u32 str_size
 }
 
 
-void reset_rightband(t_game *game) {
+void reset_rightband(Game *game) {
 	mlx_put_image_to_window(game->mlx, game->win, game->right_band.image, SCREEN_WIDTH - RIGHTBAND_WIDTH, 0);
 }
 
 /* TO_REWORK read new dataset */
-void display_righband(t_game *game, t_pdata *pdata) {
+void display_righband(Game *game, PlayerData *pdata) {
 	u8 count = 0;
 	u32 y = 20U;
 	char *player_remain = ft_ultoa(get_attached_processnb(game->ipc) - 1U);
@@ -179,7 +179,7 @@ void display_righband(t_game *game, t_pdata *pdata) {
 }
 
 /* @brief key press handler */
-int	key_hooks_press(int keycode, t_game *game) {
+int	key_hooks_press(int keycode, Game *game) {
 	if (keycode == ESC) {
 		destroy_windows(game); /* maybe need to check sem value and lock it to detash mem */
 	}  else if (keycode == SPACE) {
@@ -191,7 +191,7 @@ int	key_hooks_press(int keycode, t_game *game) {
 	return (0);
 }
 
-static void draw_empty_board(t_game *game) {
+static void draw_empty_board(Game *game) {
 	for (u32 y = 1; y < SCREEN_HEIGHT; ++y) {
 		for (u32 x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
 			if (x % TILE_SIZE != 0 && y % TILE_SIZE != 0) {
@@ -202,7 +202,7 @@ static void draw_empty_board(t_game *game) {
 }
 
 /* @brief Draw board */
-static void draw_board(t_game *game) {
+static void draw_board(Game *game) {
 	int color = 0;
 	u32 tile_state = 0;
 
@@ -220,7 +220,7 @@ static void draw_board(t_game *game) {
 	}
 }
 
-void extract_priority_packet(t_game *game){
+void extract_priority_packet(Game *game){
 	u32 data[PDATA_LEN] = {UINT32_MAX};
 	u32 i = 0;
 	for (i = 0; i < PDATA_LEN; ++i) {
@@ -231,18 +231,18 @@ void extract_priority_packet(t_game *game){
 	}
 }
 
-t_game *get_game(void) {
-	static t_game *game = NULL;
+Game *geGame(void) {
+	static Game *game = NULL;
 
 	if (!game) {
-		game = ft_calloc(sizeof(t_game), 1);
+		game = ft_calloc(sizeof(Game), 1);
 	}
 	return (game);
 }
 
 // signal handler funct
 void sig_handler(int signum) {
-	t_game *game = get_game();
+	Game *game = geGame();
 
 	if (signum == SIGINT) {
 		destroy_windows(game);
@@ -251,7 +251,7 @@ void sig_handler(int signum) {
 
 /* Main display function called in mlx loop hook */
 int main_display(void *vgame) {
-	t_game		*game = vgame;
+	Game		*game = vgame;
 	u32			tmp = 0;
 
 	/* Handle signal */
@@ -267,7 +267,7 @@ int main_display(void *vgame) {
 		draw_empty_board(game);
 
 		/* Try to init game again */
-		game->ressource_state = init_game(game->ipc, IPC_NAME, DISPLAY_HANDLER);
+		game->ressource_state = iniGame(game->ipc, IPC_NAME, DISPLAY_HANDLER);
 		if (game->ressource_state != ERROR_CASE) {
 			/* Extract controle packet */
 			extract_controle_packet(game);
@@ -279,7 +279,7 @@ int main_display(void *vgame) {
 
 		/* Check if player is selected */
 		if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
-			game->player_selected = get_player_node(game->player_data, game->mouse_pos);
+			game->player_selected = gePlayer_node(game->player_data, game->mouse_pos);
 			game->mouse_pos = create_vector(UINT32_MAX, UINT32_MAX);
 		}
 
@@ -325,7 +325,7 @@ int main_display(void *vgame) {
 }
 
 /* @brief Init display */
-s8 init_mlx(t_game *game) 
+s8 init_mlx(Game *game) 
 {
 	int		endian = 0;
 
@@ -367,9 +367,9 @@ s8 init_mlx(t_game *game)
 /* @brief Main function for display handler */
 int main(int argc, char **argv) 
 {
-	t_ipc		ipc = {};
-	t_player	player = {};
-	t_game		*game = get_game();
+	IPC		ipc = {};
+	Player	player = {};
+	Game		*game = geGame();
 
 	if (!game) {
 		ft_printf_fd(2, "Malloc failed\n");
@@ -383,10 +383,10 @@ int main(int argc, char **argv)
 		goto display_error;
 	}
 
-	game->ressource_state = init_game(&ipc, IPC_NAME, DISPLAY_HANDLER);
+	game->ressource_state = iniGame(&ipc, IPC_NAME, DISPLAY_HANDLER);
 
 	// while (game->ressource_state == ERROR_CASE) {
-	// 	game->ressource_state = init_game(&ipc, IPC_NAME, DISPLAY_HANDLER);
+	// 	game->ressource_state = iniGame(&ipc, IPC_NAME, DISPLAY_HANDLER);
 	// 	usleep(10000);
 	// }
 

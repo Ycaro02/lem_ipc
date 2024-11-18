@@ -2,7 +2,7 @@
 
 
 /* @brief extract msg type from pdata first field */
-static char *get_player_strtype(u8 type)
+static char *gePlayer_strtype(u8 type)
 {
 	if (type == P_CREATE) {
 		return ("CREATE");
@@ -13,7 +13,7 @@ static char *get_player_strtype(u8 type)
 }
 
 /* @brief extract state from pdata first field */
-static char *get_player_strstate(u8 state)
+static char *gePlayer_strstate(u8 state)
 {
 	if (state == S_WAITING) {
 		return ("WAITING");
@@ -50,7 +50,7 @@ static char *get_vector_string(t_vec vec)
  * @param y: current y position to display
  * @return u32: new y position
 */
-static u32 put_vectostr(t_game *game, char *str, t_vec vdata, u32 y)
+static u32 put_vectostr(Game *game, char *str, t_vec vdata, u32 y)
 {
 	char *vec_str = get_vector_string(vdata);
 	char *tmp_str = ft_strjoin_free(str, vec_str, 's');
@@ -69,7 +69,7 @@ static u32 put_vectostr(t_game *game, char *str, t_vec vdata, u32 y)
  * @param y: current y position to display
  * @return u32: new y position
 */
-static u32 put_uint_tostr(t_game *game, char *str, char *state, u32 data, u32 y)
+static u32 put_uint_tostr(Game *game, char *str, char *state, u32 data, u32 y)
 {
 	char *tmp_str = NULL;
 	if (state) {
@@ -87,7 +87,7 @@ static u32 put_uint_tostr(t_game *game, char *str, char *state, u32 data, u32 y)
 void display_pdata_lst(t_list *player_lst)
 {
 	t_list *tmp = player_lst;
-	t_pdata *pdata = NULL;
+	PlayerData *pdata = NULL;
 	while (tmp) {
 		pdata = tmp->content;
 		for (int i = 1; i < PDATA_LEN; i++) {
@@ -95,8 +95,8 @@ void display_pdata_lst(t_list *player_lst)
 			if (i >= PDATA_POS) {
 				ft_printf_fd(2, CYAN"[%u] [%u]\n"RESET, pdata[i].vdata.y, pdata[i].vdata.x);
 			} else if (i == PDATA_STATE) {
-				ft_printf_fd(2, PURPLE" Msg type %s, Player State: %s\n"RESET, get_player_strtype(GET_MSG_TYPE(pdata[i].sdata))\
-					, get_player_strstate(GET_MSG_STATE(pdata[i].sdata)));
+				ft_printf_fd(2, PURPLE" Msg type %s, Player State: %s\n"RESET, gePlayer_strtype(GET_MSG_TYPE(pdata[i].sdata))\
+					, gePlayer_strstate(GET_MSG_STATE(pdata[i].sdata)));
 			} else {
 				ft_printf_fd(2, CYAN"%u\n"RESET, pdata[i].sdata);
 			}
@@ -111,9 +111,9 @@ void display_pdata_lst(t_list *player_lst)
  *	@param pdata: pdata node to display
  *	@param y: current y position to display in pixel
 */
-void display_pdata_node(t_game *game, t_pdata *pdata, u32 y)
+void display_pdata_node(Game *game, PlayerData *pdata, u32 y)
 {
-	char *str_state = get_player_strstate(GET_MSG_STATE(pdata[PDATA_STATE].sdata));
+	char *str_state = gePlayer_strstate(GET_MSG_STATE(pdata[PDATA_STATE].sdata));
 
 	y += put_vectostr(game, "Tile: ", pdata[PDATA_POS].vdata, y);
 	y += put_uint_tostr(game, "Team ID: ", NULL, pdata[PDATA_TID].sdata, y);

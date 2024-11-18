@@ -30,24 +30,24 @@
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 
 /* Explicitit define value for shared rsc handler return */
-typedef enum e_rsc_handler_ret {
+enum e_rsc_handler_ret {
 	ERROR_CASE=-1,
 	CLIENT_CASE=1,
 	SERVER_CASE=0,
-} t_rsc_handler_ret;
+};
 
 /* Display handler state */
-typedef enum e_display_handler_state {
+enum e_display_handler_state {
 	DH_DISCONNECTED=0,
 	DH_CONNECTED,
 	DH_PRIORITY,
-} t_display_handler_state;
+};
 
 /* Control packet value */
-typedef enum e_ctrl_packet_val {
+enum e_ctrl_packet_val {
 	CTRL_DH_WAITING_TO_CONNECT=0,	/* Player waiting for display handler connection */
 	CTRL_DH_PRIORITY,
-} t_ctrl_packet_val;
+};
 
 /* Return of getpagesize function casted in size_t 4096 */
 #define PAGE_SIZE              (size_t)getpagesize()
@@ -116,7 +116,7 @@ typedef enum e_ctrl_packet_val {
 /* Tile empty value */
 #define TILE_EMPTY 0
 
-/* Boolean value for init_game call */
+/* Boolean value for iniGame call */
 #define DISPLAY_HANDLER 0
 #define PLAYER 1
 
@@ -153,13 +153,13 @@ typedef enum e_ctrl_packet_val {
 typedef struct s_heuristic {
 	u32	cost;
 	t_vec		pos;
-} t_heuristic;
+} Heuristic;
 
 /* Message buffer structure */
 typedef struct s_msgbuf {
 	long mtype;       	/* type of received/sent message (team id, each tean receive is own team message) */
 	char mtext[4];    	/* msg content (uint32 val, board pos to rush )*/
-} t_msgbuf ;
+} MsgBuf ;
 
 /* IPCs structure */
 typedef struct s_ipc {
@@ -169,7 +169,7 @@ typedef struct s_ipc {
 	int			semid;		/* Semaphore id */
 	int			msgid;		/* Message queue id */
 	s8		display;	/* Display handler conected */
-} t_ipc;
+} IPC;
 
 /* Player structure */
 typedef struct s_player {
@@ -180,7 +180,7 @@ typedef struct s_player {
 	u32	team_id;	/* Team id */
 	u32	kill_by;	/* Kill by team id */
 	s8		state;		/* Player state */
-} t_player;
+} Player;
 
 
 /* Player data packet init */
@@ -231,7 +231,7 @@ typedef struct s_player_data {
 		u32	sdata;	/* Data simple value */
 		t_vec		vdata;	/* Data vector value */
 	}; 
-} t_pdata;
+} PlayerData;
 
 /* Player data index */
 enum e_pdata_idx {
@@ -268,30 +268,30 @@ extern int g_game_run;
 u32	check_death(u32 *board, t_vec point, u32 team_id);
 
 /* player move */
-void		player_tracker_follower(t_ipc *ipc, t_player *player);
-t_vec		find_smarter_possible_move(t_ipc *ipc, t_vec current, t_vec end, u32 team_id);
-void		player_waiting(t_ipc *ipc, t_player *player);
-u32	get_heuristic_cost(t_vec start, t_vec end);
-s8		find_player_in_range(t_ipc *ipc, t_player *player, u32 range_max, s8 flag);
+void		player_tracker_follower(IPC *ipc, Player *player);
+t_vec		find_smarter_possible_move(IPC *ipc, t_vec current, t_vec end, u32 team_id);
+void		player_waiting(IPC *ipc, Player *player);
+u32	geHeuristic_cost(t_vec start, t_vec end);
+s8		find_player_in_range(IPC *ipc, Player *player, u32 range_max, s8 flag);
 
 /* send pdata */
-void		send_display_controle_packet(t_ipc *ipc, u32 displayer_state, u32 from_id);
-s8		display_handler_state(t_ipc *ipc);
-void		send_pdata_display(t_ipc *ipc, t_player *player, u8 msg_type);
+void		send_display_controle_packet(IPC *ipc, u32 displayer_state, u32 from_id);
+s8		display_handler_state(IPC *ipc);
+void		send_pdata_display(IPC *ipc, Player *player, u8 msg_type);
 
 // display handlker waiing
-void		wait_for_display_handler_priority(t_ipc *ipc);
-void wait_for_display_handler_connect(t_ipc *ipc);
+void		wait_for_display_handler_priority(IPC *ipc);
+void wait_for_display_handler_connect(IPC *ipc);
 
 /* message queue */
 int			get_msg_queue(key_t key, int flag);
-s8		remove_msg_queue(t_ipc *ipc);
-u32 	extract_msg(t_ipc *ipc, u32 msg_id);
-s8		send_msg(t_ipc *ipc, u32 msg_id, u32 data, u32 from_id);
-s8		clear_msg_queue(t_ipc *ipc, long chan_id);
+s8		remove_msg_queue(IPC *ipc);
+u32 	extract_msg(IPC *ipc, u32 msg_id);
+s8		send_msg(IPC *ipc, u32 msg_id, u32 data, u32 from_id);
+s8		clear_msg_queue(IPC *ipc, long chan_id);
 u32	message_queue_size_get(int msgid);
 /* init semaphore */
-int			init_game(t_ipc *ipc, char *path, s8 allow);
+int			iniGame(IPC *ipc, char *path, s8 allow);
 
 /* sem handling */
 int 		destroy_semaphore_set(int semid);
@@ -300,10 +300,10 @@ int 		sem_unlock(int semid);
 
 /* init shared mem */
 int			get_shared_memory(key_t key, int flag);
-int			attach_shared_memory(t_ipc *ipc);
-int			detach_shared_memory(t_ipc *ipc);
-int 		clean_shared_rsc(t_ipc *ipc);
-int			get_attached_processnb(t_ipc *ipc);
+int			attach_shared_memory(IPC *ipc);
+int			detach_shared_memory(IPC *ipc);
+int 		clean_shared_rsc(IPC *ipc);
+int			get_attached_processnb(IPC *ipc);
 
 /* ipcs utils*/
 void 		syscall_perror(char *syscall_name);
@@ -315,8 +315,8 @@ u32	get_board_index(t_vec vec);
 void 		set_tile_board_val(u32 *array, t_vec vec, u32 value);
 
 /* player */
-int			init_player(t_player *player, int argc, char **argv);
-void 		player_routine(t_ipc *ipc, t_player *player);
+int			iniPlayer(Player *player, int argc, char **argv);
+void 		player_routine(IPC *ipc, Player *player);
 /* random position */
 t_vec		get_random_point(u32 *array, t_vec player_pos);
 u32 		get_playing_state(u32 *array);

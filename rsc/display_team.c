@@ -9,7 +9,7 @@
 // 	u32	tmp_val = 0;
 
 // 	while (tmp) {
-// 		tmp_val = ft_strlen(((t_team *)tmp->content)->strsize);
+// 		tmp_val = ft_strlen(((Team *)tmp->content)->strsize);
 // 		if (tmp_val > max) {
 // 			max = tmp_val;
 // 		}
@@ -28,7 +28,7 @@
 */
 s8 add_team(t_list **team, u32 team_id)
 {
-    t_team *new_team = malloc(sizeof(t_team));
+    Team *new_team = malloc(sizeof(Team));
 
     if (new_team == NULL) {
         return (0);
@@ -48,15 +48,15 @@ s8 add_team(t_list **team, u32 team_id)
 }
 
 
-void increment_team_size(t_list **team, u32 team_id)
+void incremenTeam_size(t_list **team, u32 team_id)
 {
 	t_list *current = *team;
 
 	while (current != NULL) {
-		if (((t_team *)current->content)->tid == team_id) {
-			((t_team *)current->content)->tsize += 1;
-			free(((t_team *)current->content)->strsize);
-			((t_team *)current->content)->strsize = ft_itoa(((t_team *)current->content)->tsize);
+		if (((Team *)current->content)->tid == team_id) {
+			((Team *)current->content)->tsize += 1;
+			free(((Team *)current->content)->strsize);
+			((Team *)current->content)->strsize = ft_itoa(((Team *)current->content)->tsize);
 			return ;
 		}
 		current = current->next;
@@ -66,7 +66,7 @@ void increment_team_size(t_list **team, u32 team_id)
 
 void free_team(void *team)
 {
-	t_team *tmp = (t_team *)team;
+	Team *tmp = (Team *)team;
 	free(tmp->strid);
 	free(tmp->strsize);
 	free(tmp);
@@ -74,7 +74,7 @@ void free_team(void *team)
 
 int get_min_id(void *next, void *current)
 {
-	return (((t_team *)next)->tid >= ((t_team *)current)->tid);
+	return (((Team *)next)->tid >= ((Team *)current)->tid);
 }
 
 
@@ -89,7 +89,7 @@ s8 build_list_number_team(t_list **lst, u32 *array)
 					return (0);
 				}
 			}
-			increment_team_size(lst, array[i]);
+			incremenTeam_size(lst, array[i]);
 		}
 	}
 	list_sort(lst, get_min_id);

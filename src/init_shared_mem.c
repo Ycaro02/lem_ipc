@@ -23,7 +23,7 @@ int get_shared_memory(key_t key, int flag)
 /**
  * @brief get number of attached process
 */
-int get_attached_processnb(t_ipc *ipc)
+int get_attached_processnb(IPC *ipc)
 {
 	struct shmid_ds buf;
 
@@ -40,7 +40,7 @@ int get_attached_processnb(t_ipc *ipc)
  *	@param ipc The ipc structure
  *	@return 0 on success, -1 on error
 */
-int attach_shared_memory(t_ipc *ipc)
+int attach_shared_memory(IPC *ipc)
 {
 	errno = 0;
 	ipc->ptr = shmat(ipc->shmid, NULL, 0);
@@ -56,7 +56,7 @@ int attach_shared_memory(t_ipc *ipc)
  *	@param ipc The ipc structure
  *	@return 0 on success, -1 on error
 */
-int detach_shared_memory(t_ipc *ipc)
+int detach_shared_memory(IPC *ipc)
 {
 	errno = 0;
 	if (shmdt(ipc->ptr) == -1) {
@@ -86,7 +86,7 @@ static int destroy_shared_memory(int shmid)
  *	@param ipc The ipc structure
  *	@return 0 on success, -1 on error
 */
-int clean_shared_rsc(t_ipc *ipc)
+int clean_shared_rsc(IPC *ipc)
 {
 	int ret = 0;
 

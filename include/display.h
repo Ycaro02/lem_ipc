@@ -55,7 +55,7 @@
 typedef struct s_teamcolor {
 	char		*strcolor;	/* Team color name */
 	int			color;		/* Team color value */
-} t_teamcolor;
+} TeamColor;
 
 typedef struct s_team {
 	u32			tid;		/* Team Id */
@@ -64,8 +64,8 @@ typedef struct s_team {
 	char		*strsize;	/* Team Size String */
 	u32			kill;		/* Team Kill */
 	char		*kill_str;	/* Team Kill String */
-	t_teamcolor	color;		/* Team color  */
-} t_team;
+	TeamColor	color;		/* Team color  */
+} Team;
 
 typedef struct s_game
 {
@@ -73,17 +73,17 @@ typedef struct s_game
 	void		*win;			/* mlx window */
 	t_img		img;				/* mlx image, represent all screen execpt right band */
 	t_img		right_band;			/* right band image */
-	t_ipc		*ipc;				/* ipc handler */
+	IPC		*ipc;				/* ipc handler */
 	t_list		*team_data;			/* team data list */
 	t_list		*player_data;		/* player data list */
-	t_pdata		*player_selected;	/* player data to display */
+	PlayerData		*player_selected;	/* player data to display */
 	t_vec		mouse_pos;			/* mouse position, can remove*/
 	u32			player_nb;			/* last team number store */
 	u32			kill_from_remove_team;	/* kill from remove team */ 
 	int			ressource_state;		/* ressource */
 	s8			pause;			/* game pause bool */
 	s8			space_state;	/* team size */
-}	t_game;
+}	Game;
 
 /* Key */
 typedef enum e_keyboard_key
@@ -91,13 +91,13 @@ typedef enum e_keyboard_key
 	LEFT_CLICK = 1,			/* Left click value */
 	SPACE = 32,				/* Space key value */
 	ESC = 65307,			/* Escape key value */
-}	t_keyboard_key;
+}	E_KeyboardKey;
 
 /* main */
-t_teamcolor get_new_color(u32 team_id); 
+TeamColor get_new_color(u32 team_id); 
 
 /* team handling */
-void team_handling(t_game *game, u32 team_id, s8 cmd);
+void team_handling(Game *game, u32 team_id, s8 cmd);
 void free_team(void *team);
 
 /*lst utils in parsepdata*/
@@ -105,16 +105,16 @@ int is_same_node(void *node, void *target);
 
 /* click_event */
 t_vec	get_click_tile(t_vec mouse);
-int check_mouse(int keycode, int x, int y, t_game *game);
+int check_mouse(int keycode, int x, int y, Game *game);
 
 /* parse pdata */
-void	receive_player_data(t_game *game);
-void	*get_player_node(t_list *lst, t_vec target);
-s8	extract_controle_packet(t_game *game);
-void 	extract_priority_packet(t_game *game);
+void	receive_player_data(Game *game);
+void	*gePlayer_node(t_list *lst, t_vec target);
+s8	extract_controle_packet(Game *game);
+void 	extract_priority_packet(Game *game);
 /* display pdata */
 void	display_pdata_lst(t_list *player_lst);
-void	display_pdata_node(t_game *game, t_pdata *pdata, u32 y);
+void	display_pdata_node(Game *game, PlayerData *pdata, u32 y);
 
 /* display team */
 // void		free_team(void *team);

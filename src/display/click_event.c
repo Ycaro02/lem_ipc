@@ -14,7 +14,7 @@ t_vec get_click_tile(t_vec mouse)
 }
 
 /* @brief check left mouse click, update game->mouse_pos in consequences */
-int check_mouse(int keycode, int x, int y, t_game *game)
+int check_mouse(int keycode, int x, int y, Game *game)
 {
 	if (keycode == LEFT_CLICK) {
 		game->mouse_pos = get_click_tile(create_vector(y, x));

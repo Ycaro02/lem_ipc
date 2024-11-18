@@ -11,8 +11,8 @@ int is_same_node(void *node, void *target) {
  *	@param target: target vector to search
  *	@return void *: player node
 */
-void *get_player_node(t_list *lst, t_vec target) {
-	t_pdata *pdata = NULL;
+void *gePlayer_node(t_list *lst, t_vec target) {
+	PlayerData *pdata = NULL;
 
 	for (t_list *current = lst; current; current = current->next) {
 		pdata = current->content;
@@ -28,11 +28,11 @@ void *get_player_node(t_list *lst, t_vec target) {
  *	@param game: game struct
  *	@param pdata: player data
 */
-static void add_pdata_node(t_game *game, t_pdata *pdata) {
-	t_pdata *tmp = ft_calloc(sizeof(t_pdata), PDATA_LEN);
+static void add_pdata_node(Game *game, PlayerData *pdata) {
+	PlayerData *tmp = ft_calloc(sizeof(PlayerData), PDATA_LEN);
 
 	if (tmp) {
-		tmp = ft_memcpy((void *)tmp, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+		tmp = ft_memcpy((void *)tmp, (void *)pdata, sizeof(PlayerData) * PDATA_LEN);
 		ft_lstadd_back(&game->player_data, ft_lstnew(tmp));
 	}
 }
@@ -42,8 +42,8 @@ static void add_pdata_node(t_game *game, t_pdata *pdata) {
  *	@param game: game struct
  *	@param pdata: player data
 */
-static void handle_player_data(t_game *game, t_pdata *pdata) {
-	t_pdata	*player_node = NULL;
+static void handle_player_data(Game *game, PlayerData *pdata) {
+	PlayerData	*player_node = NULL;
 	u8		type = GET_MSG_TYPE(pdata[PDATA_STATE].sdata);
 
 	/* Create case, add node to pdata list and increment the associated team */
@@ -54,7 +54,7 @@ static void handle_player_data(t_game *game, t_pdata *pdata) {
 	}
 
 	/* Delete case, remove node from pdata list and decrement the associated team */
-	player_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
+	player_node = gePlayer_node(game->player_data, pdata[PDATA_POS].vdata);
 	if (type == P_DELETE) {
 
 		team_handling(game, get_board_index(pdata[PDATA_SUPP].vdata), UPDATE_KILL);
@@ -72,7 +72,7 @@ static void handle_player_data(t_game *game, t_pdata *pdata) {
 	if (type == P_UPDATE_POS) {
 		pdata[PDATA_POS].vdata = pdata[PDATA_SUPP].vdata;		/* update PPOS */
 		if (player_node) { /* if target found just update it */
-			ft_memcpy((void *)player_node, (void *)pdata, sizeof(t_pdata) * PDATA_LEN);
+			ft_memcpy((void *)player_node, (void *)pdata, sizeof(PlayerData) * PDATA_LEN);
 		} 
 	}
 }
@@ -81,8 +81,8 @@ static void handle_player_data(t_game *game, t_pdata *pdata) {
  *	@brief Extract and parse player data receive
  *	@param game: game struct
 */
-void receive_player_data(t_game *game) {
-	t_pdata		pdata[PDATA_LEN] = INIT_PDATA_PACKET;
+void receive_player_data(Game *game) {
+	PlayerData		pdata[PDATA_LEN] = INIT_PDATA_PACKET;
 	u32	ret = UINT32_MAX;
 	u8		count = 1; /* count = 1 cause if we call this we already receive the first 0 data start */
 
@@ -111,7 +111,7 @@ void receive_player_data(t_game *game) {
  *	@return s8: 1 if packet found, 0 otherwise
  *	@note: This function lock and unlock semaphore
 */
-s8 extract_controle_packet(t_game *game) {
+s8 extract_controle_packet(Game *game) {
 	u32	data[PDATA_LEN] = {UINT32_MAX};
 	u32	i = 0;
 	s8	ret = 0;

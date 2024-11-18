@@ -22,7 +22,7 @@
  *	@param len The new message length
  *	@return 0 on success, -1 on error
 */
-int set_msg_len (t_ipc *ipc, msglen_t len)
+int set_msg_len (IPC *ipc, msglen_t len)
 {
 	struct msqid_ds buf;
 

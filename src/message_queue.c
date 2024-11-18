@@ -58,7 +58,7 @@ int get_msg_queue(key_t key, int flag)
  *	@param ipc The ipc structure
  *	@return 0 on success, -1 on error
 */
-s8 remove_msg_queue(t_ipc *ipc)
+s8 remove_msg_queue(IPC *ipc)
 {
 
 	errno = 0;
@@ -75,9 +75,9 @@ s8 remove_msg_queue(t_ipc *ipc)
  *	@param chan_id The channel id to clear
  *	@return 0 on success, -1 on error
 */
-s8 clear_msg_queue(t_ipc *ipc, long chan_id)
+s8 clear_msg_queue(IPC *ipc, long chan_id)
 {
-	t_msgbuf msg = {};
+	MsgBuf msg = {};
 	s8 ret = 0;
 	ssize_t msg_ret = 0;
 
@@ -105,7 +105,7 @@ s8 clear_msg_queue(t_ipc *ipc, long chan_id)
  *	@param team_id The team id
  *	@param data The data to send
 */
-static void fill_msgbuff(t_msgbuf *msg, u32 team_id, u32 data)
+static void fill_msgbuff(MsgBuf *msg, u32 team_id, u32 data)
 {
 	char *ptr = (char *)&data;
 
@@ -125,9 +125,9 @@ static void fill_msgbuff(t_msgbuf *msg, u32 team_id, u32 data)
  * @param from_id The team id from the sender
  * @return 1 on success, -1 on error
  */
-s8 send_msg(t_ipc *ipc, u32 msg_id, u32 data, u32 from_id)
+s8 send_msg(IPC *ipc, u32 msg_id, u32 data, u32 from_id)
 {
-	t_msgbuf msg = {};
+	MsgBuf msg = {};
 
 	(void)from_id;
 
@@ -155,9 +155,9 @@ s8 send_msg(t_ipc *ipc, u32 msg_id, u32 data, u32 from_id)
  *	@param msg_id The message id
  *	@return The message value, UINT32_MAX on error
 */
-u32 extract_msg(t_ipc *ipc, u32 msg_id)
+u32 extract_msg(IPC *ipc, u32 msg_id)
 {
-	t_msgbuf msg = {};
+	MsgBuf msg = {};
 	// int cpy_flag = 040000;
 	errno = 0;
 	// ft_printf_fd(1, GREEN"Extracting message from team %d, val flag %d\n"RESET, msg_id, IPC_NOWAIT);
