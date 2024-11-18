@@ -3,7 +3,7 @@ include rsc/mk/source.mk
 
 DISPLAY_NAME	=	lemipc_display
 NAME			=	lemipc
-CC				=	gcc
+CC				=	clang
 
 ASCII_ART		=	./rsc/mk/ascii.sh
 ASCII_NAME		=	${NAME}
@@ -14,6 +14,9 @@ DISPLAY_TEST	=	./rsc/sh/display_test.sh
 MLX_FLAG 		=	-Lmini_mlx -lmlx -lX11 -lXext -lm
 
 MLX = mini_mlx/libmlx.a
+
+
+SDL_FLAG	= -L./rsc/lib/install/lib -rpath ./rsc/lib/install/lib -lSDL2 -lSDL2_ttf
 
 ARGS = $(filter-out $@,$(MAKECMDGOALS))
 
