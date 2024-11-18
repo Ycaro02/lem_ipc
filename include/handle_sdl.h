@@ -9,6 +9,8 @@
 #include "../rsc/lib/install/include/SDL2/SDL_ttf.h"
 
 #include "../libft/basic_define.h"
+#include "../libft/libft.h"
+// #include "../include/display.h"
 
 #include <stdio.h>
 
@@ -27,10 +29,12 @@
 #define SDL_ERR_FUNC() printf("SDL Error %s: %s\n", __func__, SDL_GetError())
 #define TTF_ERR_FUNC() printf("TTF Error %s: %s\n", __func__, TTF_GetError())
 
-typedef struct s_iVec2 {
-	s32 x;
-	s32 y;
-} iVec2;
+// typedef struct s_iVec2 {
+// 	s32 x;
+// 	s32 y;
+// } iVec2;
+
+typedef t_vec iVec2;
 
 #define CLEAR_COLOR 70, 70, 70, 255
 
@@ -39,6 +43,7 @@ typedef struct s_sdl_handle {
 	SDL_Renderer	*renderer;			/* The renderer ptr */
 	iVec2			window_size;
 	iVec2			tile_size;
+	iVec2			mouse;
 }	SDLHandle ;
 
 

@@ -356,7 +356,7 @@ s8 init_mlx(Game *game)
 
 	mlx_hook(game->win, 2, 1L, key_hooks_press, game);
 	mlx_hook(game->win, DestroyNotify, StructureNotifyMask, destroy_windows, game);
-	mlx_mouse_hook(game->win, check_mouse, game);
+	mlx_mouse_hook(game->win,check_mouse, game);
 	mlx_loop_hook(game->mlx, main_display, game);
 
 	mlx_loop(game->mlx);
@@ -375,10 +375,18 @@ s8 is_left_click_down(SDL_Event event) {
 }
 
 
-s32 event_handler(SDLHandle *h) {
-	SDL_Event event;
+void mouse_position_update(SDLHandle *h, int x, int y) {
+	h->mouse.x = x;
+	h->mouse.y = y;
+}
 
+s32 event_handler(Game *game, SDLHandle *h) {
+	SDL_Event event;
+	
+	s32 x = 0, y = 0;
+	SDL_GetMouseState(&x, &y);
 	while (SDL_PollEvent(&event)) {
+		mouse_position_update(h, x, y);	
 		if (event.type == SDL_QUIT || is_key_pressed(event, SDLK_ESCAPE)) {
 			window_close(h->window, h->renderer);
 			free(h);
@@ -386,10 +394,11 @@ s32 event_handler(SDLHandle *h) {
 		} else if (is_key_pressed(event, SDLK_SPACE)) {
 			ft_printf_fd(1, "Space\n");
 			// pause here
+		} else if (is_left_click_down(event)) {
+			game->mouse_pos = get_click_tile(h->mouse);
 		}
-		// need to implement detect click logic here
-	
 	}
+
 	return (TRUE);
 }
 
@@ -401,7 +410,7 @@ int main(int argc, char **argv)
 	// SDLHandle *h = create_sdl_handle("LemIPC", 200, 200);
 	// while (1) {
 	// 	window_clear(h->renderer);
-	// 	event_handler(h);
+	// 	event_handler(game, h);
 	// }
 
 	IPC		ipc = {};
