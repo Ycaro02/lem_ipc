@@ -91,8 +91,8 @@ SDLHandle *create_sdl_handle(const char* title, u32 y, u32 x) {
  * @param window The window pointers
 */
 void window_clear(SDL_Renderer* renderer) {
-	// SDL_SetRenderDrawColor(renderer, 0, 0, 120, 255);
-	SDL_SetRenderDrawColor(renderer, CLEAR_COLOR);
+	// SDL_SetRenderDrawColor(renderer, CLEAR_COLOR);
+	SDL_SetRenderDrawColor(renderer, 0, 0, 120, 255);
 	SDL_RenderClear(renderer);
 }
 

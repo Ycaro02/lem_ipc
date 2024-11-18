@@ -402,40 +402,64 @@ s32 event_handler(Game *game, SDLHandle *h) {
 	return (TRUE);
 }
 
+void sdl_draw_empty_board(SDLHandle *h) {
+	iVec2 tile_pos, scale;
+	u32		color = 0xFFFFFF;
+
+	for (u32 y = 1; y < SCREEN_HEIGHT; ++y) {
+		for (u32 x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
+			tile_pos.y = y;
+			tile_pos.x = x;
+			scale.x = TILE_SIZE;
+			scale.y = TILE_SIZE;
+			draw_color_tile(h, tile_pos, scale, color);
+			y += TILE_SIZE;
+			x += TILE_SIZE;
+			// if (x % TILE_SIZE != 0 && y % TILE_SIZE != 0) {
+			// 	((u32 *)game->img.data)[x + (y * (SCREEN_WIDTH - RIGHTBAND_WIDTH))] = 0xFFFFFF;
+			// }
+		}
+	}
+}
+
 /* @brief Main function for display handler */
 int main(int argc, char **argv) 
 {
-
-	// (void)argc, (void)argv;
-	// SDLHandle *h = create_sdl_handle("LemIPC", 200, 200);
-	// while (1) {
-	// 	window_clear(h->renderer);
-	// 	event_handler(game, h);
-	// }
-
-	IPC		ipc = {};
 	Game		*game = geGame();
-	Player	player = {};
-
 	if (!game) {
 		ft_printf_fd(2, "Malloc failed\n");
 		return (1);
 	}
 
-	game->ipc = &ipc;
-	game->player_nb = 0;
-	if (init_display(&player, argc, argv) != 0) {
-		goto display_error;
+	(void)argc, (void)argv;
+	SDLHandle *h = create_sdl_handle("LemIPC", SCREEN_WIDTH, SCREEN_WIDTH);
+	if (!h) {
+		return (1);
+	}
+	while (1) {
+		window_clear(h->renderer);
+		// sdl_draw_empty_board(h);
+		event_handler(game, h);
 	}
 
-	game->ressource_state = iniGame(&ipc, IPC_NAME, DISPLAY_HANDLER);
-	if (init_mlx(game) == ERROR_CASE) {
-		goto display_error;
-	}	
-	return (0);
+	// IPC		ipc = {};
+	// Player	player = {};
 
-	display_error:
-		free(game);
-		return (1);
+
+	// game->ipc = &ipc;
+	// game->player_nb = 0;
+	// if (init_display(&player, argc, argv) != 0) {
+	// 	goto display_error;
+	// }
+
+	// game->ressource_state = iniGame(&ipc, IPC_NAME, DISPLAY_HANDLER);
+	// if (init_mlx(game) == ERROR_CASE) {
+	// 	goto display_error;
+	// }	
+	// return (0);
+
+	// display_error:
+	// 	free(game);
+	// 	return (1);
 
 }
