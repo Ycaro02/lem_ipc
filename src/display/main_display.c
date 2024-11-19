@@ -438,7 +438,8 @@ int main(int argc, char **argv)
 	}
 	while (1) {
 		window_clear(h->renderer);
-		// sdl_draw_empty_board(h);
+		//sdl_draw_empty_board(h);
+		SDL_RenderPresent(h->renderer);
 		event_handler(game, h);
 	}
 
