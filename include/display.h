@@ -3,6 +3,8 @@
 
 # include "lem_ipc.h"
 
+#include "handle_sdl.h"
+
 # define RED_INT 0xFF0000
 # define GREEN_INT 0x00FF00
 # define YELLOW_INT 0xFFFF00
@@ -67,16 +69,31 @@ typedef struct s_team {
 	TeamColor	color;		/* Team color  */
 } Team;
 
+// typedef struct s_game
+// {
+// 	t_xvar		*mlx;			/* mlx handler */
+// 	void		*win;			/* mlx window */
+// 	t_img		img;				/* mlx image, represent all screen execpt right band */
+// 	t_img		right_band;			/* right band image */
+// 	IPC		*ipc;				/* ipc handler */
+// 	t_list		*team_data;			/* team data list */
+// 	t_list		*player_data;		/* player data list */
+// 	PlayerData		*player_selected;	/* player data to display */
+// 	t_vec		mouse_pos;			/* mouse position, can remove*/
+// 	u32			player_nb;			/* last team number store */
+// 	u32			kill_from_remove_team;	/* kill from remove team */ 
+// 	int			ressource_state;		/* ressource */
+// 	s8			pause;			/* game pause bool */
+// 	s8			space_state;	/* team size */
+// }	Game;
+
 typedef struct s_game
 {
-	t_xvar		*mlx;			/* mlx handler */
-	void		*win;			/* mlx window */
-	t_img		img;				/* mlx image, represent all screen execpt right band */
-	t_img		right_band;			/* right band image */
-	IPC		*ipc;				/* ipc handler */
+	SDLHandle	*h;					/* SDL handler */
+	IPC			*ipc;				/* ipc handler */
 	t_list		*team_data;			/* team data list */
 	t_list		*player_data;		/* player data list */
-	PlayerData		*player_selected;	/* player data to display */
+	PlayerData	*player_selected;	/* player data to display */
 	t_vec		mouse_pos;			/* mouse position, can remove*/
 	u32			player_nb;			/* last team number store */
 	u32			kill_from_remove_team;	/* kill from remove team */ 
