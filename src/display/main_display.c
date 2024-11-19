@@ -406,16 +406,16 @@ void sdl_draw_empty_board(SDLHandle *h) {
 	iVec2	tile_pos, scale;
 	u32		color = 0xffffffff;
 
-	scale.x = TILE_SIZE;
-	scale.y = TILE_SIZE;
+	scale.x = TILE_SIZE - 1;
+	scale.y = scale.x;
 	for (u32 y = 1; y < SCREEN_HEIGHT; ++y) {
+		tile_pos.y = y;
 		for (u32 x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
-			tile_pos.y = y;
 			tile_pos.x = x;
 			draw_color_tile(h, tile_pos, scale, color);
-			x += TILE_SIZE;
+			x += scale.x;
 		}
-		y += TILE_SIZE;
+		y += scale.y;
 	}
 }
 
@@ -429,7 +429,7 @@ int main(int argc, char **argv)
 	}
 
 	(void)argc, (void)argv;
-	SDLHandle *h = create_sdl_handle("LemIPC", SCREEN_WIDTH, SCREEN_WIDTH);
+	SDLHandle *h = create_sdl_handle("LemIPC", SCREEN_HEIGHT, SCREEN_WIDTH);
 	if (!h) {
 		return (1);
 	}

@@ -124,7 +124,6 @@ void draw_color_tile(SDLHandle *h, iVec2 tile_pos, iVec2 scale, u32 color) {
 	SDL_Rect		tileRect = {0,0,0,0};
 	iVec2			pixel_pos = {0,0};
 
-	(void)color;
 	u8 				r, g, b, a;
 	UINT32_TO_RGBA(color, r, g, b, a);
 
