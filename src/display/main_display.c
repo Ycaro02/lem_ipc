@@ -403,22 +403,19 @@ s32 event_handler(Game *game, SDLHandle *h) {
 }
 
 void sdl_draw_empty_board(SDLHandle *h) {
-	iVec2 tile_pos, scale;
-	u32		color = 0xFFFFFF;
+	iVec2	tile_pos, scale;
+	u32		color = 0xffffffff;
 
+	scale.x = TILE_SIZE;
+	scale.y = TILE_SIZE;
 	for (u32 y = 1; y < SCREEN_HEIGHT; ++y) {
 		for (u32 x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
 			tile_pos.y = y;
 			tile_pos.x = x;
-			scale.x = TILE_SIZE;
-			scale.y = TILE_SIZE;
 			draw_color_tile(h, tile_pos, scale, color);
-			y += TILE_SIZE;
 			x += TILE_SIZE;
-			// if (x % TILE_SIZE != 0 && y % TILE_SIZE != 0) {
-			// 	((u32 *)game->img.data)[x + (y * (SCREEN_WIDTH - RIGHTBAND_WIDTH))] = 0xFFFFFF;
-			// }
 		}
+		y += TILE_SIZE;
 	}
 }
 
@@ -438,7 +435,7 @@ int main(int argc, char **argv)
 	}
 	while (1) {
 		window_clear(h->renderer);
-		//sdl_draw_empty_board(h);
+		sdl_draw_empty_board(h);
 		SDL_RenderPresent(h->renderer);
 		event_handler(game, h);
 	}

@@ -123,12 +123,13 @@ void window_close(SDL_Window* window, SDL_Renderer *renderer) {
 void draw_color_tile(SDLHandle *h, iVec2 tile_pos, iVec2 scale, u32 color) {
 	SDL_Rect		tileRect = {0,0,0,0};
 	iVec2			pixel_pos = {0,0};
-	u8 				r, g, b, a;
 
+	(void)color;
+	u8 				r, g, b, a;
 	UINT32_TO_RGBA(color, r, g, b, a);
 
 	/* Convert tile coordinates to pixel coordinates */
-
+	// ft_printf_fd(1, "Draw tile at %u, %u\n", tile_pos.y, tile_pos.x);
 	pixel_pos.x = tile_pos.x;
 	pixel_pos.y = tile_pos.y;
 
@@ -137,6 +138,7 @@ void draw_color_tile(SDLHandle *h, iVec2 tile_pos, iVec2 scale, u32 color) {
 
 	/* Set the drawing color and draw the tile */
 	SDL_SetRenderDrawColor(h->renderer, r, g, b, a);
+	// SDL_SetRenderDrawColor(h->renderer, 255, 0, 0, 255);
 	SDL_RenderFillRect(h->renderer, &tileRect);
 }
 
