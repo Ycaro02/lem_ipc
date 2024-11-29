@@ -4,10 +4,10 @@ int		g_game_run;
 
 TeamColor get_new_color(u32 team_id)  {
 	static TeamColor team_color[] = {
-		{"Red", 0xFF0000FF},
-		{"Blue", 0x6699FFFF},
-		{"Yellow", 0xFFCC00FF},
-		{"Green", 0x00FF00FF},
+		{"Red", RGBA_TO_UINT32(0xff, 0,0,0xff)},
+		{"Blue", RGBA_TO_UINT32(0x66, 0x99,0xff,0xff)},
+		{"Yellow",RGBA_TO_UINT32(0xff, 0xcc, 0x00, 0xff)},
+		{"Green", RGBA_TO_UINT32(0x00, 0xff, 0x00, 0xff)},
 		{"Pink", 0xFF00CCFF},
 		{"Purple", 0xCC33FFFF},
 		{"Cyan", 0x00FFFFFF},
@@ -268,7 +268,7 @@ void sig_handler(int signum) {
 // 		draw_empty_board(game);
 
 // 		/* Try to init game again */
-// 		game->ressource_state = iniGame(game->ipc, IPC_NAME, DISPLAY_HANDLER);
+// 		game->ressource_state = init_game(game->ipc, IPC_NAME, DISPLAY_HANDLER);
 // 		if (game->ressource_state != ERROR_CASE) {
 // 			/* Extract controle packet */
 // 			extract_controle_packet(game);
@@ -393,9 +393,11 @@ s32 event_handler(Game *game, SDLHandle *h) {
 		if (event.type == SDL_QUIT || is_key_pressed(event, SDLK_ESCAPE)) {
 			window_close(h->window, h->renderer);
 			free(h);
+			ft_printf_fd(1, "Exit here\n");
 			exit(1); // toremove
 		} else if (is_key_pressed(event, SDLK_SPACE)) {
-			ft_printf_fd(1, "Space\n");
+			// ft_printf_fd(1, "Space\n");
+			game->space_state = !game->space_state; 
 			// pause here
 		} else if (is_left_click_down(event)) {
 			game->mouse_pos = get_click_tile(h->mouse);
@@ -406,18 +408,14 @@ s32 event_handler(Game *game, SDLHandle *h) {
 	return (TRUE);
 }
 
+void sdl_draw_board(Game *game, SDLHandle *h, s8 empty_draw);
 
 #define EMPTY_BOARD TRUE
 #define PLAYER_BOARD FALSE
 
-int sdl_main_display(Game *game, SDLHandle *h) {
+void sdl_main_display(Game *game, SDLHandle *h) {
 	u32			tmp = 0;
 
-	/* Handle signal */
-	if (signal(SIGINT, sig_handler) == SIG_ERR) {
-		ft_printf_fd(2, "Can't catch SIGINT\n");
-		return (-1);
-	}
 
 	game->pause = game->space_state;
 
@@ -426,12 +424,15 @@ int sdl_main_display(Game *game, SDLHandle *h) {
 		// draw_empty_board(game);
 
 		/* Try to init game again */
-		game->ressource_state = iniGame(game->ipc, IPC_NAME, DISPLAY_HANDLER);
+		game->ressource_state = init_game(game->ipc, IPC_NAME, DISPLAY_HANDLER);
 		if (game->ressource_state != ERROR_CASE) {
 			/* Extract controle packet */
 			extract_controle_packet(game);
 		}
-		return (EMPTY_BOARD);
+		window_clear(h->renderer);
+		sdl_draw_board(game, h, EMPTY_BOARD);
+
+		// return (EMPTY_BOARD);
 		// reset_rightband(game);
 	} else {
 		/* Lock sem */
@@ -460,27 +461,22 @@ int sdl_main_display(Game *game, SDLHandle *h) {
 
 		/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
 		if (game->player_nb <= 3) {
+			ft_printf_fd(1, YELLOW"Game end close windows\n"RESET);
 			g_game_run = 0;
-			// destroy_windows(game);
 			window_close(h->window, h->renderer);
 		}
 
-		/* Draw board in image */
-		// draw_board(game);
+
+		window_clear(h->renderer);
+		sdl_draw_board(game, h, PLAYER_BOARD);
 
 		/* Unlock sem */
 		sem_unlock(game->ipc->semid);
 
-		/* Display old team list to remove/rework to read new data list */
-		// display_righband(game, game->player_selected);
 	}
-	
-	// display_another_info(game, "Game Paused : ", (BOARD_H * TILE_SIZE) - TILE_SIZE * 2, game->pause ? 1 : 0);
 
-
-	/* Display image (flush) */
-	// mlx_put_image_to_window(game->mlx, game->win, game->img.image, 0, 0);
-	return (PLAYER_BOARD);
+	SDL_RenderPresent(h->renderer);
+	event_handler(game, h);
 }
 
 
@@ -505,23 +501,19 @@ void sdl_draw_board(Game *game, SDLHandle *h, s8 empty_draw) {
 	}
 }
 
-void sdl_draw_loop(Game *game, SDLHandle *h) {
-	s8 empty = EMPTY_BOARD;
+int sdl_draw_loop(Game *game) {
 	
-	while (1) {
-		if (empty == EMPTY_BOARD) {
-			empty = sdl_main_display(game, game->h);
-			if (empty == -1) {
-				ft_printf_fd(1, "Signal handling error\n");
-				return;
-			}
-		}
-		window_clear(h->renderer);
-		sdl_draw_board(game, h, empty);
-		SDL_RenderPresent(h->renderer);
-		event_handler(game, h);
+	/* Handle signal */
+	if (signal(SIGINT, sig_handler) == SIG_ERR) {
+		ft_printf_fd(2, "Can't catch SIGINT\n");
+		return (-1);
+	}
+
+	while (g_game_run) {
+		sdl_main_display(game, game->h);
 		SDL_Delay(16);
 	}
+	return (TRUE);
 }
 
 
@@ -536,6 +528,8 @@ int main(int argc, char **argv)
 		return (1);
 	}
 
+	g_game_run = TRUE;
+
 	game->ipc = &ipc;
 	game->player_nb = 0;
 	game->h = create_sdl_handle("LemIPC", SCREEN_HEIGHT, SCREEN_WIDTH);
@@ -545,7 +539,9 @@ int main(int argc, char **argv)
 		goto display_error;
 	}
 	game->ressource_state = ERROR_CASE;
-	sdl_draw_loop(game, game->h);
+	if (sdl_draw_loop(game) == -1) {
+		goto display_error;
+	}
 
 	display_error:
 		free(game);

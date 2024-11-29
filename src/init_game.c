@@ -62,7 +62,7 @@ static int shared_rsc_handler(IPC *ipc, s8 allow)
 		ipc->shmid = get_shared_memory(ipc->key, 0);
 		ipc->msgid = get_msg_queue(ipc->key, 0);
 		if (ipc->shmid == -1 || ipc->semid == -1 || ipc->msgid == -1) {
-			ft_printf_fd(2, RED"Error child can't get shared data"RESET);
+			ft_printf_fd(2, RED"Error child can't get shared data allow = %d\n"RESET, allow);
 			return (ERROR_CASE); /* error case */
 		} 
 		sem_lock(ipc->semid);
@@ -102,7 +102,7 @@ static s8 chek_path_exist(char *path)
  * @param ipc The ipc structure
  * @return The shared memory id, -1 on error
 */
-int iniGame(IPC *ipc, char *path, s8 allow)
+int init_game(IPC *ipc, char *path, s8 allow)
 {
 	/* Same here active protection when debug start is finish */
 
@@ -152,11 +152,14 @@ int iniGame(IPC *ipc, char *path, s8 allow)
 
 	set_playing_state(ipc->ptr, FALSE);
 
-	// ft_printf_fd(1, PURPLE"Server started waiting client 8sec ...\n"RESET);
-	sleep(1); /* wait for client to connect */
+	ft_printf_fd(1, PURPLE"\nServer finish init shared ressource waiting client 5sec ...\n"RESET);
+	sleep(5); /* wait for client to connect */
+
 	ft_printf_fd(1, CYAN"Server send controle display packet\n"RESET);
-	// here we send 0 to from_id cause it's the server, and player id are not define yet
 	send_display_controle_packet(ipc, CTRL_DH_WAITING_TO_CONNECT, 0);
+
+	// here we send 0 to from_id cause it's the server, and player id are not define yet
+	// send_display_controle_packet(ipc, CTRL_DH_WAITING_TO_CONNECT, 0);
 
 
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program connect */

@@ -41,7 +41,7 @@ int main(int argc, char **argv)
 	g_game_run = 1;
 
 	if (iniPlayer(&player, argc, argv) != 0\
-		|| iniGame(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
+		|| init_game(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
 		return (1);
 	}
 	player_routine(&ipc, &player);

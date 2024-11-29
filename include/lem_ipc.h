@@ -117,7 +117,7 @@ enum e_ctrl_packet_val {
 /* Tile empty value */
 #define TILE_EMPTY 0
 
-/* Boolean value for iniGame call */
+/* Boolean value for init_game call */
 #define DISPLAY_HANDLER 0
 #define PLAYER 1
 
@@ -292,7 +292,7 @@ s8		send_msg(IPC *ipc, u32 msg_id, u32 data, u32 from_id);
 s8		clear_msg_queue(IPC *ipc, long chan_id);
 u32	message_queue_size_get(int msgid);
 /* init semaphore */
-int			iniGame(IPC *ipc, char *path, s8 allow);
+int			init_game(IPC *ipc, char *path, s8 allow);
 
 /* sem handling */
 int 		destroy_semaphore_set(int semid);

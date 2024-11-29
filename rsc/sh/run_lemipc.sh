@@ -52,7 +52,7 @@ run_test() {
 	for ((i=0; i<${nb_player}; i++));
 	do
 		local team_id=$(((i % ${nb_team}) + 1))
-		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
+		# display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
 		# (${LEMIPC} ${team_id} &) >> logger.txt
 		${LEMIPC} ${team_id} &
 	done
