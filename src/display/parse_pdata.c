@@ -11,7 +11,7 @@ int is_same_node(void *node, void *target) {
  *	@param target: target vector to search
  *	@return void *: player node
 */
-void *gePlayer_node(t_list *lst, t_vec target) {
+void *get_player_node(t_list *lst, t_vec target) {
 	PlayerData *pdata = NULL;
 
 	for (t_list *current = lst; current; current = current->next) {
@@ -54,7 +54,7 @@ static void handle_player_data(Game *game, PlayerData *pdata) {
 	}
 
 	/* Delete case, remove node from pdata list and decrement the associated team */
-	player_node = gePlayer_node(game->player_data, pdata[PDATA_POS].vdata);
+	player_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
 	if (type == P_DELETE) {
 
 		team_handling(game, get_board_index(pdata[PDATA_SUPP].vdata), UPDATE_KILL);
@@ -101,6 +101,7 @@ void receive_player_data(Game *game) {
 			handle_player_data(game, pdata);
 			count = PDATA_START;
 		}
+		// ft_printf_fd(1, GREEN"Player data received-> queue size %u\n"RESET, message_queue_size_get(game->ipc->msgid));
 	} while (ret != UINT32_MAX);
 	// ft_printf_fd(1, GREEN"All Player data received-> queue size %u\n"RESET, message_queue_size_get(game->ipc->msgid));
 }

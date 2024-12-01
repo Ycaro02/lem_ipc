@@ -10,12 +10,8 @@
 
 #include "../libft/basic_define.h"
 #include "../libft/libft.h"
-// #include "../include/display.h"
-
-#include <stdio.h>
 
 /* Macro to convert RGBA to UINT32 and UINT32 to RGBA */
-
 #define UINT32_TO_RGBA(color, r, g, b, a) \
     do { \
         (r) = ((color) >> 24) & 0xFF; \
@@ -32,13 +28,19 @@
 
 typedef t_vec iVec2;
 
-#define CLEAR_COLOR 70, 70, 70, 255
-
-// 70 in hexa is 0x46
+/* Clear color */
 #define U32_CLEAR_COLOR (0x464646FF)
 
+/* Font path */
+#define ARIAL_FONT_PATH "./rsc/font/arial.ttf"
+
+/* Font size */
 #define INFO_FONT_SIZE	15
 #define BIG_FONT_SIZE	45
+
+/* Boolean flag for get_str_pixel_len funct */
+#define GET_X 0
+#define GET_Y 1
 
 typedef struct s_sdl_handle {
 	SDL_Window		*window;			/* The window ptr */
@@ -60,5 +62,6 @@ void		destroy_sdl_handle(SDLHandle *handle);
 TTF_Font	*load_font(const char *path, s32 size);
 void		unload_font(TTF_Font *font);
 void 		write_text(SDLHandle *h, char *text, TTF_Font *font, iVec2 pos, u32 color);
+int			get_str_pixel_len(char *str, TTF_Font *font, s8 flag);
 
 #endif /* HANDLE_SDL_H */

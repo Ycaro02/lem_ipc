@@ -230,3 +230,20 @@ void write_text(SDLHandle *h, char *text, TTF_Font *font, iVec2 pos, u32 color) 
 	SDL_FreeSurface(surface);
 	SDL_DestroyTexture(texture);
 }
+
+/**
+ * @brief Get the len of a string in pixel
+ * @param str: string to get the len
+ * @param font: font to use
+ * @param flag: flag to get x or y len
+ */
+int get_str_pixel_len(char *str, TTF_Font *font, s8 flag) {
+	s32 x = 0;
+	s32 y = 0;
+	TTF_SizeText(font, str, &x, &y);
+
+	if (flag == GET_X) {
+		return (x + (INFO_FONT_SIZE >> 1));
+	} 
+	return (y + (INFO_FONT_SIZE >> 1));
+}

@@ -42,14 +42,9 @@
 # define SCREEN_HEIGHT (TILE_SIZE * BOARD_H)
 
 
-#define ARIAL_FONT_PATH "./rsc/font/arial.ttf"
-
-
 # define PLAYER_REMAIN "Player Remain: "
 
-/* Boolean flag for get_str_pixel_len funct */
-#define GET_X 0
-#define GET_Y 1
+
 
 /* Y padding between str in rightband*/
 // # define PAD_YTEAM 25U
@@ -90,16 +85,16 @@ typedef struct s_game {
 	u32			kill_from_remove_team;	/* kill from remove team */ 
 	int			ressource_state;		/* ressource */
 	s8			pause;			/* game pause bool */
-	s8			space_state;	/* team size */
+	s8			sem_locked;		/* sem state */
 }	Game;
 
+
+#define LEFT_CLICK 1
 /* Key */
-typedef enum e_keyboard_key
-{
-	LEFT_CLICK = 1,			/* Left click value */
-	SPACE = 32,				/* Space key value */
-	ESC = 65307,			/* Escape key value */
-}	E_KeyboardKey;
+// typedef enum e_keyboard_key
+// {
+// 	LEFT_CLICK = 1,			/* Left click value */
+// }	E_KeyboardKey;
 
 /* main */
 TeamColor get_new_color(u32 team_id); 
@@ -117,20 +112,11 @@ int check_mouse(int keycode, int x, int y, Game *game);
 
 /* parse pdata */
 void	receive_player_data(Game *game);
-void	*gePlayer_node(t_list *lst, t_vec target);
+void	*get_player_node(t_list *lst, t_vec target);
 s8	extract_controle_packet(Game *game);
 void 	extract_priority_packet(Game *game);
 /* display pdata */
 void	display_pdata_lst(t_list *player_lst);
 void	display_pdata_node(Game *game, PlayerData *pdata, u32 y);
-
-
-// main display
-int get_str_pixel_len(char *str, TTF_Font *font, s8 flag);
-
-/* display team */
-// void		free_team(void *team);
-// s8 		build_list_number_team(t_list **lst, u32 *array);
-
 
 #endif /* DISPLAY_LEMIPC_H */ 

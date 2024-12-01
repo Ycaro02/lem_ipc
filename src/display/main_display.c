@@ -46,12 +46,21 @@ TeamColor get_new_color(u32 team_id)  {
 
 
 /* @brief Initialize display */
-int init_displayer(Player *player, int argc, char **argv) {
+int init_displayer(SDLHandle *h, Player *player, int argc, char **argv) {
 	if (argc != 1) {
 		ft_printf_fd(2, "Usage: no args required %s\n", argv[0]);
 		return (-1);
 	}
 	player->team_id = UINT32_MAX;
+	
+	if (!(h->font = load_font(ARIAL_FONT_PATH, INFO_FONT_SIZE))) {
+		ft_printf_fd(2, "Failed to load font %s\n", ARIAL_FONT_PATH);
+		return (-1);
+	} else if (!(h->big_font = load_font(ARIAL_FONT_PATH, BIG_FONT_SIZE))) {
+		ft_printf_fd(2, "Failed to load big font %s\n", ARIAL_FONT_PATH);
+		unload_font(h->font);
+		return (-1);
+	}
 	return (0);
 }
 
@@ -59,6 +68,7 @@ int init_displayer(Player *player, int argc, char **argv) {
 int destroy_windows(Game *game) {
 
 	unload_font(game->h->font);
+	unload_font(game->h->big_font);
 	window_close(game->h->window, game->h->renderer);
 
 	if (game->player_data) {
@@ -75,29 +85,14 @@ int destroy_windows(Game *game) {
 		ft_printf_fd(1, CYAN"Display exit, resend controle packet\n"RESET); 
 		send_display_controle_packet(game->ipc, CTRL_DH_WAITING_TO_CONNECT, DISPLAY_HANDLER_ID);
 		detach_shared_memory(game->ipc);
-		sem_unlock(game->ipc->semid);
+		if (game->sem_locked) {
+			sem_unlock(game->ipc->semid);
+		}
 	}
 	free(game);
 	exit(0);
 }
 
-
-/**
- * @brief Get the len of a string in pixel
- * @param str: string to get the len
- * @param font: font to use
- * @param flag: flag to get x or y len
- */
-int get_str_pixel_len(char *str, TTF_Font *font, s8 flag) {
-	s32 x = 0;
-	s32 y = 0;
-	TTF_SizeText(font, str, &x, &y);
-
-	if (flag == GET_X) {
-		return (x + (INFO_FONT_SIZE >> 1));
-	} 
-	return (y + (INFO_FONT_SIZE >> 1));
-}
 
 /* @brief Compute total kill stored in list of team */
 static u32 compute_total_kill(t_list *team_lst) {
@@ -268,12 +263,9 @@ s32 event_handler(Game *game, SDLHandle *h) {
 		if (event.type == SDL_QUIT || is_key_pressed(event, SDLK_ESCAPE)) {
 			// window_close(h->window, h->renderer);
 			destroy_windows(game);
-
-
-		} else if (is_key_pressed(event, SDLK_SPACE)) {
-			// ft_printf_fd(1, "Space\n");
-			game->space_state = !game->space_state; 
-			// pause here
+		} else if (is_key_pressed(event, SDLK_SPACE) || is_key_pressed(event, SDLK_p)) {
+			// game->space_state = !game->space_state; 
+			game->pause = !game->pause; 
 		} else if (is_left_click_down(event)) {
 			game->mouse_pos = get_click_tile(h->mouse);
 			// ft_printf_fd(1, "Mouse pos: y:%u x:%u\n", game->mouse_pos.y, game->mouse_pos.x);
@@ -320,6 +312,7 @@ void sdl_pause_display(Game *game, SDLHandle *h) {
 	u32		font_height = get_str_pixel_len("PAUSE", h->big_font, GET_Y);
 	u32		font_width = get_str_pixel_len("PAUSE", h->big_font, GET_X);
 
+	/* Display a grey fog rectangle */
 	sdl_pause_rectangle_display(h);
 
 	/* Center the text */
@@ -331,8 +324,9 @@ void sdl_pause_display(Game *game, SDLHandle *h) {
 void sdl_main_display(Game *game, SDLHandle *h) {
 	u32			tmp = 0;
 
+	event_handler(game, h);
 
-	game->pause = game->space_state;
+	// game->pause = game->space_state;
 
 	if (game->ressource_state == ERROR_CASE) {
 
@@ -348,10 +342,11 @@ void sdl_main_display(Game *game, SDLHandle *h) {
 	} else {
 		/* Lock sem */
 		sem_lock(game->ipc->semid);
+		game->sem_locked = TRUE;
 
 		/* Check if player is selected */
 		if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
-			game->player_selected = gePlayer_node(game->player_data, game->mouse_pos);
+			game->player_selected = get_player_node(game->player_data, game->mouse_pos);
 			game->mouse_pos = create_vector(UINT32_MAX, UINT32_MAX);
 		}
 
@@ -375,28 +370,24 @@ void sdl_main_display(Game *game, SDLHandle *h) {
 			ft_printf_fd(1, YELLOW"Game end close windows\n"RESET);
 			g_game_run = 0;
 			destroy_windows(game);
-			// window_close(h->window, h->renderer);
-			// exit(1);
 		}
-
 
 		window_clear(h->renderer, U32_CLEAR_COLOR);
 		sdl_draw_board(game, h, PLAYER_BOARD);
-
 		display_righband(game, game->player_selected);
 
 		/* Unlock sem */
 		sem_unlock(game->ipc->semid);
-
+		game->sem_locked = FALSE;
 
 	}
 
+	// ft_printf_fd(1, "Game pause: %d\n", game->pause);
 	if (game->pause) {
 		sdl_pause_display(game, h);
 	}
 
 	SDL_RenderPresent(h->renderer);
-	event_handler(game, h);
 }
 
 int sdl_draw_loop(Game *game) {
@@ -404,6 +395,9 @@ int sdl_draw_loop(Game *game) {
 	/* Handle signal */
 	if (signal(SIGINT, sig_handler) == SIG_ERR) {
 		ft_printf_fd(2, "Can't catch SIGINT\n");
+		return (-1);
+	} else if (signal(SIGQUIT, sig_handler) == SIG_ERR) {
+		ft_printf_fd(2, "Can't catch SIGQUIT\n");
 		return (-1);
 	}
 
@@ -416,39 +410,30 @@ int sdl_draw_loop(Game *game) {
 
 
 /* @brief Main function for display handler */
-int main(int argc, char **argv) 
-{
+int main(int argc, char **argv)  {
 	IPC			ipc = {};
 	Player		player = {};
 	Game		*game = getGame();
 	if (!game) {
-		ft_printf_fd(2, "Malloc failed\n");
+		ft_printf_fd(2, "Game structure alloc failed\n");
 		return (1);
 	}
 
 	g_game_run = TRUE;
-
 	game->ipc = &ipc;
-	game->player_nb = 0;
 	game->h = create_sdl_handle("LemIPC", SCREEN_HEIGHT, SCREEN_WIDTH);
 	if (!game->h) {
 		return (1);
-	} else if (init_displayer(&player, argc, argv) != 0) {
+	} else if (init_displayer(game->h, &player, argc, argv) != 0) {
 		goto display_error;
-	} else if (!(game->h->font = load_font(ARIAL_FONT_PATH, INFO_FONT_SIZE))) {
-		ft_printf_fd(2, "Failed to load font %s\n", ARIAL_FONT_PATH);
-		goto display_error;
-	} else if (!(game->h->big_font = load_font(ARIAL_FONT_PATH, BIG_FONT_SIZE))) {
-		ft_printf_fd(2, "Failed to load big font %s\n", ARIAL_FONT_PATH);
-		goto display_error;
-	}
-
+	} 
 	game->ressource_state = ERROR_CASE;
 	if (sdl_draw_loop(game) == -1) {
 		goto display_error;
 	}
 
 	display_error:
+		window_close(game->h->window, game->h->renderer);
 		free(game);
 		return (1);
 

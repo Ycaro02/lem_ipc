@@ -23,7 +23,7 @@ static void handle_team_size(Team *team, s8 add)
  * @param node The node to check
  * @return 1 if the node is the same, otherwise 0
 */
-static void incremenTeam_kill(void *team_node){
+static void increment_team_size(void *team_node){
 	Team *team = (Team *)team_node;
 
 	team->kill += 1;
@@ -60,7 +60,7 @@ static Team *build_team_node(u32 team_id) {
  * @param team_id The team id
  * @return The team node
 */
-static Team *geTeam_node(t_list **team, u32 team_id) {
+static Team *get_team_node(t_list **team, u32 team_id) {
     t_list *current = *team;
 
     while (current != NULL) {
@@ -101,7 +101,7 @@ static int get_max_kill(void *next, void *current) {
 void team_handling(Game *game, u32 team_id, s8 cmd) {
     Team      *team = NULL;
 
-    team = geTeam_node(&game->team_data, team_id);
+    team = get_team_node(&game->team_data, team_id);
     if (cmd == JOIN_TEAM) {
         if (team) {
             handle_team_size(team , 1);
@@ -121,7 +121,7 @@ void team_handling(Game *game, u32 team_id, s8 cmd) {
             ft_lst_remove_if(&game->team_data, team, free_team, is_same_node);
         }
     } else if (team && cmd == UPDATE_KILL) {
-		incremenTeam_kill(team);
+		increment_team_size(team);
     }
 
 	list_sort(&game->team_data, get_max_kill);

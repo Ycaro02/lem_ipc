@@ -64,12 +64,13 @@ static int shared_rsc_handler(IPC *ipc, s8 allow)
 		if (ipc->shmid == -1 || ipc->semid == -1 || ipc->msgid == -1) {
 			ft_printf_fd(2, RED"Error child can't get shared data allow = %d\n"RESET, allow);
 			return (ERROR_CASE); /* error case */
-		} 
-		sem_lock(ipc->semid);
+		}
+
+		// sem_lock(ipc->semid);
 		if (attach_shared_memory(ipc) == -1) {
 			return (ERROR_CASE);
 		}
-		sem_unlock(ipc->semid);
+		// sem_unlock(ipc->semid);
 		return (CLIENT_CASE); /* child case */
 	} 
 	return (SERVER_CASE); /* parent case */

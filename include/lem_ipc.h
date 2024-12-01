@@ -20,8 +20,6 @@
 /* MLX */
 # include <math.h>
 # include <fcntl.h>
-// # include "../mini_mlx/mlx.h"
-// # include "../mini_mlx/mlx_int.h"
 
 //-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //                                                                            //
@@ -166,12 +164,12 @@ typedef struct s_msgbuf {
 
 /* IPCs structure */
 typedef struct s_ipc {
-	u32	*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
+	u32			*ptr;		/* Pointer to the shared memory, value is 0 for tile_empty or otherwise for player team id */
 	key_t		key;		/* Key result ftok */
 	int			shmid;		/* Shared memory id */
 	int			semid;		/* Semaphore id */
 	int			msgid;		/* Message queue id */
-	s8		display;	/* Display handler conected */
+	s8			display;	/* Display handler conected */
 } IPC;
 
 /* Player structure */
@@ -180,9 +178,9 @@ typedef struct s_player {
 	t_vec		next_pos; 	/* Next position */
 	t_vec		target;		/* Target position */
 	t_vec		ally_pos;	/* Closest Ally position */
-	u32	team_id;	/* Team id */
-	u32	kill_by;	/* Kill by team id */
-	s8		state;		/* Player state */
+	u32			team_id;	/* Team id */
+	u32			kill_by;	/* Kill by team id */
+	s8			state;		/* Player state */
 } Player;
 
 
@@ -274,25 +272,25 @@ u32	check_death(u32 *board, t_vec point, u32 team_id);
 void		player_tracker_follower(IPC *ipc, Player *player);
 t_vec		find_smarter_possible_move(IPC *ipc, t_vec current, t_vec end, u32 team_id);
 void		player_waiting(IPC *ipc, Player *player);
-u32	geHeuristic_cost(t_vec start, t_vec end);
-s8		find_player_in_range(IPC *ipc, Player *player, u32 range_max, s8 flag);
+u32			get_heuristic_cost(t_vec start, t_vec end);
+s8			find_player_in_range(IPC *ipc, Player *player, u32 range_max, s8 flag);
 
 /* send pdata */
 void		send_display_controle_packet(IPC *ipc, u32 displayer_state, u32 from_id);
-s8		display_handler_state(IPC *ipc);
+s8			display_handler_state(IPC *ipc);
 void		send_pdata_display(IPC *ipc, Player *player, u8 msg_type);
 
 // display handlker waiing
 void		wait_for_display_handler_priority(IPC *ipc);
-void wait_for_display_handler_connect(IPC *ipc);
+void		wait_for_display_handler_connect(IPC *ipc);
 
 /* message queue */
 int			get_msg_queue(key_t key, int flag);
-s8		remove_msg_queue(IPC *ipc);
-u32 	extract_msg(IPC *ipc, u32 msg_id);
-s8		send_msg(IPC *ipc, u32 msg_id, u32 data, u32 from_id);
-s8		clear_msg_queue(IPC *ipc, long chan_id);
-u32	message_queue_size_get(int msgid);
+s8			remove_msg_queue(IPC *ipc);
+u32 		extract_msg(IPC *ipc, u32 msg_id);
+s8			send_msg(IPC *ipc, u32 msg_id, u32 data, u32 from_id);
+s8			clear_msg_queue(IPC *ipc, long chan_id);
+u32			message_queue_size_get(int msgid);
 /* init semaphore */
 int			init_game(IPC *ipc, char *path, s8 allow);
 
@@ -313,15 +311,17 @@ void 		syscall_perror(char *syscall_name);
 
 /* handle board */
 t_vec		get_board_vec(u32 idx);
-u32	get_tile_board_val(u32 *array, t_vec vec);
-u32	get_board_index(t_vec vec);
+u32			get_tile_board_val(u32 *array, t_vec vec);
+u32			get_board_index(t_vec vec);
 void 		set_tile_board_val(u32 *array, t_vec vec, u32 value);
 
 /* player */
-int			iniPlayer(Player *player, int argc, char **argv);
+int			init_player(Player *player, int argc, char **argv);
 void 		player_routine(IPC *ipc, Player *player);
+
 /* random position */
 t_vec		get_random_point(u32 *array, t_vec player_pos);
 u32 		get_playing_state(u32 *array);
 void 		set_playing_state(u32 *array, u32 state);
+
 # endif /* LEM_IPC_HEADER */ 

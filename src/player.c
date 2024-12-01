@@ -1,7 +1,7 @@
 # include "../include/lem_ipc.h"
 
 /* @brief Initialize player */
-int iniPlayer(Player *player, int argc, char **argv)
+int init_player(Player *player, int argc, char **argv)
 {
 	u64 id_check;
 
@@ -71,7 +71,7 @@ u32 check_player_death(IPC *ipc, Player *player)
 	return (player->kill_by);
 }
 
-static void puPlayer_on_board(IPC *ipc, Player *player)
+static void put_player_on_board(IPC *ipc, Player *player)
 {
 	t_vec	 	point;
 
@@ -119,7 +119,7 @@ static s8 check_break_loop(IPC *ipc, Player *player, s8 enemy_found)
 static void find_next_move(IPC *ipc, Player *player, s8 player_alone)
 {
 	/* Rush ally bool 1 for rush 0 for no */
-	s8 rush_ally = player_alone == 1 ? 0 : (geHeuristic_cost(player->pos, player->ally_pos) > 2);
+	s8 rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
 
 	if (rush_ally) {
 		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
@@ -144,7 +144,7 @@ void player_routine(IPC *ipc, Player *player)
 	}
 
 	/* Set First player position randomly */
-	puPlayer_on_board(ipc, player);
+	put_player_on_board(ipc, player);
 
 	/* start routine */
 	while (g_game_run) {
@@ -157,7 +157,7 @@ void player_routine(IPC *ipc, Player *player)
 		if (ipc->display == DH_PRIORITY || playing_state == FALSE) {
 			sem_unlock(ipc->semid);
 			usleep(100000);
-			continue; /* wait for display handler to finish process */
+			continue; /* wait for display handler to finish process message */
 		}
 
 		/* Player scan his environement to find nearest ally (update player->ally_pos if found) */
