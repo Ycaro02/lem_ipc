@@ -2,8 +2,7 @@
 # define DISPLAY_LEMIPC_H
 
 # include "lem_ipc.h"
-
-#include "handle_sdl.h"
+# include "handle_sdl.h"
 
 # define RED_INT 0xFF0000FF
 # define GREEN_INT 0x00FF00FF
@@ -41,11 +40,16 @@
 /* Screen height */
 # define SCREEN_HEIGHT (TILE_SIZE * BOARD_H)
 
-
 /* Right band start string position */
 # define RB_START_STR_Y (15U)
 # define RB_START_STR_X (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U)
 
+/* Boolean flag for display board function */
+#define EMPTY_BOARD TRUE
+#define PLAYER_BOARD FALSE
+
+/* Mouse click define value */
+#define LEFT_CLICK 1
 
 /* Team color struct */
 typedef struct s_teamcolor {
@@ -77,10 +81,6 @@ typedef struct s_game {
 	s8			sem_locked;		/* sem state */
 }	Game;
 
-
-/* Mouse click define value */
-#define LEFT_CLICK 1
-
 /* main */
 TeamColor get_new_color(u32 team_id); 
 
@@ -93,15 +93,16 @@ int is_same_node(void *node, void *target);
 
 /* click_event */
 t_vec	get_click_tile(t_vec mouse);
-int check_mouse(int keycode, int x, int y, Game *game);
+int		check_mouse(int keycode, int x, int y, Game *game);
 
 /* parse pdata */
 void	receive_player_data(Game *game);
 void	*get_player_node(t_list *lst, t_vec target);
 s32		extract_controle_packet(Game *game);
 void 	extract_priority_packet(Game *game);
+
 /* display pdata */
-void	display_pdata_lst(t_list *player_lst);
 void	display_pdata_node(Game *game, PlayerData *pdata, u32 y);
+// void	display_pdata_lst(t_list *player_lst);
 
 #endif /* DISPLAY_LEMIPC_H */ 

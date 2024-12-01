@@ -274,9 +274,8 @@ s32 event_handler(Game *game, SDLHandle *h) {
 }
 
 
-#define EMPTY_BOARD TRUE
-#define PLAYER_BOARD FALSE
 
+/* @brief Draw the board */
 void sdl_draw_board(Game *game, SDLHandle *h, s8 empty_draw) {
 	iVec2	tile_pos, scale;
 	u32		color = 0xFFFFFFFF;
@@ -298,6 +297,7 @@ void sdl_draw_board(Game *game, SDLHandle *h, s8 empty_draw) {
 	}
 }
 
+/* @brief Display a grey rectangle */
 void sdl_pause_rectangle_display(SDLHandle *h) {
     SDL_Rect rect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
 
@@ -305,6 +305,7 @@ void sdl_pause_rectangle_display(SDLHandle *h) {
     SDL_RenderFillRect(h->renderer, &rect);
 }
 
+/* @brief Display pause text and rectangle */
 void sdl_pause_display(Game *game, SDLHandle *h) {
 	iVec2	pos = create_vector(SCREEN_HEIGHT >> 1, 0);
 	u32		font_height = get_str_pixel_len("PAUSE", h->big_font, GET_Y);
@@ -319,80 +320,73 @@ void sdl_pause_display(Game *game, SDLHandle *h) {
 	write_text(h, "PAUSE", game->h->big_font, pos, TURQUOISE_INT);
 }
 
+/* @brief Handle display connect */
+void handle_display_connect(Game *game) {
+	game->ressource_state = init_game(game->ipc, IPC_NAME, DISPLAY_HANDLER);
+	if (game->ressource_state != ERROR_CASE) {
+		if (extract_controle_packet(game) == -1) {
+			ft_printf_fd(2, "Failed to extract controle packet\n");
+			destroy_windows(game);
+		}
+	}
+	window_clear(game->h->renderer, U32_CLEAR_COLOR);
+	sdl_draw_board(game, game->h, EMPTY_BOARD);
+}
+
+/* @brief Display routine if we are connected */
+void display_routine(Game *game, SDLHandle *h) {
+	/* Lock sem */
+	sem_lock(game->ipc->semid);
+	game->sem_locked = TRUE;
+	/* Check if player is selected */
+	if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
+		game->player_selected = get_player_node(game->player_data, game->mouse_pos);
+		game->mouse_pos = create_vector(UINT32_MAX, UINT32_MAX);
+	}
+	/* Pause game */
+	set_playing_state(game->ipc->ptr, !game->pause);
+	/* Update player number */
+	game->player_nb = get_attached_processnb(game->ipc);
+	/* Extract message from message queue if message received */
+	if (extract_msg(game->ipc, DISPLAY_HANDLER_CHAN) != UINT32_MAX) {
+		receive_player_data(game);
+	}
+	/* Extract priority packet */
+	extract_priority_packet(game);
+	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
+	// if (game->player_nb <= 3) {
+	s32 nb_team = ft_lstsize(game->team_data);
+	// ft_printf_fd(1, YELLOW"Game end close windows nb team: %d\n"RESET, ft_lstsize(game->team_data));
+	if (nb_team == 0) {
+		g_game_run = 0;
+		destroy_windows(game);
+	}
+	// }
+	window_clear(h->renderer, U32_CLEAR_COLOR);
+	sdl_draw_board(game, h, PLAYER_BOARD);
+	display_righband(game, game->player_selected);
+	/* Unlock sem */
+	sem_unlock(game->ipc->semid);
+	game->sem_locked = FALSE;
+}
+
+/* @brief Main display function */
 void sdl_main_display(Game *game, SDLHandle *h) {
-	u32			tmp = 0;
 
 	event_handler(game, h);
 
-	// game->pause = game->space_state;
-
 	if (game->ressource_state == ERROR_CASE) {
-
-		/* Try to init game again */
-		game->ressource_state = init_game(game->ipc, IPC_NAME, DISPLAY_HANDLER);
-		if (game->ressource_state != ERROR_CASE) {
-			/* Extract controle packet */
-			if (extract_controle_packet(game) == -1) {
-				ft_printf_fd(2, "Failed to extract controle packet\n");
-				destroy_windows(game);
-				// window_close(h->window, h->renderer);
-				// exit(1);
-			}
-		}
-		window_clear(h->renderer, U32_CLEAR_COLOR);
-		sdl_draw_board(game, h, EMPTY_BOARD);
-
+		handle_display_connect(game);
 	} else {
-		/* Lock sem */
-		sem_lock(game->ipc->semid);
-		game->sem_locked = TRUE;
-
-		/* Check if player is selected */
-		if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
-			game->player_selected = get_player_node(game->player_data, game->mouse_pos);
-			game->mouse_pos = create_vector(UINT32_MAX, UINT32_MAX);
-		}
-
-		/* Pause game */
-		set_playing_state(game->ipc->ptr, !game->pause);
-
-		/* Update player number */
-		game->player_nb = get_attached_processnb(game->ipc);
-
-		/* Extract message from message queue */
-		tmp = extract_msg(game->ipc, DISPLAY_HANDLER_CHAN);
-		if (tmp != UINT32_MAX) { /* if we receive a message */
-			receive_player_data(game);
-		}
-
-		/* Extract priority packet */
-		extract_priority_packet(game);
-
-		/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
-		if (game->player_nb <= 3) {
-			ft_printf_fd(1, YELLOW"Game end close windows\n"RESET);
-			g_game_run = 0;
-			destroy_windows(game);
-		}
-
-		window_clear(h->renderer, U32_CLEAR_COLOR);
-		sdl_draw_board(game, h, PLAYER_BOARD);
-		display_righband(game, game->player_selected);
-
-		/* Unlock sem */
-		sem_unlock(game->ipc->semid);
-		game->sem_locked = FALSE;
-
+		display_routine(game, h);
 	}
-
-	// ft_printf_fd(1, "Game pause: %d\n", game->pause);
 	if (game->pause) {
 		sdl_pause_display(game, h);
 	}
-
 	SDL_RenderPresent(h->renderer);
 }
 
+/* @brief Main display loop */
 int sdl_draw_loop(Game *game) {
 	
 	/* Handle signal */

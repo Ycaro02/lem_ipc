@@ -56,6 +56,9 @@ enum e_ctrl_packet_val {
 	* Tile size in pixel
 	* Right band (nb_tile)
 	* Map width (nb_tile)
+	* Can be handle by the following define:
+	* - LEMIPC_LITLE
+	* - LEMIPC_VERY_LITTLE
 */
 
 #if defined(LEMIPC_LITLE)
