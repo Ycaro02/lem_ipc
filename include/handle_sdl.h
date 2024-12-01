@@ -37,7 +37,8 @@ typedef t_vec iVec2;
 // 70 in hexa is 0x46
 #define U32_CLEAR_COLOR (0x464646FF)
 
-#define INFO_FONT_SIZE 15
+#define INFO_FONT_SIZE	15
+#define BIG_FONT_SIZE	45
 
 typedef struct s_sdl_handle {
 	SDL_Window		*window;			/* The window ptr */
@@ -46,6 +47,7 @@ typedef struct s_sdl_handle {
 	iVec2			tile_size;			/* The tile size */
 	iVec2			mouse;				/* The mouse position */
 	TTF_Font		*font;				/* The font */
+	TTF_Font		*big_font;			/* The big font (for pause display) */
 }	SDLHandle ;
 
 

@@ -73,9 +73,11 @@ enum e_ctrl_packet_val {
 #else
 	/* Big size: 3,600 tile */
 	#define BOARD_H 60U
-	// #define BOARD_H 5U
 	#define TILE_SIZE 15U
 	#define RIGHTBAND_TILE_NB 15U
+	// #define BOARD_H 10U
+	// #define TILE_SIZE 35U
+	// #define RIGHTBAND_TILE_NB 5U
 #endif
 
 #define BOARD_W BOARD_H

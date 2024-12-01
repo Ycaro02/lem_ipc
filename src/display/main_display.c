@@ -308,6 +308,26 @@ void sdl_draw_board(Game *game, SDLHandle *h, s8 empty_draw) {
 	}
 }
 
+void sdl_pause_rectangle_display(SDLHandle *h) {
+    SDL_Rect rect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};
+
+    SDL_SetRenderDrawColor(h->renderer, 128, 128, 128, 128);
+    SDL_RenderFillRect(h->renderer, &rect);
+}
+
+void sdl_pause_display(Game *game, SDLHandle *h) {
+	iVec2	pos = create_vector(SCREEN_HEIGHT >> 1, 0);
+	u32		font_height = get_str_pixel_len("PAUSE", h->big_font, GET_Y);
+	u32		font_width = get_str_pixel_len("PAUSE", h->big_font, GET_X);
+
+	sdl_pause_rectangle_display(h);
+
+	/* Center the text */
+	pos.y -= (font_height >> 1);
+	pos.x = ((SCREEN_WIDTH - RIGHTBAND_WIDTH) >> 1) - (font_width >> 1);
+	write_text(h, "PAUSE", game->h->big_font, pos, TURQUOISE_INT);
+}
+
 void sdl_main_display(Game *game, SDLHandle *h) {
 	u32			tmp = 0;
 
@@ -315,8 +335,6 @@ void sdl_main_display(Game *game, SDLHandle *h) {
 	game->pause = game->space_state;
 
 	if (game->ressource_state == ERROR_CASE) {
-
-		// draw_empty_board(game);
 
 		/* Try to init game again */
 		game->ressource_state = init_game(game->ipc, IPC_NAME, DISPLAY_HANDLER);
@@ -373,6 +391,10 @@ void sdl_main_display(Game *game, SDLHandle *h) {
 
 	}
 
+	if (game->pause) {
+		sdl_pause_display(game, h);
+	}
+
 	SDL_RenderPresent(h->renderer);
 	event_handler(game, h);
 }
@@ -416,8 +438,11 @@ int main(int argc, char **argv)
 	} else if (!(game->h->font = load_font(ARIAL_FONT_PATH, INFO_FONT_SIZE))) {
 		ft_printf_fd(2, "Failed to load font %s\n", ARIAL_FONT_PATH);
 		goto display_error;
+	} else if (!(game->h->big_font = load_font(ARIAL_FONT_PATH, BIG_FONT_SIZE))) {
+		ft_printf_fd(2, "Failed to load big font %s\n", ARIAL_FONT_PATH);
+		goto display_error;
 	}
-	
+
 	game->ressource_state = ERROR_CASE;
 	if (sdl_draw_loop(game) == -1) {
 		goto display_error;
