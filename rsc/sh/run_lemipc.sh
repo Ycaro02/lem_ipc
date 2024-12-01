@@ -58,7 +58,8 @@ run_test() {
 	done
 
 	# wait all children pid
-	display_color_msg ${GREEN} "Waiting all children to finish ..."
+	display_color_msg ${CYAN} "Lauched ${nb_player} players in ${nb_team} teams ..."
+	display_color_msg ${GREEN} "Waiting all process to finish ..."
 	wait $(jobs -p)
 	display_valgrind_log
 }

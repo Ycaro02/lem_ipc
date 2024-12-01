@@ -15,16 +15,6 @@
 #include <stdio.h>
 
 /* Macro to convert RGBA to UINT32 and UINT32 to RGBA */
-// #define		RGBA_TO_UINT32(r, g, b, a)		((u32)((a << 24) | (r << 16) | (g << 8) | b))
-
-// #define		UINT32_TO_RGBA(color, r, g, b, a)	\
-// 	do { \
-// 		r = (color >> 16) & 0xFF;				\
-// 		g = (color >> 8) & 0xFF;				\
-// 		b = color & 0xFF;						\
-// 		a = (color >> 24) & 0xFF;				\
-// 	} while (0)
-
 
 #define UINT32_TO_RGBA(color, r, g, b, a) \
     do { \
@@ -34,31 +24,34 @@
         (a) = (color) & 0xFF; \
     } while (0)
 
+#define RGBA_TO_UINT32(r, g, b, a) \
+	((r) << 24 | (g) << 16 | (b) << 8 | (a))
 
 #define SDL_ERR_FUNC() printf("SDL Error %s: %s\n", __func__, SDL_GetError())
 #define TTF_ERR_FUNC() printf("TTF Error %s: %s\n", __func__, TTF_GetError())
-
-// typedef struct s_iVec2 {
-// 	s32 x;
-// 	s32 y;
-// } iVec2;
 
 typedef t_vec iVec2;
 
 #define CLEAR_COLOR 70, 70, 70, 255
 
+// 70 in hexa is 0x46
+#define U32_CLEAR_COLOR (0x464646FF)
+
+#define INFO_FONT_SIZE 15
+
 typedef struct s_sdl_handle {
 	SDL_Window		*window;			/* The window ptr */
 	SDL_Renderer	*renderer;			/* The renderer ptr */
-	iVec2			window_size;
-	iVec2			tile_size;
-	iVec2			mouse;
+	iVec2			window_size;		/* The window size */
+	iVec2			tile_size;			/* The tile size */
+	iVec2			mouse;				/* The mouse position */
+	TTF_Font		*font;				/* The font */
 }	SDLHandle ;
 
 
 /* src/sdl_handle */
 SDLHandle	*create_sdl_handle(const char* title, u32 y, u32 x);
-void		window_clear(SDL_Renderer* renderer);
+void		window_clear(SDL_Renderer* renderer, u32 color);
 void		window_close(SDL_Window* window, SDL_Renderer *renderer);
 void		draw_color_tile(SDLHandle *h, iVec2 tilePos, iVec2 scale, u32 color);
 void		destroy_sdl_handle(SDLHandle *handle);

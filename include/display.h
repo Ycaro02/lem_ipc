@@ -5,16 +5,18 @@
 
 #include "handle_sdl.h"
 
-# define RED_INT 0xFF0000
-# define GREEN_INT 0x00FF00
-# define YELLOW_INT 0xFFFF00
-# define BLUE_INT 0x0000FF
-# define PURPLE_INT 0x800080
-# define CYAN_INT 0x00FFFF
-# define ORANGE_INT 0xFFA500
-# define PINK_INT 0xFFC0CB
-# define BROWN_INT 0xA52A2A
-# define BLACK_INT 0x000000
+# define RED_INT 0xFF0000FF
+# define GREEN_INT 0x00FF00FF
+# define TURQUOISE_INT 0x03FC98FF
+# define YELLOW_INT 0xFFFF00FF
+# define BLUE_INT 0x0000FFFF
+# define PURPLE_INT 0x800080FF
+# define CYAN_INT 0x00FFFFFF
+# define ORANGE_INT 0xFFA500FF
+# define ORANGE2_INT 0xFCBA03FF 
+# define PINK_INT 0xFFC0CBFF
+# define BROWN_INT 0xA52A2AFF
+# define BLACK_INT 0x000000FF
 
 
 # define REMOVE_TEAM 0
@@ -40,14 +42,22 @@
 # define SCREEN_HEIGHT (TILE_SIZE * BOARD_H)
 
 
-# define PLAYER_REMAIN "PLAYER REMAINING : "
+#define ARIAL_FONT_PATH "./rsc/font/arial.ttf"
+
+
+# define PLAYER_REMAIN "Player Remain: "
+
+/* Boolean flag for get_str_pixel_len funct */
+#define GET_X 0
+#define GET_Y 1
 
 /* Y padding between str in rightband*/
-# define PAD_YTEAM 25U
+// # define PAD_YTEAM 25U
 /* Char len to pixel */
-# define CHAR_TOPIXEL 6
+// # define CHAR_TOPIXEL 6
 /* Start x for write str in rightband */
-# define START_STR_X (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U)
+# define RB_START_STR_Y (15U)
+# define RB_START_STR_X (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U)
 
 
 // # define PAUSE_BTN_ASSET "rsc/assets/pause_btn.xpm"
@@ -69,26 +79,7 @@ typedef struct s_team {
 	TeamColor	color;		/* Team color  */
 } Team;
 
-// typedef struct s_game
-// {
-// 	t_xvar		*mlx;			/* mlx handler */
-// 	void		*win;			/* mlx window */
-// 	t_img		img;				/* mlx image, represent all screen execpt right band */
-// 	t_img		right_band;			/* right band image */
-// 	IPC		*ipc;				/* ipc handler */
-// 	t_list		*team_data;			/* team data list */
-// 	t_list		*player_data;		/* player data list */
-// 	PlayerData		*player_selected;	/* player data to display */
-// 	t_vec		mouse_pos;			/* mouse position, can remove*/
-// 	u32			player_nb;			/* last team number store */
-// 	u32			kill_from_remove_team;	/* kill from remove team */ 
-// 	int			ressource_state;		/* ressource */
-// 	s8			pause;			/* game pause bool */
-// 	s8			space_state;	/* team size */
-// }	Game;
-
-typedef struct s_game
-{
+typedef struct s_game {
 	SDLHandle	*h;					/* SDL handler */
 	IPC			*ipc;				/* ipc handler */
 	t_list		*team_data;			/* team data list */
@@ -132,6 +123,10 @@ void 	extract_priority_packet(Game *game);
 /* display pdata */
 void	display_pdata_lst(t_list *player_lst);
 void	display_pdata_node(Game *game, PlayerData *pdata, u32 y);
+
+
+// main display
+int get_str_pixel_len(char *str, TTF_Font *font, s8 flag);
 
 /* display team */
 // void		free_team(void *team);

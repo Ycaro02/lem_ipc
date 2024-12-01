@@ -72,6 +72,7 @@ static Team *geTeam_node(t_list **team, u32 team_id) {
     return (NULL);
 }
 
+
 /**
  * @brief Free team node
  * @param team The team node to free

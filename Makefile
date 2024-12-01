@@ -16,6 +16,8 @@ DISPLAY_TEST	=	./rsc/sh/display_test.sh
 # MLX = mini_mlx/libmlx.a
 
 
+SDL_DIR 	= ./rsc/lib
+
 SDL_FLAG	= -L./rsc/lib/install/lib -rpath ./rsc/lib/install/lib -lSDL2 -lSDL2_ttf
 
 
@@ -26,7 +28,7 @@ all:		$(NAME)
 %.o : %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
 
-$(NAME):	$(OBJ_DIR) $(OBJS) $(DISPLAY_NAME) $(LIST) $(LIBFT)
+$(NAME): ${SDL_DIR} $(OBJ_DIR) $(OBJS) $(DISPLAY_NAME) $(LIST) $(LIBFT) 
 	@printf "$(CYAN)Compiling ${NAME} with $(CFLAGS) ...$(RESET)\n"
 	@$(CC) $(CFLAGS) -o $(NAME) $(OBJS) $(LIBFT) $(LIST)
 	@printf "$(GREEN)Compiling $(NAME) done$(RESET)\n"
@@ -37,12 +39,10 @@ $(DISPLAY_NAME): $(LIBFT) $(LIST) ${MLX} $(DISPLAY_OBJS)
 # @$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST) ${MLX_FLAG} ${SDL_FLAG}
 	@printf "$(GREEN)Compiling $(DISPLAY_NAME) done$(RESET)\n"
 
-# ${MLX}:
-# ifeq ($(shell [ -f ${MLX} ] && echo 0 || echo 1), 1)
-# 	@printf "$(CYAN)Compiling mini_mlx...$(RESET)\n"
-# 	@make -s -C mini_mlx
-# 	@printf "$(GREEN)Compiling mini_mlx done$(RESET)\n"
-# endif
+${SDL_DIR}:
+	@printf "$(CYAN)Get SDL2...$(RESET)\n"
+	@./rsc/install/load_lib.sh
+	@printf "$(GREEN)Get SDL2 done$(RESET)\n"
 
 $(LIST):
 ifeq ($(shell [ -f ${LIST} ] && echo 0 || echo 1), 1)
@@ -86,8 +86,10 @@ clean_lib:
 	@$(MAKE_LIBFT) fclean
 	@printf "$(RED)Clean list$(RESET)\n"
 	@$(MAKE_LIST) fclean
-	@printf "$(RED)Clean mini_mlx$(RESET)\n"
-	@make -s -C mini_mlx clean
+
+clean_sdl:
+	@printf "$(RED)Clean SDL2$(RESET)\n"
+	@$(RM) -rf ${SDL_DIR}
 
 clear:
 	@$(IPCS_FREE)

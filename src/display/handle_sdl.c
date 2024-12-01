@@ -81,7 +81,7 @@ SDLHandle *create_sdl_handle(const char* title, u32 y, u32 x) {
 		free(handle);
 		return (NULL);
 	} 
-	window_clear(handle->renderer);
+	window_clear(handle->renderer, U32_CLEAR_COLOR);
 	return (handle);
 }
 
@@ -90,9 +90,13 @@ SDLHandle *create_sdl_handle(const char* title, u32 y, u32 x) {
  * @brief Clear the window with SDL2
  * @param window The window pointers
 */
-void window_clear(SDL_Renderer* renderer) {
-	// SDL_SetRenderDrawColor(renderer, CLEAR_COLOR);
-	SDL_SetRenderDrawColor(renderer, 0, 0, 120, 255);
+void window_clear(SDL_Renderer* renderer, u32 color) {
+	u8 r, g, b, a;
+
+	/* Convert color to RGBA */
+	UINT32_TO_RGBA(color, r, g, b, a);
+
+	SDL_SetRenderDrawColor(renderer, r, g, b, a);
 	SDL_RenderClear(renderer);
 }
 

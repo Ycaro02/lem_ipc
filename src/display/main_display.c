@@ -1,5 +1,7 @@
 # include "../../include/display.h"
 
+// #include "../../include/handle_sdl.h"
+
 int		g_game_run; 
 
 TeamColor get_new_color(u32 team_id)  {
@@ -39,7 +41,6 @@ TeamColor get_new_color(u32 team_id)  {
 			break ;
 		}
 	}
-	// ft_printf_fd(2, CYAN"idx %d\n"RESET, idx);
 	return (team_color[idx]);
 }
 
@@ -55,152 +56,164 @@ int init_displayer(Player *player, int argc, char **argv) {
 }
 
 /* @brief Destroy windows/display */
-// int destroy_windows(Game *game) {
-// 	mlx_destroy_image(game->mlx, game->img.image);
-// 	mlx_destroy_image(game->mlx, game->right_band.image);
-// 	// mlx_destroy_image(game->mlx, game->pause_btn);
-// 	mlx_destroy_window(game->mlx, game->win);
-// 	mlx_destroy_display(game->mlx);
+int destroy_windows(Game *game) {
+
+	unload_font(game->h->font);
+	window_close(game->h->window, game->h->renderer);
+
+	if (game->player_data) {
+		ft_lstclear(&game->player_data, free);
+	}
+	if (game->team_data) {
+		ft_lstclear(&game->team_data, free_team);
+	}
+
+	if (game->ressource_state != ERROR_CASE) {
+		if (game->pause) { // if game is paused unlock it
+			set_playing_state(game->ipc->ptr, TRUE);
+		}
+		ft_printf_fd(1, CYAN"Display exit, resend controle packet\n"RESET); 
+		send_display_controle_packet(game->ipc, CTRL_DH_WAITING_TO_CONNECT, DISPLAY_HANDLER_ID);
+		detach_shared_memory(game->ipc);
+		sem_unlock(game->ipc->semid);
+	}
+	free(game);
+	exit(0);
+}
+
+
+/**
+ * @brief Get the len of a string in pixel
+ * @param str: string to get the len
+ * @param font: font to use
+ * @param flag: flag to get x or y len
+ */
+int get_str_pixel_len(char *str, TTF_Font *font, s8 flag) {
+	s32 x = 0;
+	s32 y = 0;
+	TTF_SizeText(font, str, &x, &y);
+
+	if (flag == GET_X) {
+		return (x + (INFO_FONT_SIZE >> 1));
+	} 
+	return (y + (INFO_FONT_SIZE >> 1));
+}
+
+/* @brief Compute total kill stored in list of team */
+static u32 compute_total_kill(t_list *team_lst) {
+	u32 total_kill = 0;
+	for (t_list *current = team_lst; current; current = current->next) {
+		total_kill += ((Team *)current->content)->kill;
+	}
+
+	return (total_kill);
+}
+
+/* @brief Compute total team size stored in list of team */
+static u32 compute_total_team_size(t_list *team_lst) {
+	u32 total_size = 0;
+	for (t_list *current = team_lst; current; current = current->next) {
+		total_size += ((Team *)current->content)->tsize;
+	}
+
+	return (total_size);
+}
+
+/**
+ * @brief Display Specific info in rightband
+ * @param game: game struct
+ * @param str: string to display
+ * @param y: y position to display
+ * @param digit: digit to display after the string
+ */
+static void display_another_info(Game *game, char *str, u32 y, u32 digit) {
+	u32 start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
+	u32 x = start_x;
 	
-// 	if (game->player_data) {
-// 		ft_lstclear(&game->player_data, free);
-// 	}
-// 	if (game->team_data) {
-// 		ft_lstclear(&game->team_data, free_team);
-// 	}
-
-// 	if (game->ressource_state != ERROR_CASE) {
-// 		if (game->pause) { // if game is paused unlock it
-// 			set_playing_state(game->ipc->ptr, TRUE);
-// 		}
-// 		ft_printf_fd(1, CYAN"Display exit, resend controle packet\n"RESET); 
-// 		send_display_controle_packet(game->ipc, CTRL_DH_WAITING_TO_CONNECT, DISPLAY_HANDLER_ID);
-// 		detach_shared_memory(game->ipc);
-// 		sem_unlock(game->ipc->semid);
-// 	}
-// 	free(game->mlx);
-// 	free(game);
-// 	exit(0);
-// }
+	iVec2 pos = create_vector(y, x);
 
 
-// /* @brief skip x utils, to know how much pixel we need to skip after string */
-// int skip_x(char *str) {
-// 	return (ft_strlen(str) * CHAR_TOPIXEL);
-// }
+	write_text(game->h, str, game->h->font, pos, TURQUOISE_INT);
+	// mlx_string_put(game->mlx, game->win, x, y, YELLOW_INT, str);
+	x += get_str_pixel_len(str, game->h->font, GET_X);
 
-// static u32 compute_total_kill(t_list *team_lst) {
-// 	u32 total_kill = 0;
-// 	for (t_list *current = team_lst; current; current = current->next) {
-// 		total_kill += ((Team *)current->content)->kill;
-// 	}
+	char *total_kill_str = ft_itoa(digit);
+	pos = create_vector(y, x);
 
-// 	return (total_kill);
-// }
+	write_text(game->h, total_kill_str, game->h->font, pos, TURQUOISE_INT);
+	// mlx_string_put(game->mlx, game->win, x, y, PINK_INT, total_kill_str);
+	free(total_kill_str);
+}
 
-// static u32 compute_total_team_size(t_list *team_lst) {
-// 	u32 total_size = 0;
-// 	for (t_list *current = team_lst; current; current = current->next) {
-// 		total_size += ((Team *)current->content)->tsize;
-// 	}
+/**
+ * @brief Display basic team info in rightband
+ * @param game: game struct
+ * @param team: team struct
+ * @param y: y position to display
+ */
+int	display_team_info(Game *game, Team *team, u32 y) {
+	iVec2	pos = create_vector(y, RB_START_STR_X);
 
-// 	return (total_size);
-// }
+	write_text(game->h, "ID : ", game->h->font, pos, team->color.color);
 
-// static void display_another_info(Game *game, char *str, u32 y, u32 digit) {
-// 	u32 start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
-// 	u32 x = start_x;
-// 	mlx_string_put(game->mlx, game->win, x, y, YELLOW_INT, str);
-// 	x += skip_x(str);
+	pos.x += get_str_pixel_len("ID : ", game->h->font, GET_X);
+	write_text(game->h, team->strid, game->h->font, pos, TURQUOISE_INT);
 
-// 	char *total_kill_str = ft_itoa(digit);
-// 	mlx_string_put(game->mlx, game->win, x, y, PINK_INT, total_kill_str);
-// 	free(total_kill_str);
-// }
+	pos.x += get_str_pixel_len(team->strid, game->h->font, GET_X);
+	write_text(game->h, "NB : ", game->h->font, pos, team->color.color);
 
-// /* @brief Display team info lst */
-// static int	display_team_info(Game *game, Team *team, u32 pad_y, u32 str_sizemax) {
-// 	u32 start_x = SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U;
-// 	u32 y = 20U + pad_y;
-// 	u32 x = start_x;
-
-// 	mlx_string_put(game->mlx, game->win, x, y, team->color.color, "ID : ");
-// 	x += skip_x("ID : ");
-// 	mlx_string_put(game->mlx, game->win, x, y, GREEN_INT, team->strid); 
-// 	x += (str_sizemax * CHAR_TOPIXEL);
-// 	mlx_string_put(game->mlx, game->win, x, y, team->color.color, "NB : ");
-// 	x += skip_x("NB : ");
-// 	mlx_string_put(game->mlx, game->win, x, y, GREEN_INT, team->strsize); 
-// 	x += ((str_sizemax + 2) * CHAR_TOPIXEL);
-// 	mlx_string_put(game->mlx, game->win, x, y, team->color.color, "K : ");
-// 	x += skip_x("K : ");
-// 	mlx_string_put(game->mlx, game->win, x, y, GREEN_INT, team->kill_str); 
-// 	return (0);
-// }
-
-
-// void reset_rightband(Game *game) {
-// 	mlx_put_image_to_window(game->mlx, game->win, game->right_band.image, SCREEN_WIDTH - RIGHTBAND_WIDTH, 0);
-// }
-
-// /* TO_REWORK read new dataset */
-// void display_righband(Game *game, PlayerData *pdata) {
-// 	u8 count = 0;
-// 	u32 y = 20U;
-// 	char *player_remain = ft_ultoa(get_attached_processnb(game->ipc) - 1U);
+	pos.x += get_str_pixel_len("NB : ", game->h->font, GET_X);
+	write_text(game->h, team->strsize, game->h->font, pos, TURQUOISE_INT);	
 	
+	pos.x += get_str_pixel_len(team->strsize, game->h->font, GET_X);
+	write_text(game->h, "K : ", game->h->font, pos, team->color.color);
 
-// 	reset_rightband(game);
+	pos.x += get_str_pixel_len("K : ", game->h->font, GET_X);
+	write_text(game->h, team->kill_str, game->h->font, pos, TURQUOISE_INT);
+	return (0);
+}
 
-// 	mlx_string_put(game->mlx, game->win, START_STR_X, y, CYAN_INT, PLAYER_REMAIN);
-// 	if (player_remain) {
-// 		mlx_string_put(game->mlx, game->win, START_STR_X + skip_x(PLAYER_REMAIN), y, RED_INT, player_remain);
-// 		free(player_remain);
-// 	}
-// 	y += PAD_YTEAM;
 
-// 	if (game->team_data) {
-// 		for (t_list *current = game->team_data; current && count < MAX_TEAM_DISPLAY; current = current->next) {
-// 			display_team_info(game, current->content, y, 3);
-// 			y += PAD_YTEAM;
-// 			++count;
-// 		}
-// 	}
+/**
+ * @brief Display the rightband with player data
+ * @param game: game struct
+ * @param pdata: player data selected to display
+ */
+void display_righband(Game *game, PlayerData *pdata) {
+	char	*player_remain = ft_ultoa(get_attached_processnb(game->ipc) - 1U);
+	iVec2	pos = create_vector(RB_START_STR_Y, RB_START_STR_X);
+	u32		pad_y = get_str_pixel_len("T", game->h->font, GET_Y);
+	u8		count = 0;
 
-// 	/* Display player data */
-// 	y += (PAD_YTEAM * 2);
-// 	display_another_info(game, "Total Kill : ", y, compute_total_kill(game->team_data) + game->kill_from_remove_team);
-// 	y += PAD_YTEAM;
-// 	display_another_info(game, "Total Team Size : ", y, compute_total_team_size(game->team_data));
+	write_text(game->h, PLAYER_REMAIN, game->h->font, pos, CYAN_INT);
 
-// 	if (pdata) {
-// 		display_pdata_node(game, pdata, y + PAD_YTEAM);
-// 	}
-// }
+	if (player_remain) {
+		pos.x += get_str_pixel_len(PLAYER_REMAIN, game->h->font, GET_X);
+		write_text(game->h, player_remain, game->h->font, pos, RED_INT);
+		free(player_remain);
+	}
+	pos.y += (pad_y + pad_y);
+	if (game->team_data) {
+		for (t_list *current = game->team_data; current && count < MAX_TEAM_DISPLAY; current = current->next) {
+			display_team_info(game, current->content, pos.y);
+			pos.y += pad_y;
+			++count;
+		}
+	}
 
-// /* @brief key press handler */
-// int	key_hooks_press(int keycode, Game *game) {
-// 	if (keycode == ESC) {
-// 		destroy_windows(game); /* maybe need to check sem value and lock it to detash mem */
-// 	}  else if (keycode == SPACE) {
-// 		game->space_state = !game->space_state;
-// 	}
-// 	// else {
-// 	// 	ft_printf_fd(2, "Keycode %d\n", keycode);
-// 	// }
-// 	return (0);
-// }
+	pos.y += pad_y;
+	display_another_info(game, "Total Kill : ", pos.y, compute_total_kill(game->team_data) + game->kill_from_remove_team);
+	pos.y += pad_y;
+	display_another_info(game, "Total Team Size : ", pos.y, compute_total_team_size(game->team_data));
 
-// static void draw_empty_board(Game *game) {
-// 	for (u32 y = 1; y < SCREEN_HEIGHT; ++y) {
-// 		for (u32 x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
-// 			if (x % TILE_SIZE != 0 && y % TILE_SIZE != 0) {
-// 				((u32 *)game->img.data)[x + (y * (SCREEN_WIDTH - RIGHTBAND_WIDTH))] = 0xFFFFFF;
-// 			}
-// 		}
-// 	}
-// }
+	if (pdata) {
+		display_pdata_node(game, pdata, (pos.y + pad_y + pad_y));
+	}
 
+
+}
+
+/* @brief Extract controle priority packet */
 void extract_priority_packet(Game *game){
 	u32 data[PDATA_LEN] = {UINT32_MAX};
 	u32 i = 0;
@@ -212,6 +225,7 @@ void extract_priority_packet(Game *game){
 	}
 }
 
+/* @brief Get the static game context */
 Game *getGame(void) {
 	static Game *game = NULL;
 
@@ -221,19 +235,15 @@ Game *getGame(void) {
 	return (game);
 }
 
-// signal handler funct
+/* @brief Signal handler to handle resource */
 void sig_handler(int signum) {
 	Game *game = getGame();
 
 	if (signum == SIGINT) {
-		// destroy_windows(game);
-		window_close(game->h->window, game->h->renderer);
+		destroy_windows(game);
 	}
 }
 
-// SDL VERSION
-
-#include "../../include/handle_sdl.h"
 
 s8 is_key_pressed(SDL_Event event, s32 key) {
 	return (event.type == SDL_KEYDOWN && event.key.keysym.sym == key);
@@ -242,7 +252,6 @@ s8 is_key_pressed(SDL_Event event, s32 key) {
 s8 is_left_click_down(SDL_Event event) {
 	return (event.type == SDL_MOUSEBUTTONDOWN && event.button.button == SDL_BUTTON_LEFT);
 }
-
 
 void mouse_position_update(SDLHandle *h, int x, int y) {
 	h->mouse.x = x;
@@ -257,10 +266,10 @@ s32 event_handler(Game *game, SDLHandle *h) {
 	while (SDL_PollEvent(&event)) {
 		mouse_position_update(h, x, y);	
 		if (event.type == SDL_QUIT || is_key_pressed(event, SDLK_ESCAPE)) {
-			window_close(h->window, h->renderer);
-			free(h);
-			ft_printf_fd(1, "Exit here\n");
-			exit(1); // toremove
+			// window_close(h->window, h->renderer);
+			destroy_windows(game);
+
+
 		} else if (is_key_pressed(event, SDLK_SPACE)) {
 			// ft_printf_fd(1, "Space\n");
 			game->space_state = !game->space_state; 
@@ -274,10 +283,30 @@ s32 event_handler(Game *game, SDLHandle *h) {
 	return (TRUE);
 }
 
-void sdl_draw_board(Game *game, SDLHandle *h, s8 empty_draw);
 
 #define EMPTY_BOARD TRUE
 #define PLAYER_BOARD FALSE
+
+void sdl_draw_board(Game *game, SDLHandle *h, s8 empty_draw) {
+	iVec2	tile_pos, scale;
+	u32		color = 0xFFFFFFFF;
+
+	scale.x = TILE_SIZE - 1;
+	scale.y = scale.x;
+	for (u32 y = 1; y < SCREEN_HEIGHT; ++y) {
+		tile_pos.y = y;
+		for (u32 x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
+			tile_pos.x = x;
+			if (!empty_draw) {
+				u32 tile_state = game->ipc->ptr[((x / TILE_SIZE) % BOARD_W) + ((y / TILE_SIZE) * BOARD_W)];
+				color = tile_state == TILE_EMPTY ? 0xFFFFFFFF : get_new_color(tile_state).color;
+			}
+			draw_color_tile(h, tile_pos, scale, color);
+			x += scale.x;
+		}
+		y += scale.y;
+	}
+}
 
 void sdl_main_display(Game *game, SDLHandle *h) {
 	u32			tmp = 0;
@@ -295,7 +324,7 @@ void sdl_main_display(Game *game, SDLHandle *h) {
 			/* Extract controle packet */
 			extract_controle_packet(game);
 		}
-		window_clear(h->renderer);
+		window_clear(h->renderer, U32_CLEAR_COLOR);
 		sdl_draw_board(game, h, EMPTY_BOARD);
 
 	} else {
@@ -327,42 +356,25 @@ void sdl_main_display(Game *game, SDLHandle *h) {
 		if (game->player_nb <= 3) {
 			ft_printf_fd(1, YELLOW"Game end close windows\n"RESET);
 			g_game_run = 0;
-			window_close(h->window, h->renderer);
+			destroy_windows(game);
+			// window_close(h->window, h->renderer);
+			// exit(1);
 		}
 
 
-		window_clear(h->renderer);
+		window_clear(h->renderer, U32_CLEAR_COLOR);
 		sdl_draw_board(game, h, PLAYER_BOARD);
+
+		display_righband(game, game->player_selected);
 
 		/* Unlock sem */
 		sem_unlock(game->ipc->semid);
+
 
 	}
 
 	SDL_RenderPresent(h->renderer);
 	event_handler(game, h);
-}
-
-
-void sdl_draw_board(Game *game, SDLHandle *h, s8 empty_draw) {
-	iVec2	tile_pos, scale;
-	u32		color = 0xffffffff;
-
-	scale.x = TILE_SIZE - 1;
-	scale.y = scale.x;
-	for (u32 y = 1; y < SCREEN_HEIGHT; ++y) {
-		tile_pos.y = y;
-		for (u32 x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
-			tile_pos.x = x;
-			if (!empty_draw) {
-				u32 tile_state = game->ipc->ptr[((x / TILE_SIZE) % BOARD_W) + ((y / TILE_SIZE) * BOARD_W)];
-				color = tile_state == TILE_EMPTY ? 0xffffffff : get_new_color(tile_state).color;
-			}
-			draw_color_tile(h, tile_pos, scale, color);
-			x += scale.x;
-		}
-		y += scale.y;
-	}
 }
 
 int sdl_draw_loop(Game *game) {
@@ -401,7 +413,11 @@ int main(int argc, char **argv)
 		return (1);
 	} else if (init_displayer(&player, argc, argv) != 0) {
 		goto display_error;
+	} else if (!(game->h->font = load_font(ARIAL_FONT_PATH, INFO_FONT_SIZE))) {
+		ft_printf_fd(2, "Failed to load font %s\n", ARIAL_FONT_PATH);
+		goto display_error;
 	}
+	
 	game->ressource_state = ERROR_CASE;
 	if (sdl_draw_loop(game) == -1) {
 		goto display_error;
