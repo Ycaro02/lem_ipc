@@ -235,9 +235,9 @@ Game *getGame(void) {
 void sig_handler(int signum) {
 	Game *game = getGame();
 
-	if (signum == SIGINT) {
-		destroy_windows(game);
-	}
+	(void)signum;
+	// ft_printf_fd(1, YELLOW"Signal received %d\n"RESET, signum);
+	destroy_windows(game);
 }
 
 
@@ -353,15 +353,13 @@ void display_routine(Game *game, SDLHandle *h) {
 	}
 	/* Extract priority packet */
 	extract_priority_packet(game);
-	/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
-	// if (game->player_nb <= 3) {
+	/* Check for end of game (number of team) */
 	s32 nb_team = ft_lstsize(game->team_data);
-	// ft_printf_fd(1, YELLOW"Game end close windows nb team: %d\n"RESET, ft_lstsize(game->team_data));
 	if (nb_team == 0) {
+		ft_printf_fd(1, YELLOW"Game end close windows nb team: %d\n"RESET, ft_lstsize(game->team_data));
 		g_game_run = 0;
 		destroy_windows(game);
 	}
-	// }
 	window_clear(h->renderer, U32_CLEAR_COLOR);
 	sdl_draw_board(game, h, PLAYER_BOARD);
 	display_righband(game, game->player_selected);
