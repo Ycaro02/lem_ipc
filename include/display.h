@@ -19,13 +19,13 @@
 # define BLACK_INT 0x000000FF
 
 
+/* Define for team handling flag */
 # define REMOVE_TEAM 0
 # define JOIN_TEAM 1
 # define UPDATE_KILL 2 
 
+/* Max team display in rightband */
 # define MAX_TEAM_DISPLAY 5
-
-// # define TOPBAND_HEIGHT (TILE_SIZE * 2)
 
 // # define BOARD_PWIDTH (TILE_SIZE * BOARD_W)
 # define COLOR_MAX 26U
@@ -42,20 +42,9 @@
 # define SCREEN_HEIGHT (TILE_SIZE * BOARD_H)
 
 
-# define PLAYER_REMAIN "Player Remain: "
-
-
-
-/* Y padding between str in rightband*/
-// # define PAD_YTEAM 25U
-/* Char len to pixel */
-// # define CHAR_TOPIXEL 6
-/* Start x for write str in rightband */
+/* Right band start string position */
 # define RB_START_STR_Y (15U)
 # define RB_START_STR_X (SCREEN_WIDTH - RIGHTBAND_WIDTH + 5U)
-
-
-// # define PAUSE_BTN_ASSET "rsc/assets/pause_btn.xpm"
 
 
 /* Team color struct */
@@ -89,12 +78,8 @@ typedef struct s_game {
 }	Game;
 
 
+/* Mouse click define value */
 #define LEFT_CLICK 1
-/* Key */
-// typedef enum e_keyboard_key
-// {
-// 	LEFT_CLICK = 1,			/* Left click value */
-// }	E_KeyboardKey;
 
 /* main */
 TeamColor get_new_color(u32 team_id); 
@@ -113,7 +98,7 @@ int check_mouse(int keycode, int x, int y, Game *game);
 /* parse pdata */
 void	receive_player_data(Game *game);
 void	*get_player_node(t_list *lst, t_vec target);
-s8	extract_controle_packet(Game *game);
+s32		extract_controle_packet(Game *game);
 void 	extract_priority_packet(Game *game);
 /* display pdata */
 void	display_pdata_lst(t_list *player_lst);

@@ -31,6 +31,12 @@ char *get_vector_string(t_vec vec)
 	char *brack_start = "[";
 	char *brack_end = "]";
 
+	// static char *out_of_board = "OUT OF BOARD";
+
+	if (vector_cmp(vec, get_board_vec(OUT_OF_BOARD))) {
+		return (ft_strdup("OUT OF BOARD"));
+	}
+
 	char *str = ft_strjoin_free(brack_start, ft_ultoa(vec.y), 's');
 	str = ft_strjoin_free(str, brack_end, 'f');
 	str = ft_strjoin_free(str, " ", 'f');

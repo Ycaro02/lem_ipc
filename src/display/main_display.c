@@ -105,14 +105,14 @@ static u32 compute_total_kill(t_list *team_lst) {
 }
 
 /* @brief Compute total team size stored in list of team */
-static u32 compute_total_team_size(t_list *team_lst) {
-	u32 total_size = 0;
-	for (t_list *current = team_lst; current; current = current->next) {
-		total_size += ((Team *)current->content)->tsize;
-	}
+// static u32 compute_total_team_size(t_list *team_lst) {
+// 	u32 total_size = 0;
+// 	for (t_list *current = team_lst; current; current = current->next) {
+// 		total_size += ((Team *)current->content)->tsize;
+// 	}
 
-	return (total_size);
-}
+// 	return (total_size);
+// }
 
 /**
  * @brief Display Specific info in rightband
@@ -180,10 +180,10 @@ void display_righband(Game *game, PlayerData *pdata) {
 	u32		pad_y = get_str_pixel_len("T", game->h->font, GET_Y);
 	u8		count = 0;
 
-	write_text(game->h, PLAYER_REMAIN, game->h->font, pos, CYAN_INT);
+	write_text(game->h, "Player Remain: ", game->h->font, pos, CYAN_INT);
 
 	if (player_remain) {
-		pos.x += get_str_pixel_len(PLAYER_REMAIN, game->h->font, GET_X);
+		pos.x += get_str_pixel_len("Player Remain: ", game->h->font, GET_X);
 		write_text(game->h, player_remain, game->h->font, pos, RED_INT);
 		free(player_remain);
 	}
@@ -198,8 +198,9 @@ void display_righband(Game *game, PlayerData *pdata) {
 
 	pos.y += pad_y;
 	display_another_info(game, "Total Kill : ", pos.y, compute_total_kill(game->team_data) + game->kill_from_remove_team);
-	pos.y += pad_y;
-	display_another_info(game, "Total Team Size : ", pos.y, compute_total_team_size(game->team_data));
+
+	// pos.y += pad_y;
+	// display_another_info(game, "Total Team Size : ", pos.y, compute_total_team_size(game->team_data));
 
 	if (pdata) {
 		display_pdata_node(game, pdata, (pos.y + pad_y + pad_y));
@@ -261,14 +262,11 @@ s32 event_handler(Game *game, SDLHandle *h) {
 	while (SDL_PollEvent(&event)) {
 		mouse_position_update(h, x, y);	
 		if (event.type == SDL_QUIT || is_key_pressed(event, SDLK_ESCAPE)) {
-			// window_close(h->window, h->renderer);
 			destroy_windows(game);
 		} else if (is_key_pressed(event, SDLK_SPACE) || is_key_pressed(event, SDLK_p)) {
-			// game->space_state = !game->space_state; 
 			game->pause = !game->pause; 
 		} else if (is_left_click_down(event)) {
 			game->mouse_pos = get_click_tile(h->mouse);
-			// ft_printf_fd(1, "Mouse pos: y:%u x:%u\n", game->mouse_pos.y, game->mouse_pos.x);
 		}
 	}
 
@@ -334,7 +332,12 @@ void sdl_main_display(Game *game, SDLHandle *h) {
 		game->ressource_state = init_game(game->ipc, IPC_NAME, DISPLAY_HANDLER);
 		if (game->ressource_state != ERROR_CASE) {
 			/* Extract controle packet */
-			extract_controle_packet(game);
+			if (extract_controle_packet(game) == -1) {
+				ft_printf_fd(2, "Failed to extract controle packet\n");
+				destroy_windows(game);
+				// window_close(h->window, h->renderer);
+				// exit(1);
+			}
 		}
 		window_clear(h->renderer, U32_CLEAR_COLOR);
 		sdl_draw_board(game, h, EMPTY_BOARD);
