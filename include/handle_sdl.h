@@ -15,15 +15,24 @@
 #include <stdio.h>
 
 /* Macro to convert RGBA to UINT32 and UINT32 to RGBA */
-#define		RGBA_TO_UINT32(r, g, b, a)		((u32)((a << 24) | (r << 16) | (g << 8) | b))
+// #define		RGBA_TO_UINT32(r, g, b, a)		((u32)((a << 24) | (r << 16) | (g << 8) | b))
 
-#define		UINT32_TO_RGBA(color, r, g, b, a)	\
-	do { \
-		r = (color >> 16) & 0xFF;				\
-		g = (color >> 8) & 0xFF;				\
-		b = color & 0xFF;						\
-		a = (color >> 24) & 0xFF;				\
-	} while (0)
+// #define		UINT32_TO_RGBA(color, r, g, b, a)	\
+// 	do { \
+// 		r = (color >> 16) & 0xFF;				\
+// 		g = (color >> 8) & 0xFF;				\
+// 		b = color & 0xFF;						\
+// 		a = (color >> 24) & 0xFF;				\
+// 	} while (0)
+
+
+#define UINT32_TO_RGBA(color, r, g, b, a) \
+    do { \
+        (r) = ((color) >> 24) & 0xFF; \
+        (g) = ((color) >> 16) & 0xFF; \
+        (b) = ((color) >> 8) & 0xFF; \
+        (a) = (color) & 0xFF; \
+    } while (0)
 
 
 #define SDL_ERR_FUNC() printf("SDL Error %s: %s\n", __func__, SDL_GetError())

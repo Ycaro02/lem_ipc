@@ -4,10 +4,10 @@ int		g_game_run;
 
 TeamColor get_new_color(u32 team_id)  {
 	static TeamColor team_color[] = {
-		{"Red", RGBA_TO_UINT32(0xff, 0,0,0xff)},
-		{"Blue", RGBA_TO_UINT32(0x66, 0x99,0xff,0xff)},
-		{"Yellow",RGBA_TO_UINT32(0xff, 0xcc, 0x00, 0xff)},
-		{"Green", RGBA_TO_UINT32(0x00, 0xff, 0x00, 0xff)},
+		{"Red", 0xFF0000FF},
+		{"Blue", 0x6699FFFF},
+		{"Yellow",0xFFCC00FF},
+		{"Green", 0x00FF00FF},
 		{"Pink", 0xFF00CCFF},
 		{"Purple", 0xCC33FFFF},
 		{"Cyan", 0x00FFFFFF},
@@ -201,25 +201,6 @@ int init_displayer(Player *player, int argc, char **argv) {
 // 	}
 // }
 
-// /* @brief Draw board */
-// static void draw_board(Game *game) {
-// 	int color = 0;
-// 	u32 tile_state = 0;
-
-// 	for (u32 y = 1; y < SCREEN_HEIGHT; ++y) {
-// 		for (u32 x = 1; x < (SCREEN_WIDTH - RIGHTBAND_WIDTH); ++x) {
-// 			// u32 x_compute =  ((x / TILE_SIZE) % BOARD_W);
-// 			// u32 y_compute = ((y / TILE_SIZE) * BOARD_W);   
-// 			// u32 idx = x_compute + y_compute;
-// 			tile_state = game->ipc->ptr[((x / TILE_SIZE) % BOARD_W) + ((y / TILE_SIZE) * BOARD_W)];
-// 			color = tile_state == TILE_EMPTY ? 0xFFFFFF : get_new_color(tile_state).color;
-// 			if (x % TILE_SIZE != 0 && y % TILE_SIZE != 0) {
-// 				((u32 *)game->img.data)[x + (y * (SCREEN_WIDTH - RIGHTBAND_WIDTH))] = color;
-// 			}
-// 		}
-// 	}
-// }
-
 void extract_priority_packet(Game *game){
 	u32 data[PDATA_LEN] = {UINT32_MAX};
 	u32 i = 0;
@@ -249,121 +230,6 @@ void sig_handler(int signum) {
 		window_close(game->h->window, game->h->renderer);
 	}
 }
-
-/* Main display function called in mlx loop hook */
-// int main_display(void *vgame) {
-// 	Game		*game = vgame;
-// 	u32			tmp = 0;
-
-// 	/* Handle signal */
-// 	if (signal(SIGINT, sig_handler) == SIG_ERR) {
-// 		ft_printf_fd(2, "Can't catch SIGINT\n");
-// 		return (-1);
-// 	}
-
-// 	game->pause = game->space_state;
-
-// 	if (game->ressource_state == ERROR_CASE) {
-
-// 		draw_empty_board(game);
-
-// 		/* Try to init game again */
-// 		game->ressource_state = init_game(game->ipc, IPC_NAME, DISPLAY_HANDLER);
-// 		if (game->ressource_state != ERROR_CASE) {
-// 			/* Extract controle packet */
-// 			extract_controle_packet(game);
-// 		}
-// 		reset_rightband(game);
-// 	} else {
-// 		/* Lock sem */
-// 		sem_lock(game->ipc->semid);
-
-// 		/* Check if player is selected */
-// 		if (game->mouse_pos.y != UINT32_MAX && game->mouse_pos.x != UINT32_MAX) {
-// 			game->player_selected = gePlayer_node(game->player_data, game->mouse_pos);
-// 			game->mouse_pos = create_vector(UINT32_MAX, UINT32_MAX);
-// 		}
-
-// 		/* Pause game */
-// 		set_playing_state(game->ipc->ptr, !game->pause);
-
-// 		/* Update player number */
-// 		game->player_nb = get_attached_processnb(game->ipc);
-
-// 		/* Extract message from message queue */
-// 		tmp = extract_msg(game->ipc, DISPLAY_HANDLER_CHAN);
-// 		if (tmp != UINT32_MAX) { /* if we receive a message */
-// 			receive_player_data(game);
-// 		}
-
-// 		/* Extract priority packet */
-// 		extract_priority_packet(game);
-
-// 		/* Check if only one team left or impossible finish (2 player left) + 1 process for display handler */
-// 		if (game->player_nb <= 3) {
-// 			g_game_run = 0;
-// 			destroy_windows(game);
-// 		}
-
-// 		/* Draw board in image */
-// 		draw_board(game);
-
-// 		/* Unlock sem */
-// 		sem_unlock(game->ipc->semid);
-
-// 		/* Display old team list to remove/rework to read new data list */
-// 		display_righband(game, game->player_selected);
-// 	}
-	
-// 	display_another_info(game, "Game Paused : ", (BOARD_H * TILE_SIZE) - TILE_SIZE * 2, game->pause ? 1 : 0);
-
-
-// 	/* Display image (flush) */
-// 	mlx_put_image_to_window(game->mlx, game->win, game->img.image, 0, 0);
-
-
-// 	return (0);
-// }
-
-/* @brief Init display */
-// s8 init_mlx(Game *game) 
-// {
-// 	int		endian = 0;
-
-// 	game->mlx = mlx_init();
-// 	if (!game->mlx) {
-// 		ft_printf_fd(2, "mlx_init failed\n");
-// 		return (ERROR_CASE);
-// 	}
-// 	game->win = mlx_new_window(game->mlx, SCREEN_WIDTH, SCREEN_HEIGHT, "LEM_IPC");
-// 	game->img.image = mlx_new_image(game->mlx, SCREEN_WIDTH - RIGHTBAND_WIDTH, SCREEN_HEIGHT);
-// 	game->right_band.image = mlx_new_image(game->mlx, RIGHTBAND_WIDTH, SCREEN_HEIGHT - (TILE_SIZE * 2));
-// 	if (!game->win || !game->img.image || !game->right_band.image) {
-// 		ft_printf_fd(2, "mlx_new_window or image failed\n");
-// 		return (ERROR_CASE);
-// 	}
-// 	game->img.data = mlx_get_data_addr(game->img.image, &game->img.bpp,
-// 			&game->img.width, &endian);
-// 	game->right_band.data = mlx_get_data_addr(game->right_band.image, &game->right_band.bpp,
-// 			&game->right_band.width, &endian);
-// 	if (!game->img.data || !game->right_band.data) {
-// 		ft_printf_fd(2, "mlx_get_data_addr failed\n");
-// 		return (ERROR_CASE);
-// 	}
-
-// 	/* Extract controle packet */
-// 	// if (game->ressource_state != ERROR_CASE) {
-// 	// }
-
-// 	mlx_hook(game->win, 2, 1L, key_hooks_press, game);
-// 	mlx_hook(game->win, DestroyNotify, StructureNotifyMask, destroy_windows, game);
-// 	mlx_mouse_hook(game->win,check_mouse, game);
-// 	mlx_loop_hook(game->mlx, main_display, game);
-
-// 	mlx_loop(game->mlx);
-// 	return (0);
-
-// }
 
 // SDL VERSION
 
@@ -432,8 +298,6 @@ void sdl_main_display(Game *game, SDLHandle *h) {
 		window_clear(h->renderer);
 		sdl_draw_board(game, h, EMPTY_BOARD);
 
-		// return (EMPTY_BOARD);
-		// reset_rightband(game);
 	} else {
 		/* Lock sem */
 		sem_lock(game->ipc->semid);

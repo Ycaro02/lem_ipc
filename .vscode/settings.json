@@ -43,6 +43,8 @@
 		"linked_list.h": "c",
 		"unistd.h": "c",
 		"vector.h": "c",
-		"errno-base.h": "c"
+		"errno-base.h": "c",
+		"display.h": "c",
+		"handle_sdl.h": "c"
 	}
 }

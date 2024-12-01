@@ -11,9 +11,9 @@ IPCS_FREE		=	./rsc/sh/check_ipcs_free.sh
 
 LEMIPC_RUN		=	./rsc/sh/run_lemipc.sh
 DISPLAY_TEST	=	./rsc/sh/display_test.sh
-MLX_FLAG 		=	-Lmini_mlx -lmlx -lX11 -lXext -lm
 
-MLX = mini_mlx/libmlx.a
+# MLX_FLAG 		=	-Lmini_mlx -lmlx -lX11 -lXext -lm
+# MLX = mini_mlx/libmlx.a
 
 
 SDL_FLAG	= -L./rsc/lib/install/lib -rpath ./rsc/lib/install/lib -lSDL2 -lSDL2_ttf
@@ -33,15 +33,16 @@ $(NAME):	$(OBJ_DIR) $(OBJS) $(DISPLAY_NAME) $(LIST) $(LIBFT)
 
 $(DISPLAY_NAME): $(LIBFT) $(LIST) ${MLX} $(DISPLAY_OBJS) 
 	@printf "$(CYAN)Compiling ${DISPLAY_NAME} ...$(RESET)\n"
-	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST) ${MLX_FLAG} ${SDL_FLAG}
+	@$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST) ${SDL_FLAG}
+# @$(CC) $(CFLAGS) -o $(DISPLAY_NAME) $(DISPLAY_OBJS) $(LIBFT) $(LIST) ${MLX_FLAG} ${SDL_FLAG}
 	@printf "$(GREEN)Compiling $(DISPLAY_NAME) done$(RESET)\n"
 
-${MLX}:
-ifeq ($(shell [ -f ${MLX} ] && echo 0 || echo 1), 1)
-	@printf "$(CYAN)Compiling mini_mlx...$(RESET)\n"
-	@make -s -C mini_mlx
-	@printf "$(GREEN)Compiling mini_mlx done$(RESET)\n"
-endif
+# ${MLX}:
+# ifeq ($(shell [ -f ${MLX} ] && echo 0 || echo 1), 1)
+# 	@printf "$(CYAN)Compiling mini_mlx...$(RESET)\n"
+# 	@make -s -C mini_mlx
+# 	@printf "$(GREEN)Compiling mini_mlx done$(RESET)\n"
+# endif
 
 $(LIST):
 ifeq ($(shell [ -f ${LIST} ] && echo 0 || echo 1), 1)
