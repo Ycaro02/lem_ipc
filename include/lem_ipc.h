@@ -64,7 +64,7 @@ enum e_ctrl_packet_val {
 #if defined(LEMIPC_LITLE)
 	/* Little size: 10,000 tile */
 	#define BOARD_H 100U
-	#define TILE_SIZE 10U
+	#define TILE_SIZE 8U
 	#define RIGHTBAND_TILE_NB (25U)
 #elif defined(LEMIPC_VERY_LITTLE)
 	/* Verry little size: 40,000 tile */
@@ -74,7 +74,7 @@ enum e_ctrl_packet_val {
 #else
 	/* Big size: 3,600 tile */
 	#define BOARD_H 60U
-	#define TILE_SIZE 15U
+	#define TILE_SIZE 14U
 	#define RIGHTBAND_TILE_NB 15U
 	// #define BOARD_H 10U
 	// #define TILE_SIZE 35U

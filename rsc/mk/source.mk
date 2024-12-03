@@ -51,8 +51,8 @@ SRCS += $(MAIN_MANDATORY)
 
 CFLAGS			=	-Wall -Wextra -Werror
 
-ifeq ($(findstring litle, $(MAKECMDGOALS)), litle)
-CFLAGS = -Wall -Wextra -Werror -g3 -DLEMIPC_LITLE
-else ifeq ($(findstring verry_litle, $(MAKECMDGOALS)), verry_litle)
+ifeq ($(findstring verry_litle, $(MAKECMDGOALS)), verry_litle)
 CFLAGS = -Wall -Wextra -Werror -g3 -DLEMIPC_VERY_LITTLE
+else ifeq ($(findstring litle, $(MAKECMDGOALS)), litle)
+CFLAGS = -Wall -Wextra -Werror -g3 -DLEMIPC_LITLE
 endif
