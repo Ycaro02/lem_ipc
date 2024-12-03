@@ -45,33 +45,37 @@ static int get_sem_set_id(key_t key)
 static int shared_rsc_handler(IPC *ipc, s8 allow)
 {
 	int flag = 0666;
-	
+	int ret = CLIENT_CASE;
+
 	if (allow)
 		flag |= (IPC_CREAT | IPC_EXCL);
 	errno = 0;
 	ipc->semid = semget(ipc->key, 1, (flag | 0666));
 	if (allow == 0 && ipc->semid == -1) { /* if error and can't create sem (vizualizer case) */
-		if (allow) {
-			syscall_perror("semget");
-		} else {
-			ft_printf_fd(2, RESET_LINE""YELLOW"Displayer waiting for IPC init ... "RESET);
-		}
+		ft_printf_fd(2, RESET_LINE""YELLOW"Displayer waiting for IPC init ... "RESET);
 		return (ERROR_CASE);
 	} else if ((!allow && ipc->semid != -1 ) || (allow && ipc->semid == -1)) { /* if ressource already created */
+		
+		/* Now get the already created sem ID */
 		ipc->semid = get_sem_set_id(ipc->key);
+
+		/* Check for error case (sem not found) */
+		if (ipc->semid == -1) { return (ERROR_CASE); }
+
+
+		/* Lock it to get another shared resource */
+		sem_lock(ipc->semid);
 		ipc->shmid = get_shared_memory(ipc->key, 0);
 		ipc->msgid = get_msg_queue(ipc->key, 0);
-		if (ipc->shmid == -1 || ipc->semid == -1 || ipc->msgid == -1) {
+		if (ipc->shmid == -1 || ipc->msgid == -1) {
 			ft_printf_fd(2, RED"Error child can't get shared data allow = %d\n"RESET, allow);
-			return (ERROR_CASE); /* error case */
+			ret = ERROR_CASE;
 		}
-
-		// sem_lock(ipc->semid);
 		if (attach_shared_memory(ipc) == -1) {
-			return (ERROR_CASE);
+			ret = ERROR_CASE;
 		}
-		// sem_unlock(ipc->semid);
-		return (CLIENT_CASE); /* child case */
+		sem_unlock(ipc->semid);
+		return (ret); // Error or client case
 	} 
 	return (SERVER_CASE); /* parent case */
 }
