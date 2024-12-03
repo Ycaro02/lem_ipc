@@ -71,13 +71,20 @@ u32 check_player_death(IPC *ipc, Player *player)
 	return (player->kill_by);
 }
 
-static void put_player_on_board(IPC *ipc, Player *player)
+static int put_player_on_board(IPC *ipc, Player *player)
 {
 	t_vec	 	point;
 
 	sem_lock(ipc->semid);
 
 	point = get_random_point(ipc->ptr, player->pos);
+
+	if (point.x == UINT32_MAX && point.y == UINT32_MAX) {
+		ft_printf_fd(1, "No more tile available\n");
+		sem_unlock(ipc->semid);
+		return (ERROR_CASE) ;
+	}
+
 	set_tile_board_val(ipc->ptr, point, player->team_id);
 	player->pos = point;
 	player->next_pos = point;
@@ -97,6 +104,7 @@ static void put_player_on_board(IPC *ipc, Player *player)
 	send_pdata_display(ipc, player, P_CREATE);
 	// ft_printf_fd(1, GREEN"Player %u start at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);
 	sem_unlock(ipc->semid);
+	return (TRUE);
 }
 
 static s8 check_break_loop(IPC *ipc, Player *player, s8 enemy_found)
@@ -137,14 +145,12 @@ static void find_next_move(IPC *ipc, Player *player, s8 player_alone)
 	}
 }
 
-void player_routine(IPC *ipc, Player *player) 
+int player_routine(IPC *ipc, Player *player) 
 {
-	if (init_signal_handler() == -1) {
-		return ;
-	}
+	if (init_signal_handler() == -1) { return (ERROR_CASE);	}
 
 	/* Set First player position randomly */
-	put_player_on_board(ipc, player);
+	if (put_player_on_board(ipc, player) == ERROR_CASE) { return (ERROR_CASE); }
 
 	/* start routine */
 	while (g_game_run) {
@@ -188,4 +194,5 @@ void player_routine(IPC *ipc, Player *player)
 		sem_unlock(ipc->semid);
 		usleep(PLAYER_WAIT_TIME);
 	}
+	return (TRUE);
 }

@@ -44,7 +44,10 @@ int main(int argc, char **argv)
 		|| init_game(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
 		return (1);
 	}
-	player_routine(&ipc, &player);
+	if (player_routine(&ipc, &player) == ERROR_CASE) {
+		detach_shared_memory(&ipc);
+		return (1);
+	}
 	nb_process = display_player_end(ipc, player);
 	display_handler = display_handler_state(&ipc);
 	if (nb_process == 2 && display_handler == 1) {

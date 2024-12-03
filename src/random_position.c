@@ -47,14 +47,15 @@ t_vec get_random_point(u32 *array, t_vec player_pos)
     t_vec board_size = create_vector(BOARD_H, BOARD_W);
     t_vec new_point = generate_random_board_point(BOARD_H * BOARD_W);
     int found = -1;
-    int max_iter = 0;
+    u32 max_iter = (BOARD_H * BOARD_W);
+	u32 nb_iter = 0;
 	(void)player_pos;
 	// ft_printf_fd(1, "player_pos: [%d][%d]\n", player_pos.y, player_pos.x);
 	// ft_printf_fd(1, "new_point: [%d][%d]\n", new_point.y, new_point.x);
 	// if (get_tile_board_val(array, new_point) != 0) {
 	// 	return (player_pos);
 	// }
-    while (found != 0 && max_iter < 100)
+    while (found != 0 && nb_iter < max_iter)
     {
         if (get_tile_board_val(array, new_point) != TILE_EMPTY) { /* brut force case */
             if (new_point.x < board_size.x - 1)
@@ -68,8 +69,11 @@ t_vec get_random_point(u32 *array, t_vec player_pos)
         } else {
             found = 0;
 		}
-        max_iter++;
+        nb_iter++;
     }
+	if (nb_iter == max_iter) {
+		return (create_vector(UINT32_MAX, UINT32_MAX));
+	}
     // printf("%snew_point: [%d][%d]%s\n",GREEN ,new_point.y, new_point.x, RESET);
     return (new_point);
 }

@@ -320,7 +320,7 @@ void 		set_tile_board_val(u32 *array, t_vec vec, u32 value);
 
 /* player */
 int			init_player(Player *player, int argc, char **argv);
-void 		player_routine(IPC *ipc, Player *player);
+int 		player_routine(IPC *ipc, Player *player);
 
 /* random position */
 t_vec		get_random_point(u32 *array, t_vec player_pos);
