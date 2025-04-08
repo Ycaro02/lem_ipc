@@ -45,14 +45,12 @@ function handle_lib_download {
 
 	cd ${BASE_DIR}
 
-
-
-	display_color_msg ${GREEN} "Download on ${url}" 1>&2
-    
+	log I "Download on ${url}" 1>&2
 	wget ${url} >> ${FD_OUT} 2>&1 || true
 
 	if [[ ! -f ${file} ]]; then
-		display_double_color_msg ${RED} "Error when download on ${url}" ${YELLOW} "\ntry to use backup url ${backup_url}" 1>&2
+		log E "Error when download on ${url}" 1>&2
+		log I "Use backup url ${backup_url}" 1>&2
 		local file=$(get_file_name ${backup_url})
 		wget ${backup_url} >> ${FD_OUT} 2>&1
 	fi
@@ -70,22 +68,19 @@ function install_library {
 	file=$(handle_lib_download ${url} ${backup_url})
 
 	cd ${BASE_DIR}
-
 	mv ${file} ${DEPS_DIR}/${name}
 
-	archive_to_dir ${name}
-
+	local dir_name=$(archive_to_dir ${name})
+	cd ${DEPS_DIR}/${dir_name}
+	
 	rm ${DEPS_DIR}/${name}
 
-	local dir_name=$(archive_to_dir ${name})
-	echo dir_name: ${dir_name}
-	cd ${DEPS_DIR}/${dir_name}
 
 	# run configure script
-    ./configure --prefix=${INSTALL_DIR} $configure_flags
+    ./configure --prefix=${INSTALL_DIR} $configure_flags  >> ${FD_OUT} 2>&1
 	# compile and install
-    make -s -j$(nproc)
-    make -s install
+    make -s -j$(nproc)  >> ${FD_OUT} 2>&1
+    make -s install  >> ${FD_OUT} 2>&1
 
     cd ${DEPS_DIR}
 }
@@ -99,8 +94,8 @@ function load_lib {
 	local backup_url="${2}"
 	local file_name=${3}
 
-	display_color_msg ${MAGENTA} "Download ${name}..."
-	install_library ${url} ${backup_url} ${file_name} >> ${FD_OUT} 2>&1
-	display_color_msg ${GREEN} "Done ${name}"
+	log I "Download ${name}..."
+	install_library ${url} ${backup_url} ${file_name}
+	log I "Done ${name}"
 }
 
