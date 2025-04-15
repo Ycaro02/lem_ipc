@@ -72,15 +72,15 @@ function load_SDL2 {
 PWD=$(pwd)
 
 # Variables
-BASE_DIR="$PWD/rsc/lib"
-DEPS_DIR="$BASE_DIR/deps"
-INSTALL_DIR="$BASE_DIR/install"
+BASE_DIR="${PWD}/rsc/lib"
+DEPS_DIR="${BASE_DIR}/deps"
+INSTALL_DIR="${BASE_DIR}/install"
 
 # Load the color script and utils functions
 # Need to declare PWD and DEPS/INSTALL_DIR before loading the script
 source ${PWD}/rsc/install/install_utils.sh
 
-mkdir -p ${DEPS_DIR} ${INSTALL_DIR}/lib/pkgconfig ${INSTALL_DIR}/include
+mkdir -p ${DEPS_DIR} ${INSTALL_DIR}/lib/pkgconfig ${INSTALL_DIR}/include ${PWD}/rsc/log
 
 FD_OUT="${PWD}/rsc/log/load_lib.log"
 log I "Quiet mode enabled log in ${FD_OUT}"
