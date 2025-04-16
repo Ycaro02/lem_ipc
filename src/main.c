@@ -43,6 +43,8 @@ int main(int argc, char **argv)
 	ft_bzero(&player, sizeof(Player));
 	g_game_run = 1;
 
+	if (init_signal_handler() == -1) { return (ERROR_CASE);	}
+
 	if (init_player(&player, argc, argv) != 0\
 		|| init_game(&ipc, IPC_NAME, PLAYER) == ERROR_CASE) {
 		return (1);

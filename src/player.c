@@ -25,7 +25,7 @@ static void signal_handler(int signum)
 	return ;
 }
 
-static int init_signal_handler(void)
+int init_signal_handler(void)
 {
 	if (signal(SIGINT, signal_handler) == SIG_ERR) {
 		return (-1);
@@ -137,7 +137,7 @@ static void find_next_move(IPC *ipc, Player *player, s8 player_alone)
 
 int player_routine(IPC *ipc, Player *player) 
 {
-	if (init_signal_handler() == -1) { return (ERROR_CASE);	}
+	// if (init_signal_handler() == -1) { return (ERROR_CASE);	}
 
 	/* Set First player position randomly */
 	if (put_player_on_board(ipc, player) == ERROR_CASE) { return (ERROR_CASE); }

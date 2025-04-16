@@ -82,7 +82,7 @@ s8 display_handler_state(IPC *ipc)
 */
 void wait_for_display_handler_connect(IPC *ipc) 
 {
-	while (display_handler_state(ipc) == DH_DISCONNECTED) {
+	while (display_handler_state(ipc) == DH_DISCONNECTED && g_game_run) {
 		sem_unlock(ipc->semid);
 		usleep(100000);
 		sem_lock(ipc->semid);
