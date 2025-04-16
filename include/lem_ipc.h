@@ -327,4 +327,6 @@ t_vec		get_random_point(u32 *array, t_vec player_pos);
 u32 		get_playing_state(u32 *array);
 void 		set_playing_state(u32 *array, u32 state);
 
+
+
 # endif /* LEM_IPC_HEADER */ 

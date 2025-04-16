@@ -1,6 +1,10 @@
 # include "../include/lem_ipc.h"
 
 
+/**
+ * @brief Display packet content, debug purpose
+ * @ param data Packet data
+*/
 void display_packet(u32 *data)
 {
 	ft_printf_fd(1, CYAN"\n-------------------------Send packet --------------------------------------\n"RESET);
@@ -16,6 +20,12 @@ void display_packet(u32 *data)
 
 }
 
+/**
+ * @brief Send display controle packet to display handler
+ * @ param ipc IPC structure
+ * @ param displayer_state Display handler state
+ * @ param from_id Sender id
+*/
 void send_display_controle_packet(IPC *ipc, u32 displayer_state, u32 from_id)
 {
 	u32	data[PDATA_LEN] = BUILD_CTRL_PACKET(displayer_state);
@@ -27,12 +37,19 @@ void send_display_controle_packet(IPC *ipc, u32 displayer_state, u32 from_id)
 			break ;
 		}
 	}
-	// we do this cause send_msg clear the queue when return FALSE
+	/* We do this cause send_msg clear the queue when return FALSE */ 
 	if (ret == FALSE) {
-		send_display_controle_packet(ipc, displayer_state, from_id); // need to resend controle packet cause it was interupt by full message queue
+		send_display_controle_packet(ipc, displayer_state, from_id);
 	}
 }
 
+/**
+ * @brief Check if display handler is connected
+ * @ param ipc IPC structure
+ * @ return DH_DISCONNECTED if display handler is not connected
+ * @ return DH_CONNECTED if display handler is connected
+ * @ return DH_PRIORITY if display handler is in priority mode
+*/
 s8 display_handler_state(IPC *ipc)
 {
 	u32	data[PDATA_LEN] = BUILD_CTRL_PACKET((u32)UINT32_MAX);
@@ -60,6 +77,10 @@ s8 display_handler_state(IPC *ipc)
 	return (ret);
 }
 
+/**
+ * @brief Wait for display handler to connect before starting game
+ * @ param ipc IPC structure
+*/
 void wait_for_display_handler_connect(IPC *ipc) 
 {
 	while (display_handler_state(ipc) == DH_DISCONNECTED) {
@@ -70,30 +91,31 @@ void wait_for_display_handler_connect(IPC *ipc)
 	ipc->display = display_handler_state(ipc);
 }
 
+/**
+ * @brief Wait for display handler to process the queue
+ * @ param ipc IPC structure
+*/
 void wait_for_display_handler_priority(IPC *ipc)
 {
 	u32 queue_size = MSG_QUEUE_LIMIT_SIZE;
 
 	/* Set display handler to priority if is not already */
 	if (ipc->display == DH_CONNECTED) {
-		// ft_printf_fd(1, RED"Set display handle priority\n"RESET);
 		send_display_controle_packet(ipc, CTRL_DH_PRIORITY, 0);
 	}
-	// ft_printf_fd(1, RED"Message queue is full, wait for display handler to process it\n"RESET);
+
+	/* Wait for display handler to process the queue */
+	/* We need to unlock the semaphore to let the display handler process the queue */
 	sem_unlock(ipc->semid);
 	while (1) {
 		sem_lock(ipc->semid);
 		queue_size = message_queue_size_get(ipc->msgid);
-		// ft_printf_fd(1, YELLOW"Wait for queue processed, size -> %u\n"RESET, queue_size);
 		if (queue_size < MSG_QUEUE_LIMIT_SIZE) {
 			break ;
 		}
 		sem_unlock(ipc->semid);
 		usleep(10000);
 	}
-	// sem_lock(ipc->semid);
-	// extract_priority_packet(ipc);
-	// ft_printf_fd(1, GREEN"Message queue processed, size -> %u\n"RESET, queue_size);
 }
 
 void send_pdata_display(IPC *ipc, Player *player, u8 msg_type)

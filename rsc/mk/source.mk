@@ -27,6 +27,9 @@ DISPLAY_SRCS	= 	${SHARED_SRCS}\
 					display/display_pdata.c\
 					display/team_handling.c\
 					display/handle_sdl.c\
+					display/display_rightband.c\
+					display/display_routine.c\
+					display/display_utils.c\
 
 
 SRCS			=	${SHARED_SRCS}

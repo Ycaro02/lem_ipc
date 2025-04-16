@@ -1,8 +1,14 @@
 # include "../include/lem_ipc.h"
 
-/* Can be remove game run sattus */
+/* Game run status, global to handle sigint */
 int g_game_run;
 
+/**
+ * Display player end, set the player tile to empty
+ * @param ipc IPC structure
+ * @param player Player structure
+ * @return The number of process attached to the shared memory
+ */
 static int display_player_end(IPC ipc, Player player)
 {
 	int		nb_process = get_attached_processnb(&ipc);
@@ -10,15 +16,18 @@ static int display_player_end(IPC ipc, Player player)
 	return (nb_process);
 }
 
+/**
+ * Wait for display handler to finish
+ * @param ipc IPC structure
+ * @return The number of process attached to the shared memory
+ */
 static int wait_display_handler_finish(IPC *ipc)
 {
 	int nb_process = 2;
-	// ft_printf_fd(1, FILL_RED"Lem-ipc Server Want Down wait display handler nb process: %d\n"RESET, nb_process);
 	sem_unlock(ipc->semid);
 	sleep(1);
 	sem_lock(ipc->semid);
 	nb_process = get_attached_processnb(ipc);
-	// ft_printf_fd(1, FILL_RED"Lem-ipc Server Want Down after sleep display handler nb process: %d\n"RESET, nb_process);
 	return (nb_process);
 }
 
@@ -56,7 +65,6 @@ int main(int argc, char **argv)
 		ft_printf_fd(1, FILL_YELLOW"Lem-ipc Server Down Team |%u| Won\n"RESET, player.team_id);
 	} else {
 		detach_shared_memory(&ipc);
-		// ft_printf_fd(1, YELLOW"Lem-ipc Client Down NB remain %d\n"RESET, nb_process);
 		sem_unlock(ipc.semid);
 	}
 	return (ret);

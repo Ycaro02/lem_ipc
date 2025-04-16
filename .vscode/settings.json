@@ -45,6 +45,7 @@
 		"vector.h": "c",
 		"errno-base.h": "c",
 		"display.h": "c",
-		"handle_sdl.h": "c"
+		"handle_sdl.h": "c",
+		"cstdint": "c"
 	}
 }

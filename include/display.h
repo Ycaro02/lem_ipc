@@ -103,6 +103,26 @@ void 	extract_priority_packet(Game *game);
 
 /* display pdata */
 void	display_pdata_node(Game *game, PlayerData *pdata, u32 y);
-// void	display_pdata_lst(t_list *player_lst);
+
+/* display_rightband */
+void display_righband(Game *game, PlayerData *pdata);
+
+/* display_routine */
+int sdl_draw_loop(Game *game);
+
+/* display_utils */
+TeamColor get_newcolor(u32 team_id);
+Game *getGame(void);
+s8 is_left_click_down(SDL_Event event);
+s8 is_key_pressed(SDL_Event event, s32 key);
+void mouse_position_update(SDLHandle *h, int x, int y);
+void sig_handler(int signum);
+void handle_display_connect(Game *game);
+void sdl_display_center_string(Game *game, SDLHandle *h, char *str, uint32_t color);
+
+/* Main */
+int destroy_windows(Game *game);
+s32 event_handler(Game *game, SDLHandle *h);
+void sdl_draw_board(Game *game, SDLHandle *h, s8 empty_draw);
 
 #endif /* DISPLAY_LEMIPC_H */ 
