@@ -104,16 +104,6 @@ static u32 compute_total_kill(t_list *team_lst) {
 	return (total_kill);
 }
 
-/* @brief Compute total team size stored in list of team */
-// static u32 compute_total_team_size(t_list *team_lst) {
-// 	u32 total_size = 0;
-// 	for (t_list *current = team_lst; current; current = current->next) {
-// 		total_size += ((Team *)current->content)->tsize;
-// 	}
-
-// 	return (total_size);
-// }
-
 /**
  * @brief Display Specific info in rightband
  * @param game: game struct
@@ -306,10 +296,10 @@ void sdl_pause_rectangle_display(SDLHandle *h) {
 }
 
 /* @brief Display pause text and rectangle */
-void sdl_pause_display(Game *game, SDLHandle *h) {
+void sdl_display_center_string(Game *game, SDLHandle *h, char *str, uint32_t color) {
 	iVec2	pos = create_vector(SCREEN_HEIGHT >> 1, 0);
-	u32		font_height = get_str_pixel_len("PAUSE", h->big_font, GET_Y);
-	u32		font_width = get_str_pixel_len("PAUSE", h->big_font, GET_X);
+	u32		font_height = get_str_pixel_len(str, h->big_font, GET_Y);
+	u32		font_width = get_str_pixel_len(str, h->big_font, GET_X);
 
 	/* Display a grey fog rectangle */
 	sdl_pause_rectangle_display(h);
@@ -317,7 +307,7 @@ void sdl_pause_display(Game *game, SDLHandle *h) {
 	/* Center the text */
 	pos.y -= (font_height >> 1);
 	pos.x = ((SCREEN_WIDTH - RIGHTBAND_WIDTH) >> 1) - (font_width >> 1);
-	write_text(h, "PAUSE", game->h->big_font, pos, TURQUOISE_INT);
+	write_text(h, str, game->h->big_font, pos, color);
 }
 
 /* @brief Handle display connect */
@@ -331,10 +321,26 @@ void handle_display_connect(Game *game) {
 	}
 	window_clear(game->h->renderer, U32_CLEAR_COLOR);
 	sdl_draw_board(game, game->h, EMPTY_BOARD);
+	SDL_RenderPresent(game->h->renderer);
+	/* Wait for player send message */
+	sleep(2);
+}
+
+static uint32_t get_last_team_alive_id(Game *game) {
+	if (game->team_data) {
+		t_list *current = game->team_data;
+		Team *team = current->content;
+		return (team->tid);
+	} else {
+		ft_printf_fd(2, "No team data available in get last team alive id\n");
+	}
+	return (0);
 }
 
 /* @brief Display routine if we are connected */
 void display_routine(Game *game, SDLHandle *h) {
+	static uint32_t last_team_id = 0;
+	
 	/* Lock sem */
 	sem_lock(game->ipc->semid);
 	game->sem_locked = TRUE;
@@ -345,18 +351,37 @@ void display_routine(Game *game, SDLHandle *h) {
 	}
 	/* Pause game */
 	set_playing_state(game->ipc->ptr, !game->pause);
+	
 	/* Update player number */
 	game->player_nb = get_attached_processnb(game->ipc);
 	/* Extract message from message queue if message received */
 	if (extract_msg(game->ipc, DISPLAY_HANDLER_CHAN) != UINT32_MAX) {
 		receive_player_data(game);
 	}
+	
 	/* Extract priority packet */
 	extract_priority_packet(game);
+
 	/* Check for end of game (number of team) */
 	s32 nb_team = ft_lstsize(game->team_data);
-	if (nb_team == 0) {
-		ft_printf_fd(1, YELLOW"Game end close windows nb team: %d\n"RESET, ft_lstsize(game->team_data));
+	if (nb_team != 0) {
+		last_team_id = get_last_team_alive_id(game);
+	}
+
+	// ft_printf_fd(1, "Last team alive: %u\n", last_team_id);
+
+	if (nb_team == 0 || game->player_nb == 2) {
+ 		char *str = ft_ultoa(last_team_id);
+		if (str) {
+			char *total_win_str = ft_strjoin("Winner team: ", str);
+			if (total_win_str) {
+				sdl_display_center_string(game, h, total_win_str, get_new_color(last_team_id).color);
+				SDL_RenderPresent(h->renderer);
+				free(total_win_str);
+			}
+			free(str);
+		}
+		sleep(2);
 		g_game_run = 0;
 		destroy_windows(game);
 	}
@@ -379,7 +404,7 @@ void sdl_main_display(Game *game, SDLHandle *h) {
 		display_routine(game, h);
 	}
 	if (game->pause) {
-		sdl_pause_display(game, h);
+		sdl_display_center_string(game, h, "PAUSE", TURQUOISE_INT);
 	}
 	SDL_RenderPresent(h->renderer);
 }
@@ -395,6 +420,8 @@ int sdl_draw_loop(Game *game) {
 		ft_printf_fd(2, "Can't catch SIGQUIT\n");
 		return (-1);
 	}
+
+	
 
 	while (g_game_run) {
 		sdl_main_display(game, game->h);
@@ -416,7 +443,7 @@ int main(int argc, char **argv)  {
 
 	g_game_run = TRUE;
 	game->ipc = &ipc;
-	game->h = create_sdl_handle("LemIPC", SCREEN_HEIGHT, SCREEN_WIDTH);
+	game->h = create_sdl_handle("LemIPC Vizualiser", SCREEN_HEIGHT, SCREEN_WIDTH);
 	if (!game->h) {
 		return (1);
 	} else if (init_displayer(game->h, &player, argc, argv) != 0) {
