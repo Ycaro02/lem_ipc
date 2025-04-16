@@ -51,7 +51,7 @@ static int shared_rsc_handler(IPC *ipc, s8 allow)
 	errno = 0;
 	ipc->semid = semget(ipc->key, 1, (flag | 0666));
 	if (allow == 0 && ipc->semid == -1) { /* if error and can't create sem (visualizer case) */
-		ft_printf_fd(2, RESET_LINE""YELLOW"Displayer waiting for IPC init ... "RESET);
+		ft_printf_fd(2, RESET_LINE""YELLOW"Displayer waiting for IPC init ...\n"RESET);
 		return (ERROR_CASE);
 	} else if ((!allow && ipc->semid != -1 ) || (allow && ipc->semid == -1)) { /* if ressource already created */
 		
