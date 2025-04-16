@@ -273,7 +273,7 @@ u32	check_death(u32 *board, t_vec point, u32 team_id);
 
 /* player move */
 void		player_tracker_follower(IPC *ipc, Player *player);
-t_vec		find_smarter_possible_move(IPC *ipc, t_vec current, t_vec end, u32 team_id);
+t_vec		find_smarter_possible_move(IPC *ipc, t_vec current, t_vec end);
 void		player_waiting(IPC *ipc, Player *player);
 u32			get_heuristic_cost(t_vec start, t_vec end);
 s8			find_player_in_range(IPC *ipc, Player *player, u32 range_max, s8 flag);
@@ -323,7 +323,7 @@ int			init_player(Player *player, int argc, char **argv);
 int 		player_routine(IPC *ipc, Player *player);
 
 /* random position */
-t_vec		get_random_point(u32 *array, t_vec player_pos);
+t_vec		get_random_point(u32 *array);
 u32 		get_playing_state(u32 *array);
 void 		set_playing_state(u32 *array, u32 state);
 

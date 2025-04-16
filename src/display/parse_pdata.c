@@ -104,9 +104,7 @@ void receive_player_data(Game *game) {
 			handle_player_data(game, pdata);
 			count = PDATA_START;
 		}
-		// ft_printf_fd(1, GREEN"Player data received-> queue size %u\n"RESET, message_queue_size_get(game->ipc->msgid));
 	} while (ret != UINT32_MAX);
-	// ft_printf_fd(1, GREEN"All Player data received-> queue size %u\n"RESET, message_queue_size_get(game->ipc->msgid));
 }
 
 /**

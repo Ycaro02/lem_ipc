@@ -95,9 +95,6 @@ void display_righband(Game *game, PlayerData *pdata) {
 	pos.y += pad_y;
 	display_another_info(game, "Total Kill : ", pos.y, compute_total_kill(game->team_data) + game->kill_from_remove_team);
 
-	// pos.y += pad_y;
-	// display_another_info(game, "Total Team Size : ", pos.y, compute_total_team_size(game->team_data));
-
 	if (pdata) {
 		display_pdata_node(game, pdata, (pos.y + pad_y + pad_y));
 	}

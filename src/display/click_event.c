@@ -8,8 +8,6 @@ t_vec get_click_tile(t_vec mouse)
 	if (x >= BOARD_W) {
 		return (create_vector(mouse.y / (TILE_SIZE * 2), UINT32_MAX));
 	}
-	// ft_printf_fd(2, "Mouse y: %d x: %d\n", mouse.y, mouse.x);
-	// ft_printf_fd(2, "Vec y: %d x: %d\n", y, x);
 	return (create_vector(y, x));
 }
 

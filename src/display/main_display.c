@@ -85,7 +85,7 @@ int main(int argc, char **argv)  {
 
 	g_game_run = TRUE;
 	game->ipc = &ipc;
-	game->h = create_sdl_handle("LemIPC Vizualiser", SCREEN_HEIGHT, SCREEN_WIDTH);
+	game->h = create_sdl_handle("LemIPC Visualiser", SCREEN_HEIGHT, SCREEN_WIDTH);
 	if (!game->h) {
 		return (1);
 	} else if (init_displayer(game->h, &player, argc, argv) != 0) {

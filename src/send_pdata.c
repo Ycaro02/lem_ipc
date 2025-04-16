@@ -127,13 +127,12 @@ void send_pdata_display(IPC *ipc, Player *player, u8 msg_type)
 	u32 p_state = (u32)(player->state | msg_type);
 	u32 p_sup = 0;
 
-	// ft_printf_fd(1, YELLOW"Call send_pdata_display with %d\n"RESET, msg_type);
-
 	if (msg_type == P_UPDATE_POS) {
 		p_sup = get_board_index(player->next_pos);
 	} else if (msg_type == P_DELETE) {
 		p_sup = player->kill_by;
 	}
+	
 	/* Hard build packet maybe do it cleaner in macro/function */
 	u32 data[PDATA_LEN] = {(u32) 0, p_state , p_tid, p_pos, p_target, p_ally, p_sup};
 
@@ -143,10 +142,9 @@ void send_pdata_display(IPC *ipc, Player *player, u8 msg_type)
 		Before trying to send pdata to display handler we need to check if the queue can support his size
 		If not we need to give the display handler time to process the queue and clear it
 		For this we need to unlock the semaphore and wait the display handler clear the queue
-			But for that we need to prevent other player to just lock and block the display handler
+		But for that we need to prevent other player to just lock and block the display handler
 	*/
 
-	// display_packet(data);
 	if (ipc->display) {
 		if (message_queue_size_get(ipc->msgid) >= MSG_QUEUE_LIMIT_SIZE) {
 			wait_for_display_handler_priority(ipc);

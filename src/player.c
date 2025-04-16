@@ -22,14 +22,12 @@ static void signal_handler(int signum)
 {
 	g_game_run = 0;
 	(void)signum;
-	// ft_printf_fd(2, RED"\nSIGINT Catch: %d\n"RESET, signum);
 	return ;
 }
 
 static int init_signal_handler(void)
 {
 	if (signal(SIGINT, signal_handler) == SIG_ERR) {
-		// ft_printf_fd(2, "Can't catch SIGINT\n");
 		return (-1);
 	}
 	return (0);
@@ -65,9 +63,6 @@ u32 check_death(u32 *board, t_vec point, u32 team_id)
 u32 check_player_death(IPC *ipc, Player *player)
 {
 	player->kill_by = check_death(ipc->ptr, player->pos, player->team_id);
-	// if (player->kill_by != ALIVE) {
-		// ft_printf_fd(1, RED"Player %u is dead killed by %u\n"RESET, player->team_id, player->kill_by);
-	// }
 	return (player->kill_by);
 }
 
@@ -77,7 +72,7 @@ static int put_player_on_board(IPC *ipc, Player *player)
 
 	sem_lock(ipc->semid);
 
-	point = get_random_point(ipc->ptr, player->pos);
+	point = get_random_point(ipc->ptr);
 
 	if (point.x == UINT32_MAX && point.y == UINT32_MAX) {
 		ft_printf_fd(1, "No more tile available\n");
@@ -93,16 +88,12 @@ static int put_player_on_board(IPC *ipc, Player *player)
 	player->ally_pos = get_board_vec(OUT_OF_BOARD);
 
  	/* Init display handler bool to know if we need to send data to display program */
-	// ipc->display = display_handler_state(ipc);
 	player->state = S_WAITING;
 
-	// if (!ipc->display) {
 	wait_for_display_handler_connect(ipc);
-	// }
 
 	/* Send create packet to display */
 	send_pdata_display(ipc, player, P_CREATE);
-	// ft_printf_fd(1, GREEN"Player %u start at %u %u\n"RESET, player->team_id, player->pos.y, player->pos.x);
 	sem_unlock(ipc->semid);
 	return (TRUE);
 }
@@ -116,7 +107,6 @@ static s8 check_break_loop(IPC *ipc, Player *player, s8 enemy_found)
 		g_game_run = 0;
 		return (1);
 	} else if (!enemy_found) { /* Check win condition */
-		// ft_printf_fd(1, FILL_YELLOW"End of game no enemy found team %u won\n"RESET, player->team_id);
 		send_pdata_display(ipc, player, P_DELETE);
 		g_game_run = 0;
 		return (1);
@@ -130,7 +120,7 @@ static void find_next_move(IPC *ipc, Player *player, s8 player_alone)
 	s8 rush_ally = player_alone == 1 ? 0 : (get_heuristic_cost(player->pos, player->ally_pos) > 2);
 
 	if (rush_ally) {
-		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos, player->team_id);
+		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->ally_pos);
 		player->state = S_WAITING;
 	} else if (!player_alone) {
 		if (player->state == S_WAITING) {
@@ -140,8 +130,8 @@ static void find_next_move(IPC *ipc, Player *player, s8 player_alone)
 		}
 	} else { /* if player is alone or no enemy found*/
 		player->state = S_WAITING;
-		player->target = get_random_point(ipc->ptr, player->pos);
-		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target, player->team_id);
+		player->target = get_random_point(ipc->ptr);
+		player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target);
 	}
 }
 
@@ -182,7 +172,6 @@ int player_routine(IPC *ipc, Player *player)
 		if (!vector_cmp(player->next_pos, player->pos)) {
 			send_pdata_display(ipc, player, P_UPDATE_POS);
 			
-			// ft_printf_fd(1, GREEN"Player "YELLOW"ID[%u] "CYAN"from [%u][%u] -> "PURPLE"[%u][%u]\n"RESET, player->team_id, player->pos.y, player->pos.x, player->next_pos.y, player->next_pos.x);
 			/* Set empty last position tile */
 			set_tile_board_val(ipc->ptr, player->pos, TILE_EMPTY);
 			

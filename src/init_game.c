@@ -31,7 +31,6 @@ static int get_sem_set_id(key_t key)
 		syscall_perror("shmget");
 		return (-1);
 	}
-	// ft_printf_fd(1, GREEN"Child get shared mem ID  %d\n"RESET, SHM_DATA_SIZE, ALIGN_SHARED_MEM);
 	return (shmid);
 }
 
@@ -51,7 +50,7 @@ static int shared_rsc_handler(IPC *ipc, s8 allow)
 		flag |= (IPC_CREAT | IPC_EXCL);
 	errno = 0;
 	ipc->semid = semget(ipc->key, 1, (flag | 0666));
-	if (allow == 0 && ipc->semid == -1) { /* if error and can't create sem (vizualizer case) */
+	if (allow == 0 && ipc->semid == -1) { /* if error and can't create sem (visualizer case) */
 		ft_printf_fd(2, RESET_LINE""YELLOW"Displayer waiting for IPC init ... "RESET);
 		return (ERROR_CASE);
 	} else if ((!allow && ipc->semid != -1 ) || (allow && ipc->semid == -1)) { /* if ressource already created */
@@ -162,10 +161,6 @@ int init_game(IPC *ipc, char *path, s8 allow)
 
 	ft_printf_fd(1, CYAN"Server send controle display packet\n"RESET);
 	send_display_controle_packet(ipc, CTRL_DH_WAITING_TO_CONNECT, 0);
-
-	// here we send 0 to from_id cause it's the server, and player id are not define yet
-	// send_display_controle_packet(ipc, CTRL_DH_WAITING_TO_CONNECT, 0);
-
 
 	sem_unlock(ipc->semid); /* put sem value to 1 to let other program connect */
 	return (0);

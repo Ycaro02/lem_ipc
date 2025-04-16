@@ -122,27 +122,3 @@ void display_pdata_node(Game *game, PlayerData *pdata, u32 y)
 	y = put_vectostr(game, "Target: ", pdata[PDATA_TARGET].vdata, y + pad_y);
 	y = put_vectostr(game, "Ally: ", pdata[PDATA_ALLY].vdata, y + pad_y);
 }
-
-
-
-/* @brief display pdata list on stdout */
-// void display_pdata_lst(t_list *player_lst)
-// {
-// 	t_list *tmp = player_lst;
-// 	PlayerData *pdata = NULL;
-// 	while (tmp) {
-// 		pdata = tmp->content;
-// 		for (int i = 1; i < PDATA_LEN; i++) {
-// 			ft_printf_fd(2, YELLOW"%s: "RESET, pdata[i].name);
-// 			if (i >= PDATA_POS) {
-// 				ft_printf_fd(2, CYAN"[%u] [%u]\n"RESET, pdata[i].vdata.y, pdata[i].vdata.x);
-// 			} else if (i == PDATA_STATE) {
-// 				ft_printf_fd(2, PURPLE" Msg type %s, Player State: %s\n"RESET, gePlayer_strtype(GET_MSG_TYPE(pdata[i].sdata))\
-// 					, get_player_strstate(GET_MSG_STATE(pdata[i].sdata)));
-// 			} else {
-// 				ft_printf_fd(2, CYAN"%u\n"RESET, pdata[i].sdata);
-// 			}
-// 		}
-// 		tmp = tmp->next;
-// 	}
-// }

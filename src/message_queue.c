@@ -14,7 +14,7 @@ void display_msg_queue_size(int msgid)
 	// display message queue size in bytes
 	ft_printf_fd(1, YELLOW"size in bytes: %u\n"RESET, buf.__msg_cbytes);
 	// display message queue max size in bytes
-	// ft_printf_fd(1, YELLOW"Message queue max size in bytes: %u\n"RESET, buf.msg_qbytes);
+	ft_printf_fd(1, YELLOW"Message queue max size in bytes: %u\n"RESET, buf.msg_qbytes);
 }
 
 /**
@@ -84,7 +84,6 @@ s8 clear_msg_queue(IPC *ipc, long chan_id)
 	errno = 0;
 	ft_printf_fd(1, GREEN"Clearing message queue CHAN %u\n"RESET, chan_id);
 	display_msg_queue_size(ipc->msgid);
-	// while (msgrcv(ipc->msgid, &msg, sizeof(u32), 0, IPC_NOWAIT) != -1) {
 	while (1) {
 		msg_ret = msgrcv(ipc->msgid, &msg, sizeof(u32), chan_id, IPC_NOWAIT);
 		if (msg_ret == -1 && errno == ENOMSG) {
@@ -134,9 +133,7 @@ s8 send_msg(IPC *ipc, u32 msg_id, u32 data, u32 from_id)
 	fill_msgbuff(&msg, msg_id, data);
 	errno = 0;
 	if (msgsnd(ipc->msgid, &msg, sizeof(u32), IPC_NOWAIT) == -1) {
-		//  if (errno == EAGAIN) { /* message queue full */
 		 if (errno == EAGAIN) { /* message queue full */
-			// ft_printf_fd(2, RED"Message queue is full Clean it\n"RESET);
 			if (!ipc->display) {
 				clear_msg_queue(ipc, 0);
 			}
@@ -160,17 +157,14 @@ u32 extract_msg(IPC *ipc, u32 msg_id)
 	MsgBuf msg = {};
 	// int cpy_flag = 040000;
 	errno = 0;
-	// ft_printf_fd(1, GREEN"Extracting message from team %d, val flag %d\n"RESET, msg_id, IPC_NOWAIT);
 	if (msgrcv(ipc->msgid, &msg, sizeof(u32), msg_id, IPC_NOWAIT) == -1) {
 		if (errno == ENOMSG) {
-			// ft_printf_fd(2, YELLOW"No msg rcv from %d\n", msg_id, RESET);
 			return (UINT32_MAX);
 		}
 		ft_printf_fd(2, RED"Error msgrcv from %d\n", msg_id, RESET);
 		syscall_perror("msgrcv");
 		return (UINT32_MAX);
 	}
-	// ft_printf_fd(1, PURPLE"Received message from team %d value: %u\n"RESET, msg_id, (*(u32 *)msg.mtext));
 	return (*(u32 *)msg.mtext);
 }
 

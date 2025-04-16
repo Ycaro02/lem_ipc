@@ -29,7 +29,6 @@ SDL_Window* create_sdl_windows(SDLHandle *h, const char* title) {
 		SDL_ERR_FUNC();
 		return (NULL);
 	}
-	// renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	renderer = SDL_CreateRenderer(window, -1, 0);
 	if (!renderer) {
 		SDL_ERR_FUNC();
@@ -42,18 +41,6 @@ SDL_Window* create_sdl_windows(SDLHandle *h, const char* title) {
 	return (window);
 }
 
-
-// static TTF_Font *safe_load_font(SDLHandle *h, const char *path, s32 fontSize) {
-// 	TTF_Font *font = load_font(path, fontSize);
-// 	if (!font) {
-// 		SDL_DestroyRenderer(h->renderer);
-// 		SDL_DestroyWindow(h->window);
-// 		free(h);
-// 		ft_printf_fd(2, "%s: load_font %s failed\n", __func__, path);
-// 		return (NULL);
-// 	}
-// 	return (font);
-// }
 
 /**
  * @brief Create a SDLHandle
@@ -133,7 +120,6 @@ void draw_color_tile(SDLHandle *h, iVec2 tile_pos, iVec2 scale, u32 color) {
 	UINT32_TO_RGBA(color, r, g, b, a);
 
 	/* Convert tile coordinates to pixel coordinates */
-	// ft_printf_fd(1, "Draw tile at %u, %u\n", tile_pos.y, tile_pos.x);
 	pixel_pos.x = tile_pos.x;
 	pixel_pos.y = tile_pos.y;
 
@@ -142,7 +128,6 @@ void draw_color_tile(SDLHandle *h, iVec2 tile_pos, iVec2 scale, u32 color) {
 
 	/* Set the drawing color and draw the tile */
 	SDL_SetRenderDrawColor(h->renderer, r, g, b, a);
-	// SDL_SetRenderDrawColor(h->renderer, 255, 0, 0, 255);
 	SDL_RenderFillRect(h->renderer, &tileRect);
 }
 
