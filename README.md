@@ -55,10 +55,10 @@ This video is the old version using mlx display
 
 To run the program, follow these steps:
 
-Make run will dowload SDL2, SDL2_TFF and freetype
-Then that will use the ./rsc/sh/run_lemipc, bash script to run 50 players in 4 teams
-You can run make run <nb_player> <nb_team> for custom launch
-Ex make run 200 10, 200 player in 10 team
+- Make run will dowload SDL2, SDL2_TFF and freetype
+- Then that will use the ./rsc/sh/run_lemipc, bash script to run 50 players in 4 teams
+- You can run make run <nb_player> <nb_team> for custom launch
+- Ex make run 200 10, 200 player in 10 team
 
 1. Clone the repository:
    ```bash
