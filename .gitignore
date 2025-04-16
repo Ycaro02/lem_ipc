@@ -4,3 +4,5 @@
 lemipc
 lemipc_display
 rsc/lib
+rsc/log
+.nfs*

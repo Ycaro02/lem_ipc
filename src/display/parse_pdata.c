@@ -11,7 +11,7 @@ int is_same_node(void *node, void *target) {
  *	@param target: target vector to search
  *	@return void *: player node
 */
-void *gePlayer_node(t_list *lst, t_vec target) {
+void *get_player_node(t_list *lst, t_vec target) {
 	PlayerData *pdata = NULL;
 
 	for (t_list *current = lst; current; current = current->next) {
@@ -54,7 +54,7 @@ static void handle_player_data(Game *game, PlayerData *pdata) {
 	}
 
 	/* Delete case, remove node from pdata list and decrement the associated team */
-	player_node = gePlayer_node(game->player_data, pdata[PDATA_POS].vdata);
+	player_node = get_player_node(game->player_data, pdata[PDATA_POS].vdata);
 	if (type == P_DELETE) {
 
 		team_handling(game, get_board_index(pdata[PDATA_SUPP].vdata), UPDATE_KILL);
@@ -73,7 +73,10 @@ static void handle_player_data(Game *game, PlayerData *pdata) {
 		pdata[PDATA_POS].vdata = pdata[PDATA_SUPP].vdata;		/* update PPOS */
 		if (player_node) { /* if target found just update it */
 			ft_memcpy((void *)player_node, (void *)pdata, sizeof(PlayerData) * PDATA_LEN);
-		} 
+		} else {
+			add_pdata_node(game, pdata);
+			team_handling(game, pdata[PDATA_TID].sdata, JOIN_TEAM);
+		}
 	}
 }
 
@@ -101,6 +104,7 @@ void receive_player_data(Game *game) {
 			handle_player_data(game, pdata);
 			count = PDATA_START;
 		}
+		// ft_printf_fd(1, GREEN"Player data received-> queue size %u\n"RESET, message_queue_size_get(game->ipc->msgid));
 	} while (ret != UINT32_MAX);
 	// ft_printf_fd(1, GREEN"All Player data received-> queue size %u\n"RESET, message_queue_size_get(game->ipc->msgid));
 }
@@ -111,10 +115,10 @@ void receive_player_data(Game *game) {
  *	@return s8: 1 if packet found, 0 otherwise
  *	@note: This function lock and unlock semaphore
 */
-s8 extract_controle_packet(Game *game) {
+s32 extract_controle_packet(Game *game) {
 	u32	data[PDATA_LEN] = {UINT32_MAX};
 	u32	i = 0;
-	s8	ret = 0;
+	s8	ret = FALSE;
 
 	sem_lock(game->ipc->semid);
 	for (i = 0; i < PDATA_LEN; ++i) {
@@ -125,8 +129,9 @@ s8 extract_controle_packet(Game *game) {
 	}
 	if (i == 0 && data[i] == UINT32_MAX) {
 		ft_printf_fd(2, RED"Display handler packet not found, display error\n"RESET);
+		ret = -1;
 	}  else if (i == PDATA_LEN) {
-		ret = 1;
+		ret = TRUE;
 	}
 	sem_unlock(game->ipc->semid);
 	return (ret);

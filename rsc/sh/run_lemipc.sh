@@ -37,7 +37,6 @@ display_valgrind_log() {
 	fi
 }
 
-
 run_test() {
 	local nb_player=${1}
 	local nb_team=${2}
@@ -52,13 +51,15 @@ run_test() {
 	for ((i=0; i<${nb_player}; i++));
 	do
 		local team_id=$(((i % ${nb_team}) + 1))
-		display_color_msg ${GREEN} "Lauching number ${i} team ${team_id} ..."
+		printf "%-25s Team: [   %-4d]\n" "Lauching number |${i}|" "${team_id}"
 		# (${LEMIPC} ${team_id} &) >> logger.txt
 		${LEMIPC} ${team_id} &
+		sleep 0.01
 	done
 
 	# wait all children pid
-	display_color_msg ${GREEN} "Waiting all children to finish ..."
+	display_color_msg ${CYAN} "Lauched ${nb_player} players in ${nb_team} teams ..."
+	display_color_msg ${GREEN} "Waiting all process to finish ..."
 	wait $(jobs -p)
 	display_valgrind_log
 }

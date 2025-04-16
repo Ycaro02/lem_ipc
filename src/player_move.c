@@ -6,7 +6,7 @@
  * @param end The end position
  * @return The heuristic cost
 */
-u32 geHeuristic_cost(t_vec start, t_vec end)
+u32 get_heuristic_cost(t_vec start, t_vec end)
 {
 	u32 cost = 0;
 
@@ -48,7 +48,7 @@ t_vec find_smarter_possible_move(IPC *ipc, t_vec current, t_vec end, u32 team_id
 		if (possible_move[i].x < BOARD_W && possible_move[i].y < BOARD_H && get_board_index(possible_move[i]) < BOARD_SIZE) {
 			if (get_tile_board_val(ipc->ptr, possible_move[i]) == TILE_EMPTY) {
 				for (int j = 0; j < DIR_MAX; j++) {
-					test = geHeuristic_cost(possible_move[i], enemy[j]);
+					test = get_heuristic_cost(possible_move[i], enemy[j]);
 					if (test < besHeuristic.cost) {
 						besHeuristic.cost = test;
 						besHeuristic.pos = possible_move[i];
