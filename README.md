@@ -43,6 +43,7 @@ LemIPC is a game where players, gathered in teams, battle on a 2D board. To win,
 ## Demonstration
 
 A video demonstration of the project can be found here:
+This video is the old version using mlx display
 
 ### Graphical Mode (100 players in 4 teams )
 [![Youtube](https://img.youtube.com/vi/W-q01PR-wS4/0.jpg)](https://www.youtube.com/watch?v=W-q01PR-wS4)
@@ -53,6 +54,11 @@ A video demonstration of the project can be found here:
 ## Usage
 
 To run the program, follow these steps:
+
+Make run will dowload SDL2, SDL2_TFF and freetype
+Then that will use the ./rsc/sh/run_lemipc, bash script to run 50 players in 4 teams
+You can run make run <nb_player> <nb_team> for custom launch
+Ex make run 200 10, 200 player in 10 team
 
 1. Clone the repository:
    ```bash
