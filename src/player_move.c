@@ -106,7 +106,6 @@ s8 test_closest_tile(IPC *ipc, Player *player, t_vec change, s8 flag)
 	add_x = pos.x + change.x;
 	sub_y = pos.y - change.y;
 	sub_x = pos.x - change.x;
-	// ft_printf_fd(2, CYAN"Test [%u] [%u]\n"RESET, add_y, add_x);
 	if (is_wanted_tile(ipc, player, pos.x, add_y, flag)) {
 		return (1);
 	} else if (is_wanted_tile(ipc, player, pos.x, sub_y, flag)) {
@@ -168,13 +167,11 @@ static void follower_logic(IPC *ipc, Player *player)
 	t_vec		rush_vec = get_board_vec(to_rush);
 
 	if (to_rush != UINT32_MAX) {
-		// ft_printf_fd(2, PURPLE"Follower |%u| [%u][%u] receive [%u][%u] continue track\n"RESET,  player->team_id, player->pos.y, player->pos.x, rush_vec.y, rush_vec.x);
 		player->pos = create_vector(rush_vec.y, rush_vec.x); /* silumate ally position */
 		/* get closest enemy of this position */
 		if (find_player_in_range(ipc, player, BOARD_W, ENEMY_FLAG)) {
 			player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
 			player->next_pos = find_smarter_possible_move(ipc, player->pos, player->target);
-			// ft_printf_fd(2, PURPLE"After simulation next pos [%u][%u]\n"RESET, player->next_pos.y, player->next_pos.x);
 		}
 		player->pos = create_vector(save_pos.y, save_pos.x); /* reset position */
 	} else {
@@ -270,44 +267,4 @@ TRACKER logic
 		- stay a TRACKER
 }
 
-
 */
-
-
-// t_vec find_enemy_inrange(IPC *ipc, t_vec pos, u32 team_id)
-// {
-// 	u32	tile_state = TILE_EMPTY;
-// 	t_vec		arround[] = ARROUND_VEC3_ARRAY(pos);
-
-// 	for (int i = 0; i < 48; i++) {
-// 		if (arround[i].x >= (BOARD_W) || arround[i].y >= BOARD_H) { /* uglys*/
-// 			// ft_printf_fd(2, RED"1  [%u] [%u]\n"RESET, arround[i].y, arround[i].x);
-//             continue;
-//         } else if (get_board_index(arround[i]) >= BOARD_SIZE) {
-// 			// ft_printf_fd(2, RED"2  [%u] [%u]\n"RESET, arround[i].y, arround[i].x);
-// 			continue;
-// 		}
-// 		ft_printf_fd(2, CYAN" [%u] [%u]\n"RESET, arround[i].y, arround[i].x);
-
-// 		tile_state = get_tile_board_val(ipc->ptr, arround[i]);
-// 		if (tile_state != team_id && tile_state != TILE_EMPTY) {
-// 			return (arround[i]);
-// 		}
-// 	}
-// 	return (pos);
-// }
-
-// s8 scan_board_arround(IPC *ipc, Player *player, u32 range_max)
-// {
-// 	u32	tile_state = TILE_EMPTY;
-
-// 	(void)tile_state;
-// 	(void)range_max;
-// 	// for (u32 range = 1; range <= range_max; range++) {
-// 	player->target = find_enemy_inrange(ipc, player->pos, player->team_id);
-// 	if (!vector_cmp(player->target, player->pos)) {
-// 		return (1);
-// 	}
-// 	// }
-// 	return (0);
-// }

@@ -7,7 +7,7 @@ void display_lst_vec(t_list *lst)
     while(tmp)
     {
         t_vec *point = tmp->content;
-        printf("%spos : [%d][%d]%s\n",RED,point->y,point->x,RESET);
+        ft_printf_fd(1, "%spos : [%d][%d]%s\n",RED,point->y,point->x,RESET);
         tmp = tmp->next;
     }
 }

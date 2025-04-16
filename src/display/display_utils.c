@@ -69,7 +69,6 @@ void sig_handler(int signum) {
 	Game *game = getGame();
 
 	(void)signum;
-	// ft_printf_fd(1, YELLOW"Signal received %d\n"RESET, signum);
 	destroy_windows(game);
 }
 

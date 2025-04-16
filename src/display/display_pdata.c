@@ -45,7 +45,6 @@ char *get_vector_string(t_vec vec)
 	str = ft_strjoin_free(str, ft_ultoa(vec.x), 'a');
 	str = ft_strjoin_free(str, brack_end, 'f');
 
-	// sprintf(str, "[%u][%u]", vec.y, vec.x);
 	return (str);
 }
 

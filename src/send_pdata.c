@@ -71,7 +71,6 @@ s8 display_handler_state(IPC *ipc)
 		if (data[0] == CTRL_DH_PRIORITY) {
 			ret = DH_PRIORITY;
 		}
-		// ft_printf_fd(2, CYAN"Display handler packet found resend it with |%u|\n"RESET, data[0]);
 		send_display_controle_packet(ipc, data[0], 0);
 	}
 	return (ret);

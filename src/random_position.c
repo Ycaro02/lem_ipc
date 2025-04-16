@@ -13,10 +13,9 @@ u32     gener_number(int max)
 		char buff[4] = {0};
 		int len = read(fd, &buff, 4);
 		if (len == -1) {
-			printf("Error reading from /dev/urandom\n");
+			ft_printf_fd(2, "Error reading from /dev/urandom\n");
 			close(fd);
 		}
-		// ft_printf_fd(1, YELLOW"RANDOM buff = |%d|%d|%d|%d|\n"RESET, buff[0], buff[1], buff[2], buff[3]);
 		nb = (*(u32 *)buff) % max;
 		close(fd);
 	}
@@ -30,8 +29,6 @@ u32     gener_number(int max)
 t_vec generate_random_board_point(u32 max)
 {
     u32 idx = gener_number(max);
-	// ft_printf_fd(1, CYAN"idx generated: %d\n"RESET, idx);
-	// int idx = (board_size.y * BOARD_W) +  board_size.x;
 	u32 y = idx / BOARD_W;
 	u32 x = idx % BOARD_W;
 
@@ -68,6 +65,5 @@ t_vec get_random_point(u32 *array)
 	if (nb_iter == max_iter) {
 		return (create_vector(UINT32_MAX, UINT32_MAX));
 	}
-    // printf("%snew_point: [%d][%d]%s\n",GREEN ,new_point.y, new_point.x, RESET);
     return (new_point);
 }
