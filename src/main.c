@@ -55,14 +55,13 @@ int main(int argc, char **argv)
 	display_handler = display_handler_state(&ipc);
 	if (nb_process == 2 && display_handler == 1) {
 		while (nb_process != 1) {
-			ft_printf_fd(1, FILL_RED"Lem-ipc Server want to destroy rsc display handler to finish %d\n"RESET, nb_process);
 			nb_process = wait_display_handler_finish(&ipc);
 		}
 	}
 
 	if (nb_process == 1) {
 		clean_shared_rsc(&ipc);
-		ft_printf_fd(1, FILL_YELLOW"Lem-ipc Server Down Team |%u| Won\n"RESET, player.team_id);
+		ft_printf_fd(1, FILL_YELLOW"\nLem-ipc Server Down Team |%u| Won\n"RESET, player.team_id);
 	} else {
 		detach_shared_memory(&ipc);
 		sem_unlock(ipc.semid);
